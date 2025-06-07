@@ -2,6 +2,7 @@
   "name": "useless",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "npm@10.2.3",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -9,8 +10,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "dev:web": "turbo run dev --filter=web",
-    "dev:hitmaker": "turbo run dev --filter=hitmaker",
+    "dev:web": "turbo run dev --filter=web -- --port 3000",
+    "dev:hitmaker": "turbo run dev --filter=metronome-app -- --port 3456",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "test": "turbo run test",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["$NEXT_PUBLIC_API_URL"],
+  "globalDependencies": [".env*", "tsconfig.json"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

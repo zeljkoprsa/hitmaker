@@ -19,6 +19,7 @@
     "@prismicio/next": "^2.0.1",
     "@prismicio/react": "^3.2.1",
     "@radix-ui/react-navigation-menu": "^1.2.10",
+    "@tailwindcss/postcss": "^4.1.8",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "latest",
     "@types/react": "latest",
