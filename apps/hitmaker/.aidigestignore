@@ -1,0 +1,16 @@
+/build/*
+/node_modules/*
+/public/*
+/src/react-app-env.d.ts
+/src/reportWebVitals.ts
+/src/setupTests.ts
+/src/setupTests.tsx
+/stories
+/src/features/Metronome/components/legacy
+/src/features/Metronome/LegacyMetronome.tsx
+/src/stories/
+.storybook/main.ts
+.storybook/preview.ts
+.env
+.gitignore
+.aidigestignore

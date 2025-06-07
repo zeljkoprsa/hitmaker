@@ -1,0 +1,21 @@
+{
+  "rewrites": [
+    {
+      "source": "/hitmaker/:path*",
+      "destination": "/:path*"
+    }
+  ],
+  "trailingSlash": false,
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/hitmaker/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=86400"
+        }
+      ]
+    }
+  ]
+}

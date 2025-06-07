@@ -1,0 +1,23 @@
+:root {
+  --font-family-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+  --font-family-mono: 'Geist Mono', ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
+    Liberation Mono, monospace;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-neutral-900);
+  color: var(--color-primary);
+}
+
+:global(.metronome-app) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}

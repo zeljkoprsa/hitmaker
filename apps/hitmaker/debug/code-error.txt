@@ -1,0 +1,15 @@
+ERROR in src/core/output/ToneAudioSource.ts:476:23
+TS2769: No overload matches this call.
+  Overload 1 of 2, '(timeout: string | number | Timeout | undefined): void', gave the following error.
+    Argument of type 'number | null' is not assignable to parameter of type 'string | number | Timeout | undefined'.
+      Type 'null' is not assignable to type 'string | number | Timeout | undefined'.
+  Overload 2 of 2, '(id: number | undefined): void', gave the following error.
+    Argument of type 'number | null' is not assignable to parameter of type 'number | undefined'.
+      Type 'null' is not assignable to type 'number | undefined'.
+    474 |       // Only run if we're in a tempo transition
+    475 |       if (!this.tempoTransitionInProgress) {
+  > 476 |         clearInterval(this.continuitySchedulerTimer);
+        |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    477 |         this.continuitySchedulerTimer = null;
+    478 |         return;
+    479 |       }

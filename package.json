@@ -1,0 +1,26 @@
+{
+  "name": "useless",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=web",
+    "dev:hitmaker": "turbo run dev --filter=hitmaker",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "prettier": "latest",
+    "turbo": "^2.5.4"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

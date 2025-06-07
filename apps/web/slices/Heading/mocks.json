@@ -1,0 +1,19 @@
+[
+	{
+		"__TYPE__": "SharedSliceContent",
+		"variation": "default",
+		"primary": {
+			"heading_text": {
+				"__TYPE__": "FieldContent",
+				"value": "nothing",
+				"type": "Text"
+			},
+			"level": {
+				"__TYPE__": "FieldContent",
+				"value": "h3",
+				"type": "Select"
+			}
+		},
+		"items": []
+	}
+]

@@ -1,0 +1,294 @@
+Global.ts:72  * Tone.js v14.7.39 * 
+MetronomeContext.tsx:100 Creating new MetronomeEngine instance
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Starting audio context
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Disposing existing part
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Starting audio context
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+MetronomeContext.tsx:100 Creating new MetronomeEngine instance
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Starting audio context
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Disposing existing part
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Starting audio context
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+MetronomeContext.tsx:121 Disposing MetronomeEngine
+MetronomeContext.tsx:121 Disposing MetronomeEngine
+MetronomeContext.tsx:100 Creating new MetronomeEngine instance
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Starting audio context
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Disposing existing part
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Starting audio context
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+MetronomeContext.tsx:100 Creating new MetronomeEngine instance
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Starting audio context
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Disposing existing part
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Starting audio context
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+LoadingIndicator.tsx:125 User gesture registered, retrying audio initialization
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Disposing existing part
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Disposing existing part
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+MetronomeContext.tsx:173 Initializing audio...
+MetronomeContext.tsx:183 Audio initialized successfully
+MetronomeContext.tsx:207 Starting playback...
+logger.ts:49 [DEBUG] Setting up metronome with configuration: {tempo: 120, timeSignature: {…}, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Disposing existing part
+logger.ts:49 [DEBUG] Generated 4 events for quarter subdivision (with accents: true)
+logger.ts:49 [DEBUG] Configured Tone.Part: {loop: true, loopEnd: 2, events: 4, subdivision: 'quarter', PPQ: 1920}
+logger.ts:49 [DEBUG] Metronome started successfully
+logger.ts:49 [DEBUG] [Measure 1] Processing beat event {time: 2.7177097505668932, transportTime: '0:0:0.232', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] [Measure 1] Processing beat event {time: 2.7177097505668932, transportTime: '0:0:0.232', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] [Measure 1] Processing beat event {time: 2.7177097505668932, transportTime: '0:0:0.232', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] [Measure 1] Processing beat event {time: 2.7177097505668932, transportTime: '0:0:0.232', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 2
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 2
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 2
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 2
+logger.ts:49 [DEBUG] Tick timing: delta=500.00ms, expected=500.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 3.217709750566893, transportTime: '0:1:0.087', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=500.00ms, expected=500.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 3.217709750566893, transportTime: '0:1:0.087', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=500.00ms, expected=500.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 3.217709750566893, transportTime: '0:1:0.087', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=500.00ms, expected=500.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 3.217709750566893, transportTime: '0:1:0.133', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=500.00ms, expected=500.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 3.7177097505668937, transportTime: '0:2:0.406', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=500.00ms, expected=500.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 3.7177097505668937, transportTime: '0:2:0.452', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=500.00ms, expected=500.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 3.7177097505668937, transportTime: '0:2:0.452', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=500.00ms, expected=500.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 3.7177097505668937, transportTime: '0:2:0.452', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+MetronomeContext.tsx:157 Setting new tempo: 121
+logger.ts:49 [DEBUG] setTempo: Changing tempo to 121 BPM. Transport state: started, Engine playing: true
+logger.ts:49 [DEBUG] setTempo: Using smooth tempo transition with rampTo
+logger.ts:49 [DEBUG] ensurePlayback: Transport state is started, engine playing state is true
+logger.ts:49 [DEBUG] setTempo: After rampTo, Transport state: started, Engine playing: true
+MetronomeContext.tsx:157 Setting new tempo: 122
+logger.ts:49 [DEBUG] setTempo: Changing tempo to 122 BPM. Transport state: started, Engine playing: true
+logger.ts:49 [DEBUG] setTempo: Using smooth tempo transition with rampTo
+logger.ts:49 [DEBUG] ensurePlayback: Transport state is started, engine playing state is true
+logger.ts:49 [DEBUG] setTempo: After rampTo, Transport state: started, Engine playing: true
+MetronomeContext.tsx:157 Setting new tempo: 123
+logger.ts:49 [DEBUG] setTempo: Changing tempo to 123 BPM. Transport state: started, Engine playing: true
+logger.ts:49 [DEBUG] setTempo: Using smooth tempo transition with rampTo
+logger.ts:49 [DEBUG] ensurePlayback: Transport state is started, engine playing state is true
+logger.ts:49 [DEBUG] setTempo: After rampTo, Transport state: started, Engine playing: true
+logger.ts:49 [DEBUG] Tick timing: delta=495.43ms, expected=500.00ms, deviation=4.57ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 4.213144699901854, transportTime: '0:3:0.018', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=495.43ms, expected=500.00ms, deviation=4.57ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 4.213144699901854, transportTime: '0:3:0.018', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=495.43ms, expected=500.00ms, deviation=4.57ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 4.213144699901854, transportTime: '0:3:0.018', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=495.43ms, expected=487.80ms, deviation=7.63ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 4.213144699901854, transportTime: '0:3:0.018', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+MetronomeContext.tsx:157 Setting new tempo: 124
+logger.ts:49 [DEBUG] setTempo: Changing tempo to 124 BPM. Transport state: started, Engine playing: true
+logger.ts:49 [DEBUG] setTempo: Using smooth tempo transition with rampTo
+logger.ts:49 [DEBUG] ensurePlayback: Transport state is started, engine playing state is true
+logger.ts:49 [DEBUG] setTempo: After rampTo, Transport state: started, Engine playing: true
+MetronomeContext.tsx:157 Setting new tempo: 125
+logger.ts:49 [DEBUG] setTempo: Changing tempo to 125 BPM. Transport state: started, Engine playing: true
+logger.ts:49 [DEBUG] setTempo: Using smooth tempo transition with rampTo
+logger.ts:49 [DEBUG] ensurePlayback: Transport state is started, engine playing state is true
+logger.ts:49 [DEBUG] setTempo: After rampTo, Transport state: started, Engine playing: true
+logger.ts:49 [DEBUG] Tick timing: delta=484.40ms, expected=500.00ms, deviation=15.60ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 15.60ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 4.697549115646257, transportTime: '1:0:0.384', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=484.40ms, expected=500.00ms, deviation=15.60ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 15.60ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 4.697549115646257, transportTime: '1:0:0.384', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=484.40ms, expected=500.00ms, deviation=15.60ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 15.60ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 4.697549115646257, transportTime: '1:0:0.384', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=484.40ms, expected=480.00ms, deviation=4.40ms
+logger.ts:49 [DEBUG] [Measure 2] Processing beat event {time: 4.697549115646257, transportTime: '1:0:0.384', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 3
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 3
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 3
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 3
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 5.177549115646258, transportTime: '1:1:0.351', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 5.177549115646258, transportTime: '1:1:0.399', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 5.177549115646258, transportTime: '1:1:0.399', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 5.177549115646258, transportTime: '1:1:0.399', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 5.657549115646257, transportTime: '1:2:0.414', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 5.657549115646257, transportTime: '1:2:0.414', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 5.657549115646257, transportTime: '1:2:0.414', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 5.657549115646257, transportTime: '1:2:0.414', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 6.137549115646258, transportTime: '1:3:0.43', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 6.137549115646258, transportTime: '1:3:0.43', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 6.137549115646258, transportTime: '1:3:0.43', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 6.137549115646258, transportTime: '1:3:0.43', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 6.617549115646279, transportTime: '2:0:0.058', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 6.617549115646279, transportTime: '2:0:0.058', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 6.617549115646279, transportTime: '2:0:0.058', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 3] Processing beat event {time: 6.617549115646279, transportTime: '2:0:0.106', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 4
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 4
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 4
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 4
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 7.097549115646258, transportTime: '2:1:0.073', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 7.097549115646258, transportTime: '2:1:0.073', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 7.097549115646258, transportTime: '2:1:0.121', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 7.097549115646258, transportTime: '2:1:0.121', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 7.5775491156462556, transportTime: '2:2:0.185', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 7.5775491156462556, transportTime: '2:2:0.185', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 7.5775491156462556, transportTime: '2:2:0.185', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 7.5775491156462556, transportTime: '2:2:0.185', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 8.05754911564625, transportTime: '2:3:0.151', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 8.05754911564625, transportTime: '2:3:0.2', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 8.05754911564625, transportTime: '2:3:0.2', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 8.05754911564625, transportTime: '2:3:0.2', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 8.537549115646257, transportTime: '3:0:0.215', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 8.537549115646257, transportTime: '3:0:0.215', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 8.537549115646257, transportTime: '3:0:0.263', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 4] Processing beat event {time: 8.537549115646257, transportTime: '3:0:0.263', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 5
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 5
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 5
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 5
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.017549115646258, transportTime: '3:1:0.182', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.017549115646258, transportTime: '3:1:0.182', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.017549115646258, transportTime: '3:1:0.182', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.017549115646258, transportTime: '3:1:0.182', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.497549115646256, transportTime: '3:2:0.197', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.497549115646256, transportTime: '3:2:0.197', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.497549115646256, transportTime: '3:2:0.197', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.497549115646256, transportTime: '3:2:0.245', transportState: 'started', index: 2, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.977549115646257, transportTime: '3:3:0.212', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.977549115646257, transportTime: '3:3:0.26', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.977549115646257, transportTime: '3:3:0.26', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 9.977549115646257, transportTime: '3:3:0.26', transportState: 'started', index: 3, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 10.457549115646255, transportTime: '4:0:0.324', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 10.457549115646255, transportTime: '4:0:0.324', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 10.457549115646255, transportTime: '4:0:0.324', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 5] Processing beat event {time: 10.457549115646255, transportTime: '4:0:0.324', transportState: 'started', index: 0, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 6
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 6
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 6
+logger.ts:49 [DEBUG] [Measure Boundary] Starting measure 6
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 6] Processing beat event {time: 10.937549115646256, transportTime: '4:1:0.339', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 6] Processing beat event {time: 10.937549115646256, transportTime: '4:1:0.339', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=500.00ms, deviation=20.00ms
+logger.ts:49 [DEBUG] WARNING: Timing deviation of 20.00ms exceeds threshold of 10ms
+logger.ts:49 [DEBUG] [Measure 6] Processing beat event {time: 10.937549115646256, transportTime: '4:1:0.339', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+logger.ts:49 [DEBUG] Tick timing: delta=480.00ms, expected=480.00ms, deviation=0.00ms
+logger.ts:49 [DEBUG] [Measure 6] Processing beat event {time: 10.937549115646256, transportTime: '4:1:0.339', transportState: 'started', index: 1, subdivisionType: 'quarter'}
+MetronomeContext.tsx:216 Stopping playback...

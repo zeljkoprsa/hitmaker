@@ -1,0 +1,135 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  max-width: 375px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  color: var(--text-primary);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: var(--spacing-xs);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+}
+
+.beatVisualizer {
+  width: 100%;
+  height: 230px;
+  display: flex;
+  justify-content: center;
+  background-color: var(--color-neutral-800);
+  border-radius: var(--radius-curved) var(--radius-curved) var(--radius-xs) var(--radius-xs);
+}
+
+.playbackControls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+}
+
+.startStopControl {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 120px;
+  background-color: var(--color-neutral-800);
+  border-radius: var(--radius-xs);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.startStopControl:hover button {
+  transform: scale(1.05);
+}
+
+.startStopControl:active button {
+  transform: scale(0.95);
+}
+
+.tapTempoControl {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 120px;
+  background-color: var(--color-neutral-800);
+  border-radius: var(--radius-xs);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.tapTempoControl:hover > * {
+  transform: scale(1.05);
+}
+
+.tapTempoControl:active > * {
+  transform: scale(0.95);
+}
+
+.tempoSection {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: var(--spacing-xs);
+  width: 100%;
+  max-width: 375px;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.timeSignatureControl,
+.subdivisionControl {
+  position: relative;
+  height: 82px;
+  border-radius: var(--radius-xs);
+  background-color: var(--color-neutral-800);
+}
+
+.tempoDisplay {
+  height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-neutral-800);
+  border-radius: var(--radius-xs);
+  text-align: center;
+}
+
+.tempoSlider {
+  width: 100%;
+  padding: var(--spacing-xs) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-neutral-800);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+}
+
+.soundSelector {
+  width: 100%;
+  padding: var(--spacing-xs) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-neutral-800);
+  border-radius: var(--radius-xs) var(--radius-xs) var(--radius-curved) var(--radius-curved);
+}
