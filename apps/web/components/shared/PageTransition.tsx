@@ -59,7 +59,7 @@ export const PageTransitionWrapper = ({
   const transition = transitions[type] || transitions['fade'];
   
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={router.asPath}
         initial={transition.initial}

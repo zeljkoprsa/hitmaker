@@ -8,7 +8,7 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
   return (
-    <footer className={`${minimal ? '' : 'mt-24'} bg-useless-dark ${!minimal ? 'border-t border-gray-800' : ''}`}>
+    <footer className={`${minimal ? '' : 'mt-24'} bg-[#242424] ${!minimal ? 'border-t border-gray-800' : ''}`}>
       <div className={`${minimal ? 'max-w-2xl' : 'max-w-xl'} mx-auto px-4 sm:px-6 py-12`}>
         {minimal ? (
           <div className="flex justify-between items-center">

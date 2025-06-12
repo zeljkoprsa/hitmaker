@@ -71,7 +71,7 @@ const HomePage: React.FC<HomePageProps> = ({ latestPosts = [] }) => {
 
       {/* Apps Section */}
       <Section spacing="medium" className="mt-12">
-        <div className="relative aspect-video rounded-lg overflow-hidden">
+        <div className="relative max-w-2xl mx-auto aspect-video rounded-lg overflow-hidden">
           <Image
             src="/images/metrodome-preview.png"
             alt="Metronome - A minimal metronome app"

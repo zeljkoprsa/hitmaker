@@ -15,7 +15,7 @@ const Badge: React.FC<BadgeProps> = ({
 }) => {
   const variantClasses = {
     light: 'bg-white text-useless-dark',
-    dark: 'bg-useless-dark text-white',
+    dark: 'bg-[#242424] text-white',
     primary: 'bg-gray-800 text-white',
   };
 

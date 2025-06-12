@@ -26,7 +26,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   minimal = false
 }) => {
   return (
-    <div className="min-h-screen bg-useless-dark">
+    <div className="min-h-screen bg-[#242424]">
         {seo && (
           <SEOMeta
             title={seo.title}

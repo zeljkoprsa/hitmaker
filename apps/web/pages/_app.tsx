@@ -24,7 +24,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     // Add dark mode class to document element
     document.documentElement.classList.add('dark')
-    document.body.classList.add('bg-useless-dark')
+    document.body.classList.add('bg-[#242424]')
     
     // Prevent white flash by setting background color directly
     document.documentElement.style.backgroundColor = '#242424'
