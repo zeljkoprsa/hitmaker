@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/hitmaker", "destination": "https://useless-hitmaker.vercel.app/hitmaker" },
+    { "source": "/hitmaker/:path*", "destination": "https://useless-hitmaker.vercel.app/hitmaker/:path*" }
+  ],
+  "trailingSlash": false,
+  "cleanUrls": true
+}
