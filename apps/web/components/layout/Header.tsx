@@ -8,8 +8,8 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
+} from "../ui/navigation-menu";
+import { cn } from "../../lib/utils";
 
 interface HeaderProps {
   isMinimal?: boolean;

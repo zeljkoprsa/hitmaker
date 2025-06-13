@@ -8,7 +8,6 @@
   :root,
   html,
   body {
-    background-color: #242424; /* Hard-coded to prevent flash */
     @apply bg-useless-dark;
   }
   
