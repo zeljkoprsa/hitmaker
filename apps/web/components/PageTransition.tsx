@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { ReactNode } from 'react';
+import { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 
 interface PageTransitionProps {
-  children: ReactNode;
+  children: ReactElement | null;
 }
 
 const PageTransition = ({ children }: PageTransitionProps) => {
@@ -21,7 +21,7 @@ const PageTransition = ({ children }: PageTransitionProps) => {
           ease: "easeInOut"
         }}
       >
-        {children}
+        {children as ReactElement}
       </motion.div>
     </AnimatePresence>
   );
