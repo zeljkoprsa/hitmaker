@@ -1,6 +1,6 @@
 # Metrodome
 
-A modern, feature-rich metronome application built with React and TypeScript, designed to help musicians practice with precision timing and customizable settings. Currently in alpha stage (v0.2.0-alpha.1).
+A modern, minimal metronome built to help musicians practice with precision timing and customizable settings. Currently in alpha stage (v0.2.0-alpha.1).
 
 ## Features
 
