@@ -11,7 +11,7 @@ export type TextProps = SliceComponentProps<Content.TextSlice>;
 /**
  * Component for "Text" Slices.
  */
-const Text: FC<TextProps> = ({ slice }) => {
+const Text = ({ slice }: TextProps) => {
   return (
     <section 
       className="my-6"

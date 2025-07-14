@@ -10,7 +10,7 @@ export type QuoteProps = SliceComponentProps<Content.QuoteSlice>;
 /**
  * Component for "Quote" Slices.
  */
-const Quote: FC<QuoteProps> = ({ slice }) => {
+const Quote = ({ slice }: QuoteProps) => {
   return (
     <section 
       className="my-10"

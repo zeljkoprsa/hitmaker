@@ -11,7 +11,7 @@ export type ImageProps = SliceComponentProps<Content.ImageSlice>;
 /**
  * Component for "Image" Slices.
  */
-const Image: FC<ImageProps> = ({ slice }) => {
+const Image = ({ slice }: ImageProps) => {
   const { image, caption, size = 'medium' } = slice.primary;
   
   const sizeClasses = {

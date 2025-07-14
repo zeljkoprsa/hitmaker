@@ -10,7 +10,7 @@ export type HeadingProps = SliceComponentProps<Content.HeadingSlice>;
 /**
  * Component for "Heading" Slices.
  */
-const Heading: FC<HeadingProps> = ({ slice }) => {
+const Heading = ({ slice }: HeadingProps) => {
   const level = slice.primary.level || 'h2';
   const headingText = slice.primary.heading_text || '';
   

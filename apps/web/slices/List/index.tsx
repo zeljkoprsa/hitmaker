@@ -11,7 +11,7 @@ export type ListProps = SliceComponentProps<Content.ListSlice>;
 /**
  * Component for "List" Slices.
  */
-const List: FC<ListProps> = ({ slice }) => {
+const List = ({ slice }: ListProps) => {
   const listType = slice.primary.list_type || 'bullet';
   const items = ((slice.primary as any).list_items as any[]) || [];
   
