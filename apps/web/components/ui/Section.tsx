@@ -8,13 +8,13 @@ interface SectionProps {
   spacing?: 'none' | 'small' | 'medium' | 'large';
 }
 
-const Section: React.FC<SectionProps> = ({ 
+const Section = ({ 
   children, 
   title, 
   subtitle, 
   className = '', 
   spacing = 'medium' 
-}) => {
+}: SectionProps) => {
   const spacingClasses = {
     none: '',
     small: 'space-y-6',
