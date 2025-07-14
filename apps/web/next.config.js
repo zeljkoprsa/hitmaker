@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Disable static optimization for error pages
+  unstable_includeFiles: ['node_modules/next/dist/pages/**/*.js'],
+  // Disable static optimization for error pages
+  unstable_runtimeJS: true,
   reactStrictMode: true,
   transpilePackages: ["ui"],
   images: {

@@ -37,15 +37,17 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   }, [])
 
-  // Check if we're running on the server
+  // Check if we're running on the server or in production
   const isServer = typeof window === 'undefined';
+  const isProduction = process.env.NODE_ENV === 'production';
   
-  // If we're on the server, just render the component without animations
-  if (isServer) {
+  // If we're on the server or in production, just render the component without animations
+  // This helps avoid SSR issues with React context in Framer Motion
+  if (isServer || isProduction) {
     return <Component {...pageProps} />;
   }
   
-  // On the client, use the PageTransitionWrapper
+  // Only use PageTransitionWrapper in development on the client
   return (
     <PageTransitionWrapper type="fade" duration={0.3}>
       <Component {...pageProps} />
