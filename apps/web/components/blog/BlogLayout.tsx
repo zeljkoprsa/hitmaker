@@ -13,7 +13,7 @@ interface BlogLayoutProps {
   image?: string;
 }
 
-const BlogLayout: React.FC<BlogLayoutProps> = ({
+const BlogLayout = ({
   children,
   title,
   date,
@@ -21,7 +21,8 @@ const BlogLayout: React.FC<BlogLayoutProps> = ({
   showReadingProgress = true,
   backLink = '/journal',
   image,
-}) => {
+}: BlogLayoutProps) => {
+
   // Generate the canonical URL for the current page
   const canonicalUrl = typeof window !== 'undefined' 
     ? window.location.href 
