@@ -70,7 +70,7 @@ export const PageTransitionWrapper = ({
           ease: "easeInOut"
         }}
       >
-        {children}
+        <>{children}</>
       </motion.div>
     </AnimatePresence>
   );
