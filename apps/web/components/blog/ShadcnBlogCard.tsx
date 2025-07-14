@@ -16,7 +16,7 @@ interface BlogCardProps {
   featured?: boolean;
 }
 
-const ShadcnBlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
+const ShadcnBlogCard = ({ post, featured = false }: BlogCardProps) => {
   // Handle the case where post is undefined
   if (!post) {
     console.warn('BlogCard received undefined post object');
