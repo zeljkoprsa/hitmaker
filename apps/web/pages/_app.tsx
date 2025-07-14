@@ -9,26 +9,32 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   // Example of handling route change events - this could be used for analytics
   useEffect(() => {
-    const handleRouteChange = (url: string) => {
-      // This could be used to trigger analytics events
-      console.log(`App is navigating to: ${url}`)
-    }
+    // Check if we're in the browser environment
+    if (typeof window !== 'undefined') {
+      const handleRouteChange = (url: string) => {
+        // This could be used to trigger analytics events
+        console.log(`App is navigating to: ${url}`)
+      }
 
-    router.events.on('routeChangeStart', handleRouteChange)
-    return () => {
-      router.events.off('routeChangeStart', handleRouteChange)
+      router.events.on('routeChangeStart', handleRouteChange)
+      return () => {
+        router.events.off('routeChangeStart', handleRouteChange)
+      }
     }
   }, [router])
 
   // Add a useEffect to set the background color on the document
   useEffect(() => {
-    // Add dark mode class to document element
-    document.documentElement.classList.add('dark')
-    document.body.classList.add('bg-[#242424]')
-    
-    // Prevent white flash by setting background color directly
-    document.documentElement.style.backgroundColor = '#242424'
-    document.body.style.backgroundColor = '#242424'
+    // Check if we're in the browser environment
+    if (typeof window !== 'undefined') {
+      // Add dark mode class to document element
+      document.documentElement.classList.add('dark')
+      document.body.classList.add('bg-[#242424]')
+      
+      // Prevent white flash by setting background color directly
+      document.documentElement.style.backgroundColor = '#242424'
+      document.body.style.backgroundColor = '#242424'
+    }
   }, [])
 
   return (

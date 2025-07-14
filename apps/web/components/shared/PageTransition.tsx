@@ -58,6 +58,15 @@ export const PageTransitionWrapper = ({
   const router = useRouter();
   const transition = transitions[type] || transitions['fade'];
   
+  // Check if we're running on the server or if window is undefined
+  const isServer = typeof window === 'undefined';
+  
+  // If we're on the server, just render children without animations
+  if (isServer) {
+    return <>{children}</>;
+  }
+  
+  // Client-side rendering with animations
   return (
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
