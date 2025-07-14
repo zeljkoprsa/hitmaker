@@ -11,7 +11,8 @@ const shouldAnalyzeBundle = process.env.REACT_APP_BUNDLE_ANALYZER === 'true';
 
 // Set the public URL path based on environment
 // For production, we need to use absolute paths
-const publicUrl = isProduction ? '/hitmaker' : '';
+const publicUrl = process.env.PUBLIC_URL || (isProduction ? '/hitmaker' : '');
+console.log(`Using publicUrl: ${publicUrl}`);
 
 module.exports = {
   eslint: {
@@ -38,7 +39,9 @@ module.exports = {
     configure: webpackConfig => {
       // Set the public path based on environment
       // For production, we need absolute paths starting with / not relative paths with ./
-      webpackConfig.output.publicPath = isProduction ? publicUrl + '/' : '/';
+      // Always use absolute paths to avoid asset loading issues
+      webpackConfig.output.publicPath = publicUrl.startsWith('/') ? publicUrl + '/' : '/' + publicUrl + '/';
+      console.log(`Setting webpack publicPath to: ${webpackConfig.output.publicPath}`);
       
       // Production-only optimizations
       if (isProduction) {
@@ -114,6 +117,6 @@ module.exports = {
     allowedHosts: 'all',
     host: '0.0.0.0',
     // Ensure dev server uses the correct public path
-    publicPath: publicUrl + '/',
+    publicPath: publicUrl.startsWith('/') ? publicUrl + '/' : '/' + publicUrl + '/',
   },
 };
