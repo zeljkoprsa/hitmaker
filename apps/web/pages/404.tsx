@@ -1,7 +1,7 @@
 import React from 'react';
 
-// A completely static 500 error page
-export default function Custom500() {
+// A completely static 404 error page
+export default function Custom404() {
   return (
     <div style={{
       display: 'flex',
@@ -13,8 +13,8 @@ export default function Custom500() {
       fontFamily: 'system-ui, sans-serif'
     }}>
       <div style={{ textAlign: 'center', padding: '20px' }}>
-        <h1 style={{ fontSize: '24px', marginBottom: '16px' }}>500 - Server Error</h1>
-        <p style={{ marginBottom: '24px' }}>Sorry, something went wrong on our server.</p>
+        <h1 style={{ fontSize: '24px', marginBottom: '16px' }}>404 - Page Not Found</h1>
+        <p style={{ marginBottom: '24px' }}>Sorry, the page you are looking for does not exist.</p>
         <a href="/" style={{
           backgroundColor: '#4a4a4a',
           color: 'white',

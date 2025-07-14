@@ -1,13 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Disable static optimization for error pages
-  unstable_includeFiles: ['node_modules/next/dist/pages/**/*.js'],
-  // Disable static optimization for error pages
-  unstable_runtimeJS: true,
   reactStrictMode: true,
   transpilePackages: ["ui"],
   images: {
     domains: ['images.prismic.io'],
+  },
+  // Use separate output directories for development and production
+  distDir: process.env.NODE_ENV === 'production' ? '.next' : '.next-dev',
+  // Configure rewrites for the hitmaker app in development
+  async rewrites() {
+    return [
+      {
+        source: '/hitmaker',
+        destination: 'http://localhost:3001/hitmaker',
+      },
+      {
+        source: '/hitmaker/:path*',
+        destination: 'http://localhost:3001/hitmaker/:path*',
+      },
+    ];
   },
   experimental: {
     // This is experimental but can be enabled to allow importing from outside the app directory

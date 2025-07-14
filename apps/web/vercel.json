@@ -4,5 +4,9 @@
     { "source": "/hitmaker/:path*", "destination": "https://useless-hitmaker.vercel.app/hitmaker/:path*" }
   ],
   "trailingSlash": false,
-  "cleanUrls": true
+  "cleanUrls": true,
+  "routes": [
+    { "src": "/500", "dest": "/500.html" },
+    { "src": "/404", "dest": "/404.html" }
+  ]
 }

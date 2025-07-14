@@ -6,11 +6,13 @@ import { PageTransitionWrapper } from '../components/shared/PageTransition'
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
-
-  // Example of handling route change events - this could be used for analytics
-  useEffect(() => {
-    // Check if we're in the browser environment
-    if (typeof window !== 'undefined') {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isServer = typeof window === 'undefined';
+  
+  // Only run effects on the client side
+  if (!isServer) {
+    // Example of handling route change events - this could be used for analytics
+    useEffect(() => {
       const handleRouteChange = (url: string) => {
         // This could be used to trigger analytics events
         console.log(`App is navigating to: ${url}`)
@@ -20,13 +22,10 @@ function MyApp({ Component, pageProps }: AppProps) {
       return () => {
         router.events.off('routeChangeStart', handleRouteChange)
       }
-    }
-  }, [router])
+    }, [router])
 
-  // Add a useEffect to set the background color on the document
-  useEffect(() => {
-    // Check if we're in the browser environment
-    if (typeof window !== 'undefined') {
+    // Add a useEffect to set the background color on the document
+    useEffect(() => {
       // Add dark mode class to document element
       document.documentElement.classList.add('dark')
       document.body.classList.add('bg-[#242424]')
@@ -34,20 +33,19 @@ function MyApp({ Component, pageProps }: AppProps) {
       // Prevent white flash by setting background color directly
       document.documentElement.style.backgroundColor = '#242424'
       document.body.style.backgroundColor = '#242424'
-    }
-  }, [])
+    }, [])
+  }
 
-  // Check if we're running on the server or in production
-  const isServer = typeof window === 'undefined';
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Special handling for error pages to avoid React context issues
+  const isErrorPage = router.pathname === '/500' || router.pathname === '/404' || router.pathname === '/_error';
   
-  // If we're on the server or in production, just render the component without animations
+  // In production or on the server, or for error pages, just render the component without animations
   // This helps avoid SSR issues with React context in Framer Motion
-  if (isServer || isProduction) {
+  if (isServer || isProduction || isErrorPage) {
     return <Component {...pageProps} />;
   }
   
-  // Only use PageTransitionWrapper in development on the client
+  // Only use PageTransitionWrapper in development on the client for non-error pages
   return (
     <PageTransitionWrapper type="fade" duration={0.3}>
       <Component {...pageProps} />
