@@ -16,14 +16,14 @@ const defaultMeta = {
   url: 'https://tryuseless.com',
 };
 
-export const SEOMeta: React.FC<SEOMetaProps> = ({
+export const SEOMeta = ({
   title,
   description = defaultMeta.description,
   image = defaultMeta.image,
   url = defaultMeta.url,
   type = 'website',
   siteName = defaultMeta.siteName,
-}) => {
+}: SEOMetaProps) => {
   const fullTitle = title ? `${title} | ${siteName}` : siteName;
 
   return (

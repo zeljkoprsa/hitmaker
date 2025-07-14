@@ -19,12 +19,12 @@ interface AppLayoutProps {
   minimal?: boolean;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ 
+const AppLayout = ({ 
   children, 
   seo,
   showBackLink = false,
   minimal = false
-}) => {
+}: AppLayoutProps) => {
   return (
     <div className="min-h-screen bg-useless-dark">
         {seo && (
