@@ -37,6 +37,15 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   }, [])
 
+  // Check if we're running on the server
+  const isServer = typeof window === 'undefined';
+  
+  // If we're on the server, just render the component without animations
+  if (isServer) {
+    return <Component {...pageProps} />;
+  }
+  
+  // On the client, use the PageTransitionWrapper
   return (
     <PageTransitionWrapper type="fade" duration={0.3}>
       <Component {...pageProps} />

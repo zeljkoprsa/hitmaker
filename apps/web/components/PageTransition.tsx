@@ -9,6 +9,15 @@ interface PageTransitionProps {
 const PageTransition = ({ children }: PageTransitionProps) => {
   const router = useRouter();
   
+  // Check if we're running on the server or if window is undefined
+  const isServer = typeof window === 'undefined';
+  
+  // If we're on the server, just render children without animations
+  if (isServer) {
+    return <>{children}</>;
+  }
+  
+  // Client-side rendering with animations
   return (
     <AnimatePresence mode="wait">
       <motion.div
