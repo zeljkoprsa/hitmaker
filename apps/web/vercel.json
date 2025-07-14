@@ -1,7 +1,8 @@
 {
   "rewrites": [
     { "source": "/hitmaker", "destination": "https://useless-hitmaker.vercel.app/hitmaker" },
-    { "source": "/hitmaker/:path*", "destination": "https://useless-hitmaker.vercel.app/hitmaker/:path*" }
+    { "source": "/hitmaker/:path*", "destination": "https://useless-hitmaker.vercel.app/hitmaker/:path*" },
+    { "source": "/static/:path*", "destination": "https://useless-hitmaker.vercel.app/static/:path*" }
   ],
   "trailingSlash": false,
   "cleanUrls": true,
@@ -9,6 +10,8 @@
     { "handle": "filesystem" },
     { "src": "/500", "dest": "/500.html", "status": 500 },
     { "src": "/404", "dest": "/404.html", "status": 404 },
+    { "src": "/hitmaker", "dest": "https://useless-hitmaker.vercel.app/hitmaker" },
+    { "src": "/hitmaker/(.*)", "dest": "https://useless-hitmaker.vercel.app/hitmaker/$1" },
     { "src": "/(.*)", "status": 404, "dest": "/404.html" }
   ]
 }

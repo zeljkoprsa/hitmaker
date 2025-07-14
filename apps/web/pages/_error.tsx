@@ -57,11 +57,16 @@ const ErrorPage: NextPage<ErrorProps> = ({ statusCode }) => {
   );
 };
 
-// This ensures the page is rendered as an empty shell during SSR
-// and only populated with content on the client side
+// For _error.tsx, getInitialProps is required to get the status code
+// but we'll keep it minimal to avoid React context issues
 ErrorPage.getInitialProps = ({ res, err }) => {
   const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
-  return { statusCode };
+  return { statusCode, noContext: true };
+};
+
+// Use Next.js config to disable static optimization for this page
+export const config = {
+  unstable_runtimeJS: false
 };
 
 export default ErrorPage;

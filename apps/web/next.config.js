@@ -15,41 +15,33 @@ const nextConfig = {
   },
   // Use separate output directories for development and production
   distDir: process.env.NODE_ENV === 'production' ? '.next' : '.next-dev',
-  // Configure rewrites for the hitmaker app in development
+  // Configure rewrites for the hitmaker app
   async rewrites() {
-    return [
-      {
-        source: '/hitmaker',
-        destination: 'http://localhost:3001/hitmaker',
-      },
-      {
-        source: '/hitmaker/:path*',
-        destination: 'http://localhost:3001/hitmaker/:path*',
-      },
-    ];
+    if (process.env.NODE_ENV === 'development') {
+      // In development, proxy to the standalone hitmaker app
+      return [
+        {
+          source: '/hitmaker',
+          destination: 'http://localhost:3001/hitmaker',
+        },
+        {
+          source: '/hitmaker/:path*',
+          destination: 'http://localhost:3001/hitmaker/:path*',
+        },
+        // Handle static assets from hitmaker app
+        {
+          source: '/static/:path*',
+          destination: 'http://localhost:3001/static/:path*',
+        },
+      ];
+    } else {
+      // In production, we don't need rewrites as they're handled by vercel.json
+      return [];
+    }
   },
   experimental: {
     // This is experimental but can be enabled to allow importing from outside the app directory
     externalDir: true,
-  },
-  // Add rewrites for the hitmaker app
-  async rewrites() {
-    return process.env.NODE_ENV === 'development' ? [
-      // In development, proxy to the standalone hitmaker app
-      {
-        source: '/hitmaker',
-        destination: 'http://localhost:3456',
-      },
-      {
-        source: '/hitmaker/:path*',
-        destination: 'http://localhost:3456/:path*',
-      },
-      // Handle static assets from hitmaker app
-      {
-        source: '/static/:path*',
-        destination: 'http://localhost:3456/static/:path*',
-      },
-    ] : [];
   },
 }
 

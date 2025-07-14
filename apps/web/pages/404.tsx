@@ -40,8 +40,9 @@ const Custom404 = () => {
   );
 };
 
-// This ensures the page is rendered as an empty shell during SSR
-// and only populated with content on the client side
-Custom404.getInitialProps = () => ({});
-
 export default Custom404;
+
+// Use Next.js config to disable static optimization for this page
+export const config = {
+  unstable_runtimeJS: false
+};

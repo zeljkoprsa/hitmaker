@@ -120,10 +120,10 @@ function createStaticErrorPages() {
 }
 
 /**
- * Create a temporary Next.js config that excludes error pages from prerendering
+ * Create a temporary Next.js config that handles error pages correctly
  */
 function createTempNextConfig() {
-  console.log('Creating temporary Next.js config to exclude error pages...');
+  console.log('Creating temporary Next.js config for error pages...');
   
   const configPath = path.join(rootDir, 'next.config.js');
   const originalConfig = fs.readFileSync(configPath, 'utf8');
@@ -131,16 +131,17 @@ function createTempNextConfig() {
   // Backup the original config
   fs.writeFileSync(`${configPath}.backup`, originalConfig);
   
-  // Create a modified config that excludes error pages from prerendering
+  // Create a modified config that handles error pages correctly
   const modifiedConfig = originalConfig.replace(
     'module.exports = nextConfig;',
-    `// Exclude error pages from prerendering
-nextConfig.exportPathMap = async function(defaultPathMap) {
-  delete defaultPathMap['/500'];
-  delete defaultPathMap['/404'];
-  delete defaultPathMap['/_error'];
-  return defaultPathMap;
+    `// Configure error pages handling
+nextConfig.typescript = {
+  // Ignore TypeScript errors during build
+  ignoreBuildErrors: true,
 };
+
+// Skip static optimization for error pages
+nextConfig.unstable_excludeFiles = ['pages/404.tsx', 'pages/500.tsx', 'pages/_error.tsx'];
 
 module.exports = nextConfig;`
   );

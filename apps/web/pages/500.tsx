@@ -40,15 +40,9 @@ const Custom500 = () => {
   );
 };
 
-// This ensures the page is rendered as an empty shell during SSR
-// and only populated with content on the client side
-Custom500.getInitialProps = () => ({
-  props: {}
-});
-
 export default Custom500;
 
-// Disable runtime JS for this page
+// Use Next.js config to disable static optimization for this page
 export const config = {
   unstable_runtimeJS: false
 };

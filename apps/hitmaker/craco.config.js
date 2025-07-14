@@ -9,6 +9,9 @@ const isProduction = process.env.NODE_ENV === 'production';
 // Check if bundle analysis is requested
 const shouldAnalyzeBundle = process.env.REACT_APP_BUNDLE_ANALYZER === 'true';
 
+// Set the public URL path based on environment
+const publicUrl = isProduction ? '/hitmaker' : '';
+
 module.exports = {
   eslint: {
     enable: process.env.NODE_ENV !== 'production',
@@ -32,6 +35,9 @@ module.exports = {
         : []),
     ],
     configure: webpackConfig => {
+      // Set the public path based on environment
+      webpackConfig.output.publicPath = publicUrl + '/';
+      
       // Production-only optimizations
       if (isProduction) {
         // Ensure minimization is enabled
