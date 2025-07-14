@@ -5,6 +5,14 @@ const nextConfig = {
   images: {
     domains: ['images.prismic.io'],
   },
+  // Disable prerendering for error pages to avoid React context errors
+  exportPathMap: async function (defaultPathMap) {
+    // Remove error pages from static export
+    delete defaultPathMap['/500'];
+    delete defaultPathMap['/404'];
+    delete defaultPathMap['/_error'];
+    return defaultPathMap;
+  },
   // Use separate output directories for development and production
   distDir: process.env.NODE_ENV === 'production' ? '.next' : '.next-dev',
   // Configure rewrites for the hitmaker app in development

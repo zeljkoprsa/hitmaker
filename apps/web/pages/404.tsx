@@ -1,7 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-// A completely static 404 error page
-export default function Custom404() {
+// A client-side only 404 error page to avoid SSR context issues
+const Custom404 = () => {
+  // Only render on client side to avoid React context issues during SSR
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Return empty div during SSR to avoid React context issues
+  if (!isMounted) {
+    return <div style={{ display: 'none' }} />;
+  }
+
+  // Only render the actual content on the client
   return (
     <div style={{
       display: 'flex',
@@ -25,12 +38,10 @@ export default function Custom404() {
       </div>
     </div>
   );
-}
-
-// Disable automatic static optimization for this page
-export const getInitialProps = () => ({});
-
-// Disable runtime JS for this page
-export const config = {
-  unstable_runtimeJS: false
 };
+
+// This ensures the page is rendered as an empty shell during SSR
+// and only populated with content on the client side
+Custom404.getInitialProps = () => ({});
+
+export default Custom404;

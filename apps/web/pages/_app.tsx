@@ -5,43 +5,49 @@ import { useEffect } from 'react'
 import { PageTransitionWrapper } from '../components/shared/PageTransition'
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const router = useRouter()
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Detect server-side rendering
   const isServer = typeof window === 'undefined';
+  const isProduction = process.env.NODE_ENV === 'production';
   
-  // Only run effects on the client side
-  if (!isServer) {
-    // Example of handling route change events - this could be used for analytics
-    useEffect(() => {
-      const handleRouteChange = (url: string) => {
-        // This could be used to trigger analytics events
-        console.log(`App is navigating to: ${url}`)
-      }
-
-      router.events.on('routeChangeStart', handleRouteChange)
-      return () => {
-        router.events.off('routeChangeStart', handleRouteChange)
-      }
-    }, [router])
-
-    // Add a useEffect to set the background color on the document
-    useEffect(() => {
-      // Add dark mode class to document element
-      document.documentElement.classList.add('dark')
-      document.body.classList.add('bg-[#242424]')
-      
-      // Prevent white flash by setting background color directly
-      document.documentElement.style.backgroundColor = '#242424'
-      document.body.style.backgroundColor = '#242424'
-    }, [])
+  // During SSR, render the component directly without any hooks or context
+  // This prevents React context errors during prerendering
+  if (isServer) {
+    return <Component {...pageProps} />;
   }
+  
+  // From this point on, we're on the client side only
+  const router = useRouter();
+  
+  // Client-side route change handling
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      console.log(`App is navigating to: ${url}`)
+    }
+
+    router.events.on('routeChangeStart', handleRouteChange)
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange)
+    }
+  }, [router])
+
+  // Client-side styling
+  useEffect(() => {
+    // Add dark mode class to document element
+    document.documentElement.classList.add('dark')
+    document.body.classList.add('bg-[#242424]')
+    
+    // Prevent white flash by setting background color directly
+    document.documentElement.style.backgroundColor = '#242424'
+    document.body.style.backgroundColor = '#242424'
+  }, [])
 
   // Special handling for error pages to avoid React context issues
-  const isErrorPage = router.pathname === '/500' || router.pathname === '/404' || router.pathname === '/_error';
+  const isErrorPage = router.pathname === '/500' || 
+                      router.pathname === '/404' || 
+                      router.pathname === '/_error';
   
-  // In production or on the server, or for error pages, just render the component without animations
-  // This helps avoid SSR issues with React context in Framer Motion
-  if (isServer || isProduction || isErrorPage) {
+  // For error pages or in production, render without animations
+  if (isProduction || isErrorPage) {
     return <Component {...pageProps} />;
   }
   

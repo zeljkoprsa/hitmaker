@@ -6,7 +6,9 @@
   "trailingSlash": false,
   "cleanUrls": true,
   "routes": [
-    { "src": "/500", "dest": "/500.html" },
-    { "src": "/404", "dest": "/404.html" }
+    { "handle": "filesystem" },
+    { "src": "/500", "dest": "/500.html", "status": 500 },
+    { "src": "/404", "dest": "/404.html", "status": 404 },
+    { "src": "/(.*)", "status": 404, "dest": "/404.html" }
   ]
 }

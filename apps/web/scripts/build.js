@@ -2,130 +2,210 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-// Two-phase build process to handle error pages separately
-console.log('Starting two-phase build process...');
+// Paths
+const rootDir = path.resolve(__dirname, '..');
+const pagesDir = path.join(rootDir, 'pages');
+const publicDir = path.join(rootDir, 'public');
 
-// Phase 1: Build the main app without error pages
-console.log('Phase 1: Building main app...');
-try {
-  // Set environment variable to skip error pages during build
-  process.env.SKIP_ERROR_PAGES = 'true';
-  // Use local Next.js installation
-  execSync('npx next build', { stdio: 'inherit' });
-  console.log('Main app build completed successfully');
-} catch (error) {
-  console.log('Main app build failed, but continuing with error page handling...');
+// Ensure directories exist
+if (!fs.existsSync(publicDir)) {
+  fs.mkdirSync(publicDir, { recursive: true });
 }
 
-// Phase 2: Build error pages separately with minimal configuration
-console.log('Phase 2: Building error pages separately...');
-try {
-  // Create temporary directory for error pages
-  const tempDir = path.join(process.cwd(), 'temp-error-pages');
-  if (!fs.existsSync(tempDir)) {
-    fs.mkdirSync(tempDir);
-  }
-
-  // Copy error page files to temp directory
-  const errorPageFiles = ['_error.js', '404.js', '500.js'];
-  errorPageFiles.forEach(file => {
-    const sourcePath = path.join(process.cwd(), 'pages', file);
-    if (fs.existsSync(sourcePath)) {
-      const destPath = path.join(tempDir, file);
-      fs.copyFileSync(sourcePath, destPath);
-    }
-  });
-
-  // Ensure the public directory exists
-  const publicDir = path.join(process.cwd(), 'public');
-  if (!fs.existsSync(publicDir)) {
-    fs.mkdirSync(publicDir);
-  }
-
-  // Copy static HTML error pages to the public directory
-  const staticErrorPages = ['404.html', '500.html'];
-  staticErrorPages.forEach(page => {
-    const sourcePath = path.join(process.cwd(), 'pages', page);
-    const publicPath = path.join(process.cwd(), 'public', page);
-    
-    if (fs.existsSync(sourcePath)) {
-      fs.copyFileSync(sourcePath, publicPath);
-      console.log(`Copied ${page} to public directory`);
-    }
-  });
-
-  // Copy JS error pages to the build output
-  const jsErrorPages = ['_error.js', '404.js', '500.js'];
-  jsErrorPages.forEach(page => {
-    const sourcePath = path.join(process.cwd(), 'pages', page);
-    const destPath = path.join(process.cwd(), '.next/server/pages', page.replace('.js', '.html'));
-    
-    if (fs.existsSync(sourcePath)) {
-      // Create a simple HTML wrapper for the error page
-      const htmlContent = `<!DOCTYPE html>
+/**
+ * Create static HTML error pages to avoid SSR issues
+ */
+function createStaticErrorPages() {
+  console.log('Creating static error pages...');
+  
+  // Create a simple 404 page
+  const html404 = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Error</title>
+  <title>404 - Page Not Found</title>
   <style>
     body {
+      font-family: system-ui, -apple-system, sans-serif;
       background-color: #242424;
       color: white;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
     .container {
       text-align: center;
-      padding: 2rem;
+      padding: 20px;
     }
     h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
+      font-size: 24px;
+      margin-bottom: 16px;
     }
     p {
-      margin-bottom: 1.5rem;
+      margin-bottom: 24px;
     }
     a {
-      display: inline-block;
       background-color: #4a4a4a;
       color: white;
-      padding: 0.75rem 1.5rem;
+      padding: 12px 24px;
       text-decoration: none;
-      border-radius: 0.375rem;
-    }
-    a:hover {
-      background-color: #5a5a5a;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>${page === '404.js' ? '404 - Page Not Found' : '500 - Server Error'}</h1>
-    <p>${page === '404.js' ? 'Sorry, the page you are looking for does not exist.' : 'Sorry, something went wrong on our server.'}</p>
+    <h1>404 - Page Not Found</h1>
+    <p>Sorry, the page you are looking for does not exist.</p>
     <a href="/">Return Home</a>
   </div>
 </body>
 </html>`;
-      
-      // Ensure the directory exists
-      const destDir = path.dirname(destPath);
-      if (!fs.existsSync(destDir)) {
-        fs.mkdirSync(destDir, { recursive: true });
-      }
-      
-      fs.writeFileSync(destPath, htmlContent);
-      console.log(`Created HTML version of ${page} at ${destPath}`);
-    }
-  });
 
-} catch (error) {
-  console.error('Error handling error pages:', error);
+  // Create a simple 500 page
+  const html500 = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>500 - Server Error</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #242424;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    p {
+      margin-bottom: 24px;
+    }
+    a {
+      background-color: #4a4a4a;
+      color: white;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>500 - Server Error</h1>
+    <p>Sorry, something went wrong on our server.</p>
+    <a href="/">Return Home</a>
+  </div>
+</body>
+</html>`;
+
+  // Write the HTML files to public directory
+  fs.writeFileSync(path.join(publicDir, '404.html'), html404);
+  fs.writeFileSync(path.join(publicDir, '500.html'), html500);
+  
+  console.log('Created static HTML error pages in public directory');
 }
 
-console.log('Build process completed successfully');
+/**
+ * Create a temporary Next.js config that excludes error pages from prerendering
+ */
+function createTempNextConfig() {
+  console.log('Creating temporary Next.js config to exclude error pages...');
+  
+  const configPath = path.join(rootDir, 'next.config.js');
+  const originalConfig = fs.readFileSync(configPath, 'utf8');
+  
+  // Backup the original config
+  fs.writeFileSync(`${configPath}.backup`, originalConfig);
+  
+  // Create a modified config that excludes error pages from prerendering
+  const modifiedConfig = originalConfig.replace(
+    'module.exports = nextConfig;',
+    `// Exclude error pages from prerendering
+nextConfig.exportPathMap = async function(defaultPathMap) {
+  delete defaultPathMap['/500'];
+  delete defaultPathMap['/404'];
+  delete defaultPathMap['/_error'];
+  return defaultPathMap;
+};
+
+module.exports = nextConfig;`
+  );
+  
+  fs.writeFileSync(configPath, modifiedConfig);
+  console.log('Temporary Next.js config created');
+  
+  return originalConfig;
+}
+
+/**
+ * Restore the original Next.js config
+ */
+function restoreNextConfig(originalConfig) {
+  console.log('Restoring original Next.js config...');
+  
+  const configPath = path.join(rootDir, 'next.config.js');
+  fs.writeFileSync(configPath, originalConfig);
+  
+  // Remove the backup file
+  if (fs.existsSync(`${configPath}.backup`)) {
+    fs.unlinkSync(`${configPath}.backup`);
+  }
+  
+  console.log('Original Next.js config restored');
+}
+
+/**
+ * Create a special .nojekyll file for GitHub Pages
+ */
+function createNoJekyllFile() {
+  const noJekyllPath = path.join(publicDir, '.nojekyll');
+  fs.writeFileSync(noJekyllPath, '');
+  console.log('Created .nojekyll file');
+}
+
+/**
+ * Main build function
+ */
+async function build() {
+  console.log('Starting build process...');
+  
+  try {
+    // Step 1: Create static error pages first
+    createStaticErrorPages();
+    createNoJekyllFile();
+    
+    // Step 2: Create temporary Next.js config that excludes error pages from prerendering
+    const originalConfig = createTempNextConfig();
+    
+    try {
+      // Step 3: Build the app with the modified config
+      console.log('Building the app...');
+      execSync('npx next build', { stdio: 'inherit', cwd: rootDir });
+    } finally {
+      // Step 4: Restore the original config regardless of build success/failure
+      restoreNextConfig(originalConfig);
+    }
+    
+    console.log('Build completed successfully!');
+  } catch (error) {
+    console.error('Build failed:', error);
+    process.exit(1);
+  }
+}
+
+// Run the build
+build();
