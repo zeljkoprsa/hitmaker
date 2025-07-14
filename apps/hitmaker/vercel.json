@@ -1,11 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/hitmaker",
+      "source": "/",
       "destination": "/index.html"
     },
     {
-      "source": "/hitmaker/:path*",
+      "source": "/:path*",
       "destination": "/:path*"
     }
   ],
@@ -13,7 +13,7 @@
   "cleanUrls": true,
   "headers": [
     {
-      "source": "/hitmaker/(.*)",
+      "source": "/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -24,7 +24,7 @@
   ],
   "routes": [
     { "handle": "filesystem" },
-    { "src": "/hitmaker", "dest": "/index.html" },
-    { "src": "/hitmaker/(.*)", "dest": "/$1" }
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }

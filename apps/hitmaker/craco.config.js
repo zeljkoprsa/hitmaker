@@ -10,6 +10,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const shouldAnalyzeBundle = process.env.REACT_APP_BUNDLE_ANALYZER === 'true';
 
 // Set the public URL path based on environment
+// For production, we need to use absolute paths
 const publicUrl = isProduction ? '/hitmaker' : '';
 
 module.exports = {
@@ -36,7 +37,8 @@ module.exports = {
     ],
     configure: webpackConfig => {
       // Set the public path based on environment
-      webpackConfig.output.publicPath = publicUrl + '/';
+      // For production, we need absolute paths starting with / not relative paths with ./
+      webpackConfig.output.publicPath = isProduction ? publicUrl + '/' : '/';
       
       // Production-only optimizations
       if (isProduction) {
@@ -111,5 +113,7 @@ module.exports = {
   devServer: {
     allowedHosts: 'all',
     host: '0.0.0.0',
+    // Ensure dev server uses the correct public path
+    publicPath: publicUrl + '/',
   },
 };
