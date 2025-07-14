@@ -1,5 +1,6 @@
 {
   "name": "web",
+  "description": "Main website for tryuseless.com",
   "version": "1.0.0",
   "private": true,
   "scripts": {
