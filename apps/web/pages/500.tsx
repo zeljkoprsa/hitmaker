@@ -1,36 +1,19 @@
 import React from 'react';
 import Head from 'next/head';
+import '../styles/error.css';
 
 // A static 500 error page without client-side state
 function Custom500() {
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      backgroundColor: '#242424',
-      color: 'white',
-      fontFamily: 'system-ui, sans-serif',
-    }}>
+    <div className="error-container">
       <Head>
         <title>500 - Server Error</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <div style={{
-        textAlign: 'center',
-        padding: '20px',
-      }}>
-        <h1 style={{ fontSize: '24px', marginBottom: '16px' }}>500 - Server Error</h1>
-        <p style={{ marginBottom: '24px' }}>Sorry, something went wrong on our server.</p>
-        <a href="/" style={{
-          backgroundColor: '#4a4a4a',
-          color: 'white',
-          padding: '12px 24px',
-          textDecoration: 'none',
-          borderRadius: '4px',
-          display: 'inline-block',
-        }}>Return Home</a>
+      <div className="error-content">
+        <h1 className="error-title">500 - Server Error</h1>
+        <p className="error-message">Sorry, something went wrong on our server.</p>
+        <a href="/" className="error-link">Return Home</a>
       </div>
     </div>
   );
