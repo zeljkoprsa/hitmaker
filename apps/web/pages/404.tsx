@@ -4,23 +4,18 @@ import Head from 'next/head';
 // A static 404 error page without client-side state
 function Custom404() {
   return (
-    <>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      backgroundColor: '#242424',
+      color: 'white',
+      fontFamily: 'system-ui, sans-serif',
+    }}>
       <Head>
         <title>404 - Page Not Found</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <style dangerouslySetInnerHTML={{ __html: `
-          body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #242424;
-            color: white;
-            font-family: system-ui, sans-serif;
-          }
-        `}} />
       </Head>
       <div style={{
         textAlign: 'center',
@@ -37,7 +32,7 @@ function Custom404() {
           display: 'inline-block',
         }}>Return Home</a>
       </div>
-    </>
+    </div>
   );
 }
 
