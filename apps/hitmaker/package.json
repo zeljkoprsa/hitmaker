@@ -3,7 +3,7 @@
   "description": "Metronome app for musicians",
   "version": "0.2.0-alpha.1",
   "private": true,
-  "homepage": "/hitmaker",
+
   "dependencies": {
     "@craco/craco": "^7.1.0",
     "@emotion/react": "^11.13.3",

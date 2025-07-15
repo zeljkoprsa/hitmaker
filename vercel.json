@@ -1,6 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/", "destination": "/apps/web" },
-    { "source": "/hitmaker", "destination": "/apps/hitmaker" }
-  ]
-}
