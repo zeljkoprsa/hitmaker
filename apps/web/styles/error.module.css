@@ -1,10 +1,4 @@
-html, body {
-  padding: 0;
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-
-.error-container {
+.container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,22 +6,23 @@ html, body {
   text-align: center;
   background-color: #242424;
   color: white;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-.error-content {
+.content {
   padding: 20px;
 }
 
-.error-title {
+.title {
   font-size: 24px;
   margin-bottom: 16px;
 }
 
-.error-message {
+.message {
   margin-bottom: 24px;
 }
 
-.error-link {
+.link {
   background-color: #4a4a4a;
   color: white;
   padding: 12px 24px;
