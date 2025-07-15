@@ -1,25 +1,6 @@
 {
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/:path*",
-      "destination": "/:path*"
-    }
-  ],
-  "trailingSlash": false,
-  "cleanUrls": true,
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600, s-maxage=86400"
-        }
-      ]
-    }
-  ]
+  "buildCommand": "pnpm --filter hitmaker build",
+  "outputDirectory": "apps/hitmaker/build",
+  "framework": "create-react-app",
+  "installCommand": "pnpm install --frozen-lockfile"
 }

@@ -1,5 +1,5 @@
 {
-  "name": "metronome-app",
+  "name": "@useless/hitmaker",
   "description": "Metronome app for musicians",
   "version": "0.2.0-alpha.1",
   "private": true,

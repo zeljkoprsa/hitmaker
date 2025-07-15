@@ -9,9 +9,11 @@
   ],
   "scripts": {
     "build": "turbo run build",
+    "build:web": "turbo run build --filter=@useless/web",
+    "build:hitmaker": "turbo run build --filter=@useless/hitmaker",
     "dev": "turbo run dev",
-    "dev:web": "turbo run dev --filter=web -- --port 3000",
-    "dev:hitmaker": "turbo run dev --filter=metronome-app -- --port 3001",
+    "dev:web": "turbo run dev --filter=@useless/web -- --port 3000",
+    "dev:hitmaker": "turbo run dev --filter=@useless/hitmaker -- --port 3001",
     "dev:all": "npm-run-all --parallel dev:web dev:hitmaker",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
