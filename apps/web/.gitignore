@@ -79,4 +79,4 @@ cover/
 # Keep scripts but ignore Python cache
 !/windsurf_docs/scripts/
 /windsurf_docs/scripts/__pycache__/
-/windsurf_docs/scripts/*.pyc
+/windsurf_docs/scripts/*.pyc.next-dev

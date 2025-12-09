@@ -28,11 +28,6 @@ const nextConfig = {
           source: '/hitmaker/:path*',
           destination: 'http://localhost:3001/hitmaker/:path*',
         },
-        // Handle static assets from hitmaker app
-        {
-          source: '/static/:path*',
-          destination: 'http://localhost:3001/static/:path*',
-        },
       ];
     } else {
       // In production, we don't need rewrites as they're handled by vercel.json

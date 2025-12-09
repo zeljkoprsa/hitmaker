@@ -28,12 +28,12 @@ module.exports = {
       // Add bundle analyzer in analyze mode
       ...(shouldAnalyzeBundle
         ? [
-            new BundleAnalyzerPlugin({
-              analyzerMode: 'server',
-              analyzerPort: 8888,
-              openAnalyzer: true,
-            }),
-          ]
+          new BundleAnalyzerPlugin({
+            analyzerMode: 'server',
+            analyzerPort: 8888,
+            openAnalyzer: true,
+          }),
+        ]
         : []),
     ],
     configure: webpackConfig => {
@@ -42,7 +42,7 @@ module.exports = {
       // Always use absolute paths to avoid asset loading issues
       webpackConfig.output.publicPath = publicUrl.startsWith('/') ? publicUrl + '/' : '/' + publicUrl + '/';
       console.log(`Setting webpack publicPath to: ${webpackConfig.output.publicPath}`);
-      
+
       // Production-only optimizations
       if (isProduction) {
         // Ensure minimization is enabled
@@ -116,7 +116,5 @@ module.exports = {
   devServer: {
     allowedHosts: 'all',
     host: '0.0.0.0',
-    // Ensure dev server uses the correct public path
-    publicPath: publicUrl.startsWith('/') ? publicUrl + '/' : '/' + publicUrl + '/',
   },
 };

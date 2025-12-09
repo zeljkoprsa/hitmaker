@@ -3,7 +3,7 @@
   "description": "Metronome app for musicians",
   "version": "0.2.0-alpha.1",
   "private": true,
-
+  "homepage": "/hitmaker",
   "dependencies": {
     "@craco/craco": "^7.1.0",
     "@emotion/react": "^11.13.3",
@@ -23,9 +23,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "dev": "craco start",
-    "start": "craco start",
-    "start:network": "HOST=0.0.0.0 craco start",
+    "dev": "PUBLIC_URL=/hitmaker craco start",
+    "start": "PUBLIC_URL=/hitmaker craco start",
+    "start:network": "HOST=0.0.0.0 PUBLIC_URL=/hitmaker craco start",
     "build": "craco build",
     "test": "craco test",
     "eject": "craco eject",
