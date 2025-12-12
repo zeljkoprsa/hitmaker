@@ -1,6 +1,0 @@
-{
-  "buildCommand": "pnpm --filter hitmaker build",
-  "outputDirectory": "apps/hitmaker/build",
-  "framework": "create-react-app",
-  "installCommand": "pnpm install --frozen-lockfile"
-}
