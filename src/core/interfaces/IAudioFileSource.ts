@@ -2,11 +2,11 @@
  * Interface for audio file sources
  */
 
-import { IAudioSource } from './IAudioSource';
 import { AudioEvent } from './AudioEvents';
+import { IAudioSource } from './IAudioSource';
 
 // Audio file-specific event types
-export type AudioFileEventType = 
+export type AudioFileEventType =
   | 'loading'
   | 'loaded'
   | 'loadError'
@@ -47,7 +47,7 @@ export interface IAudioFileSource extends IAudioSource<AudioFileEventType, Audio
   // File loading and management
   load(file: File | string): Promise<void>;
   unload(): void;
-  
+
   // Playback control
   seek(position: number): void;
   setLoop(loop: boolean): void;

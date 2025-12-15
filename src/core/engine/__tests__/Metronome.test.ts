@@ -6,6 +6,13 @@
 import { OutputSourceRegistry } from '../../output/OutputSourceRegistry';
 import { Metronome } from '../Metronome';
 
+// Mock OutputSourceRegistry
+jest.mock('../../output/OutputSourceRegistry', () => ({
+  OutputSourceRegistry: {
+    getInstance: jest.fn(),
+  },
+}));
+
 // Mock Web Audio API
 class MockAudioContext {
   currentTime = 0;
@@ -42,24 +49,6 @@ class MockAudioContext {
   }
 }
 
-// Mock OutputSourceRegistry
-jest.mock('../../output/OutputSourceRegistry', () => {
-  const mockRegistry = {
-    getInstance: jest.fn(),
-    createSource: jest.fn().mockResolvedValue({}),
-    getActiveSource: jest.fn(),
-    updateConfig: jest.fn().mockResolvedValue({}),
-    removeSource: jest.fn().mockResolvedValue({}),
-    setActiveSource: jest.fn(),
-  };
-
-  return {
-    OutputSourceRegistry: {
-      getInstance: jest.fn().mockReturnValue(mockRegistry),
-    },
-  };
-});
-
 // Mock for requestAnimationFrame
 global.requestAnimationFrame = (callback: FrameRequestCallback): number => {
   return setTimeout(() => callback(Date.now()), 0) as unknown as number;
@@ -73,7 +62,7 @@ global.cancelAnimationFrame = (id: number): void => {
 describe('Metronome', () => {
   let metronome: Metronome;
   let mockAudioContext: MockAudioContext;
-  let mockOutputRegistry: any;
+  let mockRegistryInstance: any;
   let mockAudioSource: any;
 
   beforeEach(() => {
@@ -92,11 +81,22 @@ describe('Metronome', () => {
       processTick: jest.fn().mockResolvedValue(undefined),
       onError: jest.fn(),
       setEnabled: jest.fn(),
+      initialize: jest.fn().mockResolvedValue(undefined),
+      dispose: jest.fn().mockResolvedValue(undefined),
+      updateConfig: jest.fn().mockResolvedValue(undefined),
     };
 
-    mockOutputRegistry = OutputSourceRegistry.getInstance();
-    mockOutputRegistry.createSource.mockResolvedValue(mockAudioSource);
-    mockOutputRegistry.getActiveSource.mockReturnValue(mockAudioSource);
+    mockRegistryInstance = {
+      createSource: jest.fn().mockResolvedValue(mockAudioSource),
+      getActiveSource: jest.fn().mockReturnValue(mockAudioSource),
+      updateConfig: jest.fn().mockResolvedValue(undefined),
+      removeSource: jest.fn().mockResolvedValue(undefined),
+      setActiveSource: jest.fn(),
+      registerFactory: jest.fn(),
+    };
+
+    // Setup the static getInstance mock
+    (OutputSourceRegistry.getInstance as jest.Mock).mockReturnValue(mockRegistryInstance);
 
     // Create new metronome instance
     metronome = new Metronome();
@@ -119,12 +119,12 @@ describe('Metronome', () => {
         muted: false,
       });
 
-      expect(mockOutputRegistry.createSource).toHaveBeenCalled();
+      expect(mockRegistryInstance.createSource).toHaveBeenCalled();
     });
 
     it('should handle initialization errors', async () => {
       const error = new Error('Initialization failed');
-      mockOutputRegistry.createSource.mockRejectedValueOnce(error);
+      mockRegistryInstance.createSource.mockRejectedValueOnce(error);
 
       await expect(
         metronome.initialize({
@@ -198,7 +198,7 @@ describe('Metronome', () => {
       scheduleTick(mockAudioContext.currentTime);
 
       // Verify the active source was used
-      expect(mockOutputRegistry.getActiveSource).toHaveBeenCalled();
+      expect(mockRegistryInstance.getActiveSource).toHaveBeenCalled();
       expect(mockAudioSource.processTick).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'beat',
@@ -216,7 +216,7 @@ describe('Metronome', () => {
       scheduleTick(mockAudioContext.currentTime);
 
       // Verify the active source was used for both main beat and subdivision
-      expect(mockOutputRegistry.getActiveSource).toHaveBeenCalledTimes(3);
+      expect(mockRegistryInstance.getActiveSource).toHaveBeenCalledTimes(3);
       expect(mockAudioSource.processTick).toHaveBeenCalledTimes(3);
 
       // Verify the second call was for the subdivision

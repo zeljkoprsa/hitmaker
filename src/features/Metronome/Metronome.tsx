@@ -69,8 +69,8 @@ const Metronome: React.FC = () => {
             <div className={styles.timeSignatureControl}>
               <Controls.TimeSignatureControl
                 timeSignature={timeSignature}
-                changeTimeSignature={(beats, value) => {
-                  setTimeSignature({ beats, value });
+                changeTimeSignature={(beats, noteValue) => {
+                  setTimeSignature({ beats, noteValue });
                 }}
               />
             </div>

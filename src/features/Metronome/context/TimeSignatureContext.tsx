@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
-import { TimeSignature } from '../types';
+import { TimeSignature } from '../../../core/types/MetronomeTypes';
 
 interface TimeSignatureContextProps {
   timeSignature: TimeSignature;
@@ -18,7 +18,7 @@ export const useTimeSignature = () => {
 };
 
 export const TimeSignatureProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [timeSignature, setTimeSignatureState] = useState({ beats: 4, value: 4 });
+  const [timeSignature, setTimeSignatureState] = useState({ beats: 4, noteValue: 4 });
 
   const setTimeSignature = useCallback((newTimeSignature: TimeSignature) => {
     setTimeSignatureState(newTimeSignature);

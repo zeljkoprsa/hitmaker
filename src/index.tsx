@@ -21,9 +21,7 @@ root.render(
         debug: process.env.NODE_ENV === 'development',
       }}
     >
-      <MetronomeProvider>
-        <App />
-      </MetronomeProvider>
+      <App />
     </PostHogProvider>
   </React.StrictMode>
 );

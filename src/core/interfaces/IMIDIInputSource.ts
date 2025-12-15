@@ -2,11 +2,11 @@
  * Interface for MIDI input sources
  */
 
-import { IAudioSource } from './IAudioSource';
 import { AudioEvent } from './AudioEvents';
+import { IAudioSource } from './IAudioSource';
 
 // MIDI-specific event types
-export type MIDIEventType = 
+export type MIDIEventType =
   | 'noteOn'
   | 'noteOff'
   | 'controlChange'
@@ -36,7 +36,7 @@ export interface IMIDIInputSource extends IAudioSource<MIDIEventType, MIDIEventC
   connect(): Promise<void>;
   disconnect(): void;
   setChannel(channel: number): void;
-  
+
   // MIDI message handling
   onMIDIMessage(callback: MIDIEventCallback): void;
   removeMIDIMessageListener(callback: MIDIEventCallback): void;

@@ -2,28 +2,28 @@
 
 import React, { useState, useMemo } from 'react';
 
-import { Subdivision } from '../../types';
+import { SubdivisionType } from '../../../../core/types/MetronomeTypes';
 import { AnimationWrapper } from '../AnimationWrapper';
 
 import { DisplayButton, SubdivisionList, SubdivisionOption, SubdivisionContainer } from './styles';
 
 interface SubdivisionControlProps {
-  subdivision: Subdivision;
-  changeSubdivision: (subdivision: Subdivision) => void;
+  subdivision: SubdivisionType;
+  changeSubdivision: (subdivision: SubdivisionType) => void;
 }
 
 interface SubdivisionOptionType {
-  value: Subdivision;
+  value: SubdivisionType;
   display: string;
   image: string;
 }
 
 const subdivisionOptions: SubdivisionOptionType[] = [
-  { value: '1', display: 'Quarter', image: '/assets/images/quarter-note-subdivision.svg' },
-  { value: '2', display: 'Eighth', image: '/assets/images/eighth-note-subdivision.svg' },
+  { value: 'quarter', display: 'Quarter', image: '/assets/images/quarter-note-subdivision.svg' },
+  { value: 'eighth', display: 'Eighth', image: '/assets/images/eighth-note-subdivision.svg' },
 ];
 
-const getSubdivisionLabel = (subdivision: Subdivision): string => {
+const getSubdivisionLabel = (subdivision: SubdivisionType): string => {
   const option = subdivisionOptions.find(opt => opt.value === subdivision);
   return option ? option.display : subdivision;
 };

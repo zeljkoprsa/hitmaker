@@ -51,21 +51,23 @@ const mockTransport = {
   stop: jest.fn(),
   bpm: {
     value: 120,
-    rampTo: jest.fn()
+    rampTo: jest.fn(),
   },
-  position: "0:0:0",
+  position: '0:0:0',
   timeSignature: [4, 4],
   clear: jest.fn(),
-  cancel: jest.fn()
+  cancel: jest.fn(),
 };
 
 export const start = jest.fn().mockResolvedValue(undefined);
 export const Transport = mockTransport;
 
 // Create a constructor function that matches both Tone.Loop and Jest's Mock type
-const LoopMock = jest.fn().mockImplementation((callback: (time: number) => void, interval: string) => {
-  return new MockLoop(callback, interval);
-});
+const LoopMock = jest
+  .fn()
+  .mockImplementation((callback: (time: number) => void, interval: string) => {
+    return new MockLoop(callback, interval);
+  });
 
 export const Loop = LoopMock as jest.Mock & {
   prototype: Loop;
@@ -74,7 +76,7 @@ export const Loop = LoopMock as jest.Mock & {
 
 export const context = {
   state: 'running',
-  resume: jest.fn().mockResolvedValue(undefined)
+  resume: jest.fn().mockResolvedValue(undefined),
 };
 
 // Add default export for compatibility with both import styles
@@ -82,5 +84,5 @@ export default {
   start,
   Transport: mockTransport,
   Loop,
-  context
+  context,
 };

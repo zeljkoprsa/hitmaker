@@ -5,7 +5,7 @@ import { TimeSignatureContainer, TimeSignatureNumber } from './styles';
 interface TimeSignatureDisplayProps {
   timeSignature: {
     beats: number;
-    value: number;
+    noteValue: number;
   };
 }
 
@@ -13,7 +13,7 @@ export const TimeSignatureDisplay: React.FC<TimeSignatureDisplayProps> = ({ time
   return (
     <TimeSignatureContainer>
       <TimeSignatureNumber>{timeSignature.beats}</TimeSignatureNumber>
-      <TimeSignatureNumber>{timeSignature.value}</TimeSignatureNumber>
+      <TimeSignatureNumber>{timeSignature.noteValue}</TimeSignatureNumber>
     </TimeSignatureContainer>
   );
 };

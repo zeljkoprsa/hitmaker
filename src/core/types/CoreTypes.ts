@@ -2,15 +2,14 @@
  * Core type definitions and documentation for the metronome system.
  * This file provides comprehensive type definitions, documentation,
  * and usage examples for the core interfaces and types.
- * 
+ *
  * @packageDocumentation
  */
 
-import { 
-  MetronomeConfig
-} from './MetronomeTypes';
-import { ITickEvent } from '../interfaces/ITickEvent';
 import { IOutputSource, OutputSourceConfig } from '../interfaces/IOutputSource';
+import { ITickEvent } from '../interfaces/ITickEvent';
+
+import { MetronomeConfig } from './MetronomeTypes';
 
 /**
  * Represents a callback function for handling tick events
@@ -77,22 +76,22 @@ export type OutputSourceFactory = (config: OutputSourceConfig) => Promise<IOutpu
  *     { type: 'audio', id: 'click', enabled: true }
  *   ]
  * });
- * 
+ *
  * // Register tick event handler
  * engine.onTick((event: ITickEvent) => {
  *   console.log(`Beat ${event.beatNumber} of measure ${event.measureNumber}`);
  * });
- * 
+ *
  * // Start playback
  * await engine.start();
- * 
+ *
  * // Change tempo
  * engine.setTempo(140);
- * 
+ *
  * // Stop playback
  * await engine.stop();
  * ```
- * 
+ *
  * Example of implementing a custom output source:
  * ```typescript
  * class VisualOutputSource implements IOutputSource {
@@ -100,22 +99,22 @@ export type OutputSourceFactory = (config: OutputSourceConfig) => Promise<IOutpu
  *   readonly type: 'visual';
  *   private enabled = false;
  *   private initialized = false;
- * 
+ *
  *   constructor(id: string) {
  *     this.id = id;
  *   }
- * 
+ *
  *   async initialize(config: OutputSourceConfig): Promise<void> {
  *     this.enabled = config.enabled ?? true;
  *     this.initialized = true;
  *   }
- * 
+ *
  *   async processTick(event: ITickEvent): Promise<void> {
  *     if (!this.enabled) return;
  *     // Implement visual feedback for the tick
  *     this.updateVisualElement(event);
  *   }
- * 
+ *
  *   // ... implement other required methods
  * }
  * ```

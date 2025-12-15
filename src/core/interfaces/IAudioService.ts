@@ -2,12 +2,12 @@
  * Service interface for managing multiple audio sources and global audio operations
  */
 
-import { IAudioSource } from './IAudioSource';
 import { AudioEvent } from './AudioEvents';
+import { IAudioSource } from './IAudioSource';
 
 // Service-specific event types
-export type AudioServiceEventType = 
-  | 'sourceAdded' 
+export type AudioServiceEventType =
+  | 'sourceAdded'
   | 'sourceRemoved'
   | 'globalVolumeChanged'
   | 'globalMuteChanged';
@@ -25,7 +25,7 @@ export interface IAudioService {
   registerSource(source: IAudioSource): void;
   unregisterSource(sourceId: string): void;
   getSourceById(sourceId: string): IAudioSource | undefined;
-  
+
   // Global Controls
   playAll(): void;
   pauseAll(): void;

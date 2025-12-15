@@ -1,13 +1,21 @@
 import { EventEmitter } from 'events';
 
-import React, { createContext, useState, useRef, useContext, useEffect, useCallback } from 'react';
+import React, {
+  createContext,
+  useState,
+  useRef,
+  useContext,
+  useEffect,
+  useCallback,
+  useSyncExternalStore,
+} from 'react';
 
 import { Metronome, TickEvent } from '../../../core/engine/Metronome';
 import { OutputSourceRegistry } from '../../../core/output/OutputSourceRegistry';
 import { SampleAudioSource } from '../../../core/output/SampleAudioSource';
+import { TimeSignature, SubdivisionType } from '../../../core/types/MetronomeTypes';
 import { getSoundById } from '../../../core/types/SoundTypes';
 import { logger } from '../../../utils/logger';
-import { TimeSignature, Subdivision } from '../types';
 
 // Internal type to bridge UI TimeSignature and engine TimeSignature
 // Currently unused but kept for future reference
@@ -21,7 +29,7 @@ interface MetronomeContextType {
   isPlaying: boolean;
   tempo: number;
   timeSignature: TimeSignature;
-  subdivision: Subdivision;
+  subdivision: SubdivisionType;
   accents: boolean[];
   volume: number;
   muted: boolean;
@@ -30,7 +38,7 @@ interface MetronomeContextType {
   togglePlay: () => Promise<void>;
   setTempo: (bpm: number) => void;
   setTimeSignature: (timeSignature: TimeSignature) => void;
-  setSubdivision: (subdivision: Subdivision) => void;
+  setSubdivision: (subdivision: SubdivisionType) => void;
   setAccents: (accents: boolean[]) => void;
   setVolume: (volume: number) => void;
   setMuted: (muted: boolean) => void;
@@ -42,31 +50,22 @@ interface MetronomeContextType {
 const MetronomeContext = createContext<MetronomeContextType | null>(null);
 
 // Map UI subdivision values to engine subdivision types
-const subdivisionMap: Partial<Record<Subdivision, 'quarter' | 'eighth'>> = {
-  '1': 'quarter',
-  '2': 'eighth',
-};
+// Formerly used '1' and '2', now using direct types
 
 // Provider component
 export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Create a ref for the metronome instance
-  const metronomeRef = useRef<Metronome | null>(null);
-  const emitterRef = useRef<EventEmitter>(new EventEmitter());
+  // Create a consistent metronome instance
+  const [metronome] = useState(() => new Metronome());
   const outputRegistryRef = useRef<OutputSourceRegistry | null>(null);
+  const emitterRef = useRef<EventEmitter>(new EventEmitter());
+  const cleanupRef = useRef<(() => void) | null>(null);
 
-  // State for UI
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [tempo, setTempoState] = useState(120);
-  const [timeSignature, setTimeSignatureState] = useState<TimeSignature>({
-    beats: 4,
-    value: 4,
-  });
-  const [subdivision, setSubdivisionState] = useState<Subdivision>('1');
-  const [accents, setAccentsState] = useState<boolean[]>([true, false, false, false]);
-  const [volume, setVolumeState] = useState(1.0);
-  const [muted, setMutedState] = useState(false);
+  // Subscribe to engine state
+  const state = useSyncExternalStore(metronome.subscribe, metronome.getSnapshot);
+  console.log('[MetronomeProvider] Render with isPlaying:', state.isPlaying);
+
+  // Local state for sound management (not part of engine core config yet)
   const [soundId, setSoundIdState] = useState(() => {
-    // Try to load from localStorage or use default
     const savedSound = localStorage.getItem('metrodome-sound-preference');
     return savedSound || 'metronome-quartz';
   });
@@ -76,47 +75,36 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     const initMetronome = async () => {
       try {
-        // Create new metronome instance
-        const metronome = new Metronome();
-
-        // Get the output registry
         const outputRegistry = OutputSourceRegistry.getInstance();
         outputRegistryRef.current = outputRegistry;
 
-        // Initialize with initial config values
-        await metronome.initialize({
-          tempo,
-          timeSignature: {
-            beats: timeSignature.beats,
-            noteValue: timeSignature.value,
-          },
-          subdivision: subdivisionMap[subdivision] || 'quarter',
-          accents,
-          volume,
-          muted,
-        });
-
-        // Store in ref
-        metronomeRef.current = metronome;
+        // Initialize with defaults (or could start loading saved prefs here)
+        await metronome.initialize(metronome.getSnapshot());
 
         // Set up tick event handler
-        metronome.onTick(event => {
+        const stopListening = metronome.onTick(event => {
           emitterRef.current.emit('tick', event);
         });
 
         // Set up error handler
-        metronome.onError(error => {
+        const stopErrors = metronome.onError(error => {
           logger.error('Metronome error:', error);
         });
 
         // Initialize sound selection
         await initializeSound(soundId);
+
+        // Save cleanup function
+        cleanupRef.current = () => {
+          stopListening();
+          stopErrors();
+        };
       } catch (error) {
         logger.error('Failed to initialize metronome:', error);
       }
     };
 
-    // Helper function to initialize sound
+    // Helper function to initialize sound (kept local as it drives the OutputRegistry)
     const initializeSound = async (initialSoundId: string) => {
       try {
         setIsLoadingSound(true);
@@ -126,41 +114,46 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const sound = getSoundById(initialSoundId);
         if (!sound) return;
 
-        // Check if a sample source already exists
         let sampleSource = registry.getSource('sample') as SampleAudioSource;
 
         if (!sampleSource) {
-          logger.debug('Creating new SampleAudioSource during initialization');
-          // Create and initialize SampleAudioSource only if it doesn't exist
-          sampleSource = new SampleAudioSource({
-            id: 'sample',
-            type: 'sample',
-            enabled: true,
-            options: {
-              volume,
-              muted,
-              soundId: initialSoundId,
-            },
-          });
+          // Double check to avoid race conditions
+          const existing = registry.getSource('sample');
+          if (existing) {
+            sampleSource = existing as SampleAudioSource;
+          } else {
+            sampleSource = new SampleAudioSource({
+              id: 'sample',
+              type: 'sample',
+              enabled: true,
+              options: {
+                volume: state.volume,
+                muted: state.muted,
+                soundId: initialSoundId,
+              },
+            });
 
-          // Initialize the SampleAudioSource before registering it
-          await sampleSource.initialize({
-            id: 'sample',
-            type: 'sample',
-            enabled: true,
-            options: {
-              volume,
-              muted,
-              soundId: initialSoundId,
-            },
-          });
+            await sampleSource.initialize({
+              id: 'sample',
+              type: 'sample',
+              enabled: true,
+              options: {
+                volume: state.volume,
+                muted: state.muted,
+                soundId: initialSoundId,
+              },
+            });
 
-          await registry.createSource('sample', sampleSource);
-        } else {
-          logger.debug('Using existing SampleAudioSource during initialization');
+            try {
+              await registry.createSource('sample', sampleSource);
+            } catch (e) {
+              // Ignore if it was created in the meantime
+              const retry = registry.getSource('sample');
+              if (retry) sampleSource = retry as SampleAudioSource;
+            }
+          }
         }
 
-        // Set the sound and make it active regardless of whether it's new or existing
         await sampleSource.setSound(initialSoundId);
         registry.setActiveSource('sample');
       } catch (error) {
@@ -172,172 +165,68 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     initMetronome();
 
-    // Cleanup on unmount
     return () => {
-      const metronome = metronomeRef.current;
-      if (metronome) {
-        metronome.dispose().catch(error => {
-          console.error('Error disposing metronome:', error);
-        });
-      }
+      if (cleanupRef.current) cleanupRef.current();
+      metronome.dispose().catch(console.error);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array to create the metronome only once
+  }, []);
 
   // Toggle play/pause
   const togglePlay = useCallback(async () => {
-    const metronome = metronomeRef.current;
-    if (!metronome) return;
-
     try {
-      if (isPlaying) {
+      if (metronome.isPlaying()) {
         await metronome.stop();
-        setIsPlaying(false);
       } else {
         await metronome.start();
-        setIsPlaying(true);
       }
     } catch (error) {
       console.error('Error toggling playback:', error);
     }
-  }, [isPlaying]);
+  }, [metronome]);
 
-  // Set tempo
-  const setTempo = useCallback((bpm: number) => {
-    const metronome = metronomeRef.current;
-    if (!metronome) return;
-
-    metronome.setTempo(bpm);
-    setTempoState(bpm);
-  }, []);
-
-  // Set time signature
+  // Setters - Direct delegations
+  const setTempo = useCallback((bpm: number) => metronome.setTempo(bpm), [metronome]);
   const setTimeSignature = useCallback(
-    (newTimeSignature: TimeSignature) => {
-      const metronome = metronomeRef.current;
-      if (!metronome) return;
-
-      // Convert UI TimeSignature to engine TimeSignature
-      const engineTimeSignature = {
-        beats: newTimeSignature.beats,
-        noteValue: newTimeSignature.value,
-      };
-
-      metronome.setTimeSignature(engineTimeSignature);
-      setTimeSignatureState(newTimeSignature);
-
-      // Update accents array if needed
-      if (newTimeSignature.beats !== accents.length) {
-        const newAccents = Array(newTimeSignature.beats).fill(false);
-        newAccents[0] = true; // First beat is accented by default
-        metronome.setAccents(newAccents);
-        setAccentsState(newAccents);
-      }
-    },
-    [accents]
+    (ts: TimeSignature) => metronome.setTimeSignature(ts),
+    [metronome]
   );
+  const setSubdivision = useCallback(
+    (sd: SubdivisionType) => metronome.setSubdivision(sd),
+    [metronome]
+  );
+  const setAccents = useCallback((acc: boolean[]) => metronome.setAccents(acc), [metronome]);
+  const setVolume = useCallback((vol: number) => metronome.setVolume(vol), [metronome]);
+  const setMuted = useCallback((m: boolean) => metronome.setMuted(m), [metronome]);
 
-  // Set subdivision
-  const setSubdivision = useCallback((newSubdivision: Subdivision) => {
-    const metronome = metronomeRef.current;
-    if (!metronome) return;
-
-    // Use quarter as fallback if subdivision not found in map
-    metronome.setSubdivision(subdivisionMap[newSubdivision] || 'quarter');
-    setSubdivisionState(newSubdivision);
-  }, []);
-
-  // Set accents
-  const setAccents = useCallback((newAccents: boolean[]) => {
-    const metronome = metronomeRef.current;
-    if (!metronome) return;
-
-    metronome.setAccents(newAccents);
-    setAccentsState(newAccents);
-  }, []);
-
-  // Set volume
-  const setVolume = useCallback((newVolume: number) => {
-    const metronome = metronomeRef.current;
-    if (!metronome) return;
-
-    metronome.setVolume(newVolume);
-    setVolumeState(newVolume);
-  }, []);
-
-  // Set muted
-  const setMuted = useCallback((newMuted: boolean) => {
-    const metronome = metronomeRef.current;
-    if (!metronome) return;
-
-    metronome.setMuted(newMuted);
-    setMutedState(newMuted);
-  }, []);
-
-  // Set sound
+  // Set sound - distinct because it interacts with the registry/persistence
   const setSound = useCallback(
     async (newSoundId: string) => {
-      logger.info(`Setting sound to ${newSoundId}`);
       try {
         setIsLoadingSound(true);
         const registry = outputRegistryRef.current;
-        if (!registry) {
-          logger.error('Output registry is null');
-          return;
-        }
+        if (!registry) return;
 
         const sound = getSoundById(newSoundId);
-        if (!sound) {
-          logger.error(`Sound with ID ${newSoundId} not found`);
-          return;
-        }
+        if (!sound) return;
 
-        logger.debug('Using SampleAudioSource');
-
-        // Get or create SampleAudioSource
-        logger.debug('Using SampleAudioSource');
+        // Ensure source exists (lazy creation if needed, though init handles it)
         let sampleSource = registry.getSource('sample') as SampleAudioSource;
-        logger.debug(`Existing sample source: ${sampleSource ? 'found' : 'not found'}`);
-
         if (!sampleSource) {
-          // Create new SampleAudioSource if it doesn't exist
-          logger.debug('Creating new SampleAudioSource');
+          // Fallback creation if not present
           sampleSource = new SampleAudioSource({
             id: 'sample',
             type: 'sample',
             enabled: true,
-            options: {
-              volume,
-              muted,
-              soundId: newSoundId,
-            },
+            options: { volume: state.volume, muted: state.muted, soundId: newSoundId },
           });
-
-          // Initialize the SampleAudioSource before registering it
-          logger.debug('Initializing SampleAudioSource');
-          await sampleSource.initialize({
-            id: 'sample',
-            type: 'sample',
-            enabled: true,
-            options: {
-              volume,
-              muted,
-              soundId: newSoundId,
-            },
-          });
-
+          await sampleSource.initialize(sampleSource.getConfig());
           await registry.createSource('sample', sampleSource);
-          logger.debug('Created new SampleAudioSource');
         }
 
-        // Set the new sound and activate the source
-        logger.debug(`Setting sample sound to ${newSoundId}`);
         await sampleSource.setSound(newSoundId);
-        logger.debug('Setting sample source as active');
         registry.setActiveSource('sample');
 
-        // Update state and save preference
-        logger.debug(`Updating state with sound ID ${newSoundId}`);
         setSoundIdState(newSoundId);
         localStorage.setItem('metrodome-sound-preference', newSoundId);
       } catch (error) {
@@ -346,29 +235,27 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setIsLoadingSound(false);
       }
     },
-    [volume, muted]
+    [state.volume, state.muted]
   );
 
   // Register tick callback
   const onTick = useCallback((callback: (event: TickEvent) => void) => {
     const emitter = emitterRef.current;
     emitter.on('tick', callback);
-
-    // Return cleanup function
     return () => {
       emitter.off('tick', callback);
     };
   }, []);
 
-  // Context value
+  // Context value constructed from the synced state
   const contextValue: MetronomeContextType = {
-    isPlaying,
-    tempo,
-    timeSignature,
-    subdivision,
-    accents,
-    volume,
-    muted,
+    isPlaying: state.isPlaying,
+    tempo: state.tempo,
+    timeSignature: state.timeSignature,
+    subdivision: state.subdivision,
+    accents: state.accents,
+    volume: state.volume,
+    muted: state.muted,
     soundId,
     isLoadingSound,
     togglePlay,

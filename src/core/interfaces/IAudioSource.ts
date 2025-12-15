@@ -6,7 +6,7 @@ import type { AudioEventType, AudioEventCallback } from 'core/interfaces/AudioEv
 
 export interface IAudioSource<
   TEventType extends string = AudioEventType,
-  TCallback extends Function = AudioEventCallback
+  TCallback extends Function = AudioEventCallback,
 > {
   // Properties
   readonly id: string;

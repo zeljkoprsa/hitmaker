@@ -9,7 +9,7 @@ export interface TimeSignature {
   noteValue: number;
 }
 
-export type MetronomeEventType = 
+export type MetronomeEventType =
   | 'beat'
   | 'measure'
   | 'tempoChange'
@@ -33,4 +33,8 @@ export interface MetronomeConfig {
   accents?: boolean[];
   volume?: number;
   muted?: boolean;
+}
+
+export interface MetronomeState extends Required<MetronomeConfig> {
+  isPlaying: boolean;
 }

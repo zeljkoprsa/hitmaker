@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 
-import { TimeSignature } from '../../types';
+import { TimeSignature } from '../../../../core/types/MetronomeTypes';
 import { AnimationWrapper } from '../AnimationWrapper';
 
 import {
@@ -14,20 +14,20 @@ import {
 
 interface TimeSignatureOption {
   beats: number;
-  value: number;
+  noteValue: number;
   display: string;
 }
 
 const timeSignatureOptions: TimeSignatureOption[] = [
-  { beats: 4, value: 4, display: '4/4' },
-  { beats: 3, value: 4, display: '3/4' },
-  { beats: 2, value: 4, display: '2/4' },
-  { beats: 1, value: 4, display: '1/4' },
+  { beats: 4, noteValue: 4, display: '4/4' },
+  { beats: 3, noteValue: 4, display: '3/4' },
+  { beats: 2, noteValue: 4, display: '2/4' },
+  { beats: 1, noteValue: 4, display: '1/4' },
 ];
 
 interface TimeSignatureControlProps {
   timeSignature: TimeSignature;
-  changeTimeSignature: (beats: number, value: number) => void;
+  changeTimeSignature: (beats: number, noteValue: number) => void;
 }
 
 export const TimeSignatureControl: React.FC<TimeSignatureControlProps> = ({
@@ -40,13 +40,14 @@ export const TimeSignatureControl: React.FC<TimeSignatureControlProps> = ({
   const availableOptions = useMemo(
     () =>
       timeSignatureOptions.filter(
-        option => !(option.beats === timeSignature.beats && option.value === timeSignature.value)
+        option =>
+          !(option.beats === timeSignature.beats && option.noteValue === timeSignature.noteValue)
       ),
-    [timeSignature.beats, timeSignature.value]
+    [timeSignature.beats, timeSignature.noteValue]
   );
 
   const handleSelect = (option: TimeSignatureOption) => {
-    changeTimeSignature(option.beats, option.value);
+    changeTimeSignature(option.beats, option.noteValue);
     setIsOpen(false);
   };
 
@@ -92,7 +93,7 @@ export const TimeSignatureControl: React.FC<TimeSignatureControlProps> = ({
         aria-haspopup="listbox"
       >
         <span>
-          {timeSignature.beats}/{timeSignature.value}
+          {timeSignature.beats}/{timeSignature.noteValue}
         </span>
       </DisplayButton>
 
