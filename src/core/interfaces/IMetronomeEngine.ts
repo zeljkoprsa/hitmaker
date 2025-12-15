@@ -4,6 +4,7 @@
  * scheduling, and configuration of the metronome.
  */
 import { MetronomeConfig, TimeSignature, SubdivisionType } from '../types/MetronomeTypes';
+
 import { ITickEvent } from './ITickEvent';
 
 export interface IMetronomeEngine {

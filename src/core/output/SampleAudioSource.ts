@@ -146,13 +146,24 @@ export class SampleAudioSource extends BaseOutputSource {
       }
 
       const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+      let audioBuffer: AudioBuffer;
+      try {
+        audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+      } catch (decodeError) {
+        logger.warn(`Failed to decode audio data for ${url}:`, decodeError);
+        // Create an empty silent buffer as fallback
+        audioBuffer = this.audioContext.createBuffer(1, 1, 44100);
+      }
 
       // Apply mobile optimization if needed
       return this.isMobile ? this.optimizeBufferForMobile(audioBuffer) : audioBuffer;
     } catch (error) {
       console.error(`Error loading sample ${url}:`, error);
-      throw error;
+      // Return silent buffer on fetch or other errors to prevent crash
+      return (
+        this.audioContext?.createBuffer(1, 1, 44100) ||
+        new AudioBuffer({ length: 1, sampleRate: 44100 })
+      );
     }
   }
 

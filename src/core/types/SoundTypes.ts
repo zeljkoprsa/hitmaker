@@ -51,33 +51,80 @@ export interface Sound {
  * Includes only sample-based options.
  */
 export const SOUNDS: Sound[] = [
-  // Limited high-quality sample sets for MLP
+  // Percussion
   {
     id: 'metronome-quartz',
-    name: 'Metronome Quartz',
+    name: 'Quartz',
     type: 'sample',
     category: 'percussion',
-    description: 'Traditional mechanical metronome sound',
+    description: 'Traditional mechanical metronome',
     highSample: '/assets/sounds/Perc_MetronomeQuartz_hi.wav',
     lowSample: '/assets/sounds/Perc_MetronomeQuartz_lo.wav',
   },
   {
+    id: 'perc-sticks',
+    name: 'Sticks',
+    type: 'sample',
+    category: 'percussion',
+    description: 'Wooden sticks clicking',
+    highSample: '/assets/sounds/Perc_Stick_hi.wav',
+    lowSample: '/assets/sounds/Perc_Stick_lo.wav',
+  },
+  {
+    id: 'perc-woodblock',
+    name: 'Block',
+    type: 'sample',
+    category: 'percussion',
+    description: 'Resonant woodblock',
+    highSample: '/assets/sounds/Synth_Block_A_hi.wav',
+    lowSample: '/assets/sounds/Synth_Block_A_lo.wav',
+  },
+  {
+    id: 'perc-clap',
+    name: 'Clap',
+    type: 'sample',
+    category: 'percussion',
+    description: 'Sharp hand clap',
+    highSample: '/assets/sounds/Perc_Clap_hi.wav',
+    lowSample: '/assets/sounds/Perc_Clap_lo.wav',
+  },
+  {
+    id: 'perc-cowbell',
+    name: 'Cowbell',
+    type: 'sample',
+    category: 'percussion',
+    description: 'Sharp metallic click',
+    highSample: '/assets/sounds/Perc_Metal_hi.wav',
+    lowSample: '/assets/sounds/Perc_Metal_lo.wav',
+  },
+
+  // Electronic
+  {
     id: 'electronic-click',
-    name: 'Electronic Click',
+    name: 'Click',
     type: 'sample',
     category: 'electronic',
-    description: 'Clean electronic click sound',
+    description: 'Clean electronic pulse',
     highSample: '/assets/sounds/Synth_Tick_A_hi.wav',
     lowSample: '/assets/sounds/Synth_Tick_A_lo.wav',
   },
   {
     id: 'digital-bell',
-    name: 'Digital Bell',
+    name: 'Bell',
     type: 'sample',
     category: 'electronic',
-    description: 'Bright digital bell sound',
+    description: 'Bright digital chime',
     highSample: '/assets/sounds/Synth_Bell_A_hi.wav',
     lowSample: '/assets/sounds/Synth_Bell_A_lo.wav',
+  },
+  {
+    id: 'synth-blip',
+    name: 'Blip',
+    type: 'sample',
+    category: 'electronic',
+    description: 'Short synthesized blip',
+    highSample: '/assets/sounds/Synth_Square_A_hi.wav',
+    lowSample: '/assets/sounds/Synth_Square_A_lo.wav',
   },
 ];
 

@@ -24,7 +24,7 @@
   },
   "scripts": {
     "dev": "craco start",
-    "start": "craco start",
+    "start": "PORT=3000 craco start",
     "start:network": "HOST=0.0.0.0 craco start",
     "build": "craco build",
     "test": "craco test",

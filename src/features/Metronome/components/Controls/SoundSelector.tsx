@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 
-import { getSoundById } from '../../../../core/types/SoundTypes';
+import { getSoundById, SOUNDS } from '../../../../core/types/SoundTypes';
 import { AnimationWrapper } from '../AnimationWrapper';
 
 import {
@@ -24,12 +24,12 @@ interface SoundOptionType {
   category: string;
 }
 
-// Limited sound options for MLP - only sample-based sounds
-const soundOptions: SoundOptionType[] = [
-  { id: 'metronome-quartz', display: 'Quartz', category: 'percussion' },
-  { id: 'electronic-click', display: 'Klik', category: 'electronic' },
-  { id: 'digital-bell', display: 'Bell', category: 'electronic' },
-];
+// Dynamically map all available sounds from the registry
+const soundOptions: SoundOptionType[] = SOUNDS.map(sound => ({
+  id: sound.id,
+  display: sound.name,
+  category: sound.category,
+}));
 
 const getSoundLabel = (soundId: string): string => {
   const option = soundOptions.find(opt => opt.id === soundId);

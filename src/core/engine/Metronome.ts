@@ -8,15 +8,17 @@ import { logger } from '../../utils/logger';
 import { IOutputSource } from '../interfaces/IOutputSource';
 import { ITickEvent } from '../interfaces/ITickEvent';
 import { OutputSourceRegistry } from '../output/OutputSourceRegistry';
+import {
+  TimeSignature,
+  SubdivisionType,
+  MetronomeConfig,
+  MetronomeState,
+} from '../types/MetronomeTypes';
+export type { MetronomeConfig, MetronomeState };
 
-export interface MetronomeConfig {
-  tempo: number;
-  timeSignature: { beats: number; noteValue: number };
-  subdivision: 'quarter' | 'eighth';
-  accents: boolean[];
-  volume: number;
-  muted: boolean;
-}
+// Re-export specific interfaces if needed by consumers, but internally use the shared one.
+// However, the class implements logic that might need specific fields.
+// The local interface matched MetronomeConfig except for the restricted subdivision.
 
 export interface TickEvent {
   type: 'beat';
@@ -24,8 +26,8 @@ export interface TickEvent {
   beatNumber: number;
   measureNumber: number;
   tempo: number;
-  timeSignature: { beats: number; noteValue: number };
-  subdivision: 'quarter' | 'eighth';
+  timeSignature: TimeSignature;
+  subdivision: SubdivisionType;
   isAccented: boolean;
   beatDuration: number;
   nextTickTime: number;
@@ -46,7 +48,7 @@ export class Metronome {
   private outputRegistry: OutputSourceRegistry;
   private audioSource: IOutputSource | null = null;
 
-  private config: MetronomeConfig = {
+  private config: Required<MetronomeConfig> = {
     tempo: 120,
     timeSignature: { beats: 4, noteValue: 4 },
     subdivision: 'quarter',
@@ -57,10 +59,19 @@ export class Metronome {
 
   private tickCallbacks: Set<(event: TickEvent) => void> = new Set();
   private errorHandlers: Set<(error: Error) => void> = new Set();
+  private subscribers: Set<() => void> = new Set();
 
   constructor() {
     // Initialize properties only
     this.outputRegistry = OutputSourceRegistry.getInstance();
+    logger.info('[Metronome] Constructor called');
+
+    // Create audio context immediately if possible, but don't fail if we can't (browser policy)
+    try {
+      this.audioContext = new AudioContext();
+    } catch (e) {
+      logger.warn('Could not create AudioContext in constructor:', e);
+    }
   }
 
   /**
@@ -68,11 +79,31 @@ export class Metronome {
    */
   async initialize(config: MetronomeConfig): Promise<void> {
     try {
-      // Update configuration
-      this.config = { ...config };
+      // Update configuration with defaults for missing values
+      this.config = {
+        tempo: config.tempo,
+        timeSignature: config.timeSignature,
+        subdivision: config.subdivision || 'quarter',
+        accents: config.accents || [true, false, false, false],
+        volume: config.volume ?? 1.0,
+        muted: config.muted ?? false,
+      };
 
       // Create audio context for timing purposes
-      this.audioContext = new AudioContext();
+      if (!this.audioContext) {
+        try {
+          const AudioContextClass =
+            window.AudioContext ||
+            (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+          if (AudioContextClass) {
+            this.audioContext = new AudioContextClass();
+          } else {
+            logger.error('Browser does not support Web Audio API');
+          }
+        } catch (e) {
+          logger.error('Failed to create AudioContext during initialization:', e);
+        }
+      }
 
       // Initialize the WebAudioSource through the registry
       this.audioSource = await this.outputRegistry.createSource({
@@ -95,19 +126,22 @@ export class Metronome {
       await this.outputRegistry.updateConfig(this.config);
 
       // Log audio context information
-      const baseLatency = this.audioContext.baseLatency || 0;
-      const outputLatency =
-        (this.audioContext as AudioContext & { outputLatency?: number }).outputLatency || 0;
-      const totalLatency = baseLatency + outputLatency;
+      if (this.audioContext) {
+        const baseLatency = this.audioContext.baseLatency || 0;
+        const outputLatency =
+          (this.audioContext as AudioContext & { outputLatency?: number }).outputLatency || 0;
+        const totalLatency = baseLatency + outputLatency;
 
-      logger.info(
-        `Audio latency: ${totalLatency * 1000}ms (base: ${baseLatency * 1000}ms, output: ${outputLatency * 1000}ms)`
-      );
+        logger.info(
+          `Audio latency: ${totalLatency * 1000}ms (base: ${baseLatency * 1000}ms, output: ${outputLatency * 1000}ms)`
+        );
 
-      if (totalLatency > 0.02) {
-        // 20ms threshold
-        logger.warn(`High audio latency detected: ${totalLatency * 1000}ms`);
+        if (totalLatency > 0.02) {
+          // 20ms threshold
+          logger.warn(`High audio latency detected: ${totalLatency * 1000}ms`);
+        }
       }
+      this.notifyChange();
     } catch (error) {
       logger.error('Error initializing Metronome:', error);
       this.notifyError(error as Error);
@@ -279,6 +313,20 @@ export class Metronome {
 
     try {
       if (!this.audioContext) {
+        // Try to create AudioContext lazily (e.g. inside user gesture)
+        try {
+          const AudioContextClass =
+            window.AudioContext ||
+            (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+          if (AudioContextClass) {
+            this.audioContext = new AudioContextClass();
+          }
+        } catch (e) {
+          logger.warn('Failed to lazy-initialize AudioContext:', e);
+        }
+      }
+
+      if (!this.audioContext) {
         throw new Error('Metronome not initialized');
       }
 
@@ -300,6 +348,7 @@ export class Metronome {
       // Start the scheduler
       this.scheduler();
 
+      this.notifyChange();
       logger.info('Metronome started');
     } catch (error) {
       logger.error('Error starting metronome:', error);
@@ -329,6 +378,7 @@ export class Metronome {
       this.currentBeat = 0;
       this.currentMeasure = 1;
 
+      this.notifyChange();
       logger.info('Metronome stopped');
     } catch (error) {
       logger.error('Error stopping metronome:', error);
@@ -344,6 +394,7 @@ export class Metronome {
     // Clamp tempo to valid range
     const clampedBpm = Math.max(30, Math.min(500, bpm));
     this.config.tempo = clampedBpm;
+    this.notifyChange();
   }
 
   /**
@@ -352,13 +403,12 @@ export class Metronome {
   setTimeSignature(timeSignature: { beats: number; noteValue: number }): void {
     this.config.timeSignature = timeSignature;
     this.currentBeat = 0; // Reset beat counter on time signature change
+    this.notifyChange();
   }
 
-  /**
-   * Sets the subdivision type
-   */
-  setSubdivision(subdivision: 'quarter' | 'eighth'): void {
+  setSubdivision(subdivision: SubdivisionType): void {
     this.config.subdivision = subdivision;
+    this.notifyChange();
   }
 
   /**
@@ -366,6 +416,7 @@ export class Metronome {
    */
   setAccents(accents: boolean[]): void {
     this.config.accents = accents;
+    this.notifyChange();
   }
 
   /**
@@ -381,6 +432,7 @@ export class Metronome {
       logger.error('Error updating volume:', error);
       this.notifyError(error);
     });
+    this.notifyChange();
   }
 
   /**
@@ -394,6 +446,7 @@ export class Metronome {
       logger.error('Error updating mute state:', error);
       this.notifyError(error);
     });
+    this.notifyChange();
   }
 
   /**
@@ -461,8 +514,59 @@ export class Metronome {
       this.audioContext = null;
     }
 
-    // Clear callbacks
-    this.tickCallbacks.clear();
-    this.errorHandlers.clear();
+    // Do not clear subscribers or callbacks manually here.
+    // Consumers (hooks/components) are responsible for unsubscribing.
+    // Clearing them here causes race conditions with React StrictMode where
+    // the new subscription is wiped out by the previous cleanup's dispose call.
+  }
+
+  /**
+   * Subscribes to state changes
+   */
+  /**
+   * Subscribes to state changes
+   */
+  subscribe = (callback: () => void): (() => void) => {
+    console.log('[Metronome] Subscribed. Total:', this.subscribers.size + 1);
+    this.subscribers.add(callback);
+    return () => {
+      console.log('[Metronome] Unsubscribed. Total:', this.subscribers.size - 1);
+      this.subscribers.delete(callback);
+    };
+  };
+
+  /**
+   * Cached snapshot to ensure reference stability for useSyncExternalStore
+   */
+  private currentSnapshot: MetronomeState | null = null;
+
+  /**
+   * Gets the current state snapshot
+   * Returns a stable reference if state hasn't changed
+   */
+  getSnapshot = (): MetronomeState => {
+    if (!this.currentSnapshot) {
+      this.currentSnapshot = {
+        ...this.config,
+        isPlaying: this.playing,
+      };
+    }
+    // logger.info('[Metronome] getSnapshot called', this.currentSnapshot);
+    return this.currentSnapshot;
+  };
+
+  /**
+   * Notifies subscribers of state changes
+   * Updates the cached snapshot before notifying
+   */
+  private notifyChange(): void {
+    // Update snapshot
+    this.currentSnapshot = {
+      ...this.config,
+      isPlaying: this.playing,
+    };
+    console.log(`[Metronome] notifyChange. Subscribers: ${this.subscribers.size}`);
+    // Notify subscribers
+    this.subscribers.forEach(callback => callback());
   }
 }

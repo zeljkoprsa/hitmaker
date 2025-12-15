@@ -21,10 +21,10 @@ const defaultSource: IOutputSource = {
 
   // Configuration methods
   updateConfig: jest.fn().mockResolvedValue(undefined),
-  getConfig: jest.fn().mockReturnValue({ 
-    id: 'default-audio', 
+  getConfig: jest.fn().mockReturnValue({
+    id: 'default-audio',
     type: 'audio',
-    enabled: true 
+    enabled: true,
   }),
   setEnabled: jest.fn(),
 
@@ -33,7 +33,7 @@ const defaultSource: IOutputSource = {
   onError: jest.fn().mockReturnValue(() => {}),
 
   // State change handling
-  onStateChange: jest.fn().mockReturnValue(() => {})
+  onStateChange: jest.fn().mockReturnValue(() => {}),
 };
 
 class MockOutputSourceRegistry {
@@ -49,11 +49,11 @@ class MockOutputSourceRegistry {
   }
 
   public createSource = jest.fn().mockImplementation(async (config: OutputSourceConfig) => {
-    const source = { 
-      ...defaultSource, 
-      id: config.id, 
+    const source = {
+      ...defaultSource,
+      id: config.id,
       type: config.type,
-      getConfig: jest.fn().mockReturnValue(config)
+      getConfig: jest.fn().mockReturnValue(config),
     };
     this.sources.set(config.id, source);
     return source;

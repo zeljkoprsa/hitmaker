@@ -2,15 +2,16 @@
  * Metronome-specific audio source interface
  */
 
-import { IAudioSource } from './IAudioSource';
-import { AudioEvent } from './AudioEvents';
 import {
   SubdivisionType,
   TimeSignature,
   MetronomeEventType,
   MetronomeEvent,
-  MetronomeConfig
+  MetronomeConfig,
 } from '../types/MetronomeTypes';
+
+import { AudioEvent } from './AudioEvents';
+import { IAudioSource } from './IAudioSource';
 
 export interface MetronomeAudioEvent extends AudioEvent, MetronomeEvent {}
 
@@ -27,7 +28,7 @@ export interface IMetronomeSource extends IAudioSource<MetronomeEventType, Metro
 
   // Configuration
   configure(config: Partial<MetronomeConfig>): void;
-  
+
   // Metronome Controls
   setTempo(bpm: number): void;
   setTimeSignature(beats: number, noteValue: number): void;

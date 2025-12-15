@@ -8,20 +8,7 @@ import { ITickEvent } from '../../interfaces/ITickEvent';
 import { SampleAudioSource } from '../SampleAudioSource';
 
 // Mock getSoundById function
-jest.mock('../../types/SoundTypes', () => ({
-  getSoundById: jest.fn().mockImplementation(id => {
-    if (id === 'invalid-sound') return null;
-
-    return {
-      id,
-      name: `Test Sound ${id}`,
-      type: 'sample',
-      category: 'percussion',
-      highSample: `/assets/sounds/${id}_hi.wav`,
-      lowSample: `/assets/sounds/${id}_lo.wav`,
-    };
-  }),
-}));
+// OutputSourceRegistry mock removed to use real implementation
 
 // Mock Web Audio API
 class MockAudioContext {
@@ -74,14 +61,7 @@ class MockAudioContext {
   }
 }
 
-// Mock fetch for loading audio samples
-global.fetch = jest.fn().mockImplementation(_url => {
-  return Promise.resolve({
-    ok: true,
-    arrayBuffer: () => Promise.resolve(new ArrayBuffer(1000)),
-  });
-});
-
+// Mock fetch moved to beforeEach
 describe('SampleAudioSource', () => {
   let sampleSource: SampleAudioSource;
   let mockAudioContext: MockAudioContext;
@@ -93,6 +73,12 @@ describe('SampleAudioSource', () => {
     // Create mock audio context
     mockAudioContext = new MockAudioContext();
     (global as any).AudioContext = jest.fn().mockImplementation(() => mockAudioContext);
+
+    // Mock fetch for loading audio samples
+    jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(1000)),
+    } as Response);
 
     // Create a new SampleAudioSource instance
     const config: OutputSourceConfig = {
