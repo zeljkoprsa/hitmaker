@@ -81,6 +81,31 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         // Initialize with defaults (or could start loading saved prefs here)
         await metronome.initialize(metronome.getSnapshot());
 
+        // handle URL shortcuts (e.g., ?tempo=120&play=true)
+        const params = new URLSearchParams(window.location.search);
+        const tempoParam = params.get('tempo');
+        const playParam = params.get('play');
+
+        if (tempoParam) {
+          const bpm = parseInt(tempoParam, 10);
+          if (!isNaN(bpm) && bpm >= 30 && bpm <= 500) {
+            metronome.setTempo(bpm);
+          }
+        }
+
+        if (playParam === 'true') {
+          // Short delay to ensure audio context can wake up if possible, 
+          // though this often requires user gesture logic deeper in the stack.
+          // Metronome.start() handles context.resume() which might throw/warn if blocked.
+          metronome.start().catch(err => console.warn("Autoplay blocked:", err));
+        }
+
+        // Clean up URL parameters to prevent re-applying on refresh if desired
+        if (tempoParam || playParam) {
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, '', newUrl);
+        }
+
         // Set up tick event handler
         const stopListening = metronome.onTick(event => {
           emitterRef.current.emit('tick', event);

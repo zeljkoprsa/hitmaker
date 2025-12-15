@@ -7,9 +7,9 @@
 - [x] **Consolidate Types**: Review `src/features/Metronome/types.ts` vs `src/core/types` to reduce duplication.
 
 ## High Priority
-- [ ] **PWA Offline Support**: Enable Service Worker to cache app shell and audio assets, allowing offline use.
-- [ ] **Screen Wake Lock**: Prevent device from sleeping while metronome is active (`navigator.wakeLock`).
-- [ ] **PWA Installability**: Configure `manifest.json` with proper metadata, icons, and `standalone` display for "App-like" experience.
+- [x] **PWA Offline Support**: Enable Service Worker to cache app shell and audio assets, allowing offline use.
+- [x] **Screen Wake Lock**: Prevent device from sleeping while metronome is active (`navigator.wakeLock`).
+- [x] **PWA Installability**: Configure `manifest.json` with proper metadata, icons, and `standalone` display for "App-like" experience.
 
 ## Medium Priority
 
@@ -27,8 +27,8 @@
 
 ## Low Priority (Future)
 
-- [ ] **Media Session API**: Allow control of metronome (Play/Pause) from lock screen and headphone buttons.
-- [ ] **App Shortcuts**: specific shortcuts in `manifest.json` to launch app with preset tempos (e.g., "Start 120 BPM").
+- [x] **Media Session API**: Allow control of metronome (Play/Pause) from lock screen and headphone buttons.
+- [x] **App Shortcuts**: specific shortcuts in `manifest.json` supported by query string parsing in `MetronomeProvider`.
 - [ ] **MIDI Output**: Implement a `MidiOutputSource` implementing `IOutputSource` to drive external hardware.
 - [ ] **Tempo Ramping**: Add ability to automate tempo changes (requires Engine state to drive React state, see "Optimize State Sync").
 - [ ] **Visualizer Optimization**: Ensure `BeatVisualizer` uses `requestAnimationFrame` effectively and doesn't trigger React renders for every frame (it seems to use `TickEvent` which is good).

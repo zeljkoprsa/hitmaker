@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 
 import { TickEvent } from '../../core/engine/Metronome';
+import { useMediaSession } from '../../hooks/useMediaSession';
 import { useResponsive } from '../../hooks/useResponsive';
+import { useWakeLock } from '../../hooks/useWakeLock';
 
 import { Controls, Displays } from './components';
 import { SoundSelector } from './components/Controls/SoundSelector';
@@ -29,6 +31,12 @@ const Metronome: React.FC = () => {
     setSound,
     onTick,
   } = useMetronome();
+
+  // Enable Screen Wake Lock while playing
+  useWakeLock(isPlaying);
+
+  // Enable Media Session controls (Lock Screen Play/Pause + Next/Prev for Tempo)
+  useMediaSession({ isPlaying, tempo, togglePlay, setTempo });
 
   // Listen to beat events
   useEffect(() => {
