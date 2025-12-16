@@ -100,6 +100,9 @@ const Metronome: React.FC = () => {
             </div>
           </div>
 
+          {/* Accent control */}
+          <Controls.AccentControl accents={accents || []} onToggleAccent={toggleAccent} />
+
           {/* Tempo slider */}
           <div className={styles.tempoSlider}>
             <Controls.TempoControl tempo={tempo} setTempo={setTempo} />
