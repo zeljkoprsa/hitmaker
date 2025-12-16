@@ -10,10 +10,11 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 
-import { Metronome, TickEvent } from '../../../core/engine/Metronome';
+import { Metronome } from '../../../core/engine/Metronome';
+import { ITickEvent } from '../../../core/interfaces/ITickEvent';
 import { OutputSourceRegistry } from '../../../core/output/OutputSourceRegistry';
 import { SampleAudioSource } from '../../../core/output/SampleAudioSource';
-import { TimeSignature, SubdivisionType } from '../../../core/types/MetronomeTypes';
+import { TimeSignature, SubdivisionType, AccentLevel } from '../../../core/types/MetronomeTypes';
 import { getSoundById } from '../../../core/types/SoundTypes';
 import { logger } from '../../../utils/logger';
 
@@ -30,7 +31,7 @@ interface MetronomeContextType {
   tempo: number;
   timeSignature: TimeSignature;
   subdivision: SubdivisionType;
-  accents: boolean[];
+  accents: AccentLevel[];
   volume: number;
   muted: boolean;
   soundId: string;
@@ -39,11 +40,12 @@ interface MetronomeContextType {
   setTempo: (bpm: number) => void;
   setTimeSignature: (timeSignature: TimeSignature) => void;
   setSubdivision: (subdivision: SubdivisionType) => void;
-  setAccents: (accents: boolean[]) => void;
+  setAccents: (accents: AccentLevel[]) => void;
+  toggleAccent: (index: number) => void;
   setVolume: (volume: number) => void;
   setMuted: (muted: boolean) => void;
   setSound: (soundId: string) => Promise<void>;
-  onTick: (callback: (event: TickEvent) => void) => () => void;
+  onTick: (callback: (event: ITickEvent) => void) => () => void;
 }
 
 // Create the context with default values
@@ -62,7 +64,7 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Subscribe to engine state
   const state = useSyncExternalStore(metronome.subscribe, metronome.getSnapshot);
-  console.log('[MetronomeProvider] Render with isPlaying:', state.isPlaying);
+  // console.log('[MetronomeProvider] Render with isPlaying:', state.isPlaying);
 
   // Local state for sound management (not part of engine core config yet)
   const [soundId, setSoundIdState] = useState(() => {
@@ -80,6 +82,31 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         // Initialize with defaults (or could start loading saved prefs here)
         await metronome.initialize(metronome.getSnapshot());
+
+        // handle URL shortcuts (e.g., ?tempo=120&play=true)
+        const params = new URLSearchParams(window.location.search);
+        const tempoParam = params.get('tempo');
+        const playParam = params.get('play');
+
+        if (tempoParam) {
+          const bpm = parseInt(tempoParam, 10);
+          if (!isNaN(bpm) && bpm >= 30 && bpm <= 500) {
+            metronome.setTempo(bpm);
+          }
+        }
+
+        if (playParam === 'true') {
+          // Short delay to ensure audio context can wake up if possible,
+          // though this often requires user gesture logic deeper in the stack.
+          // Metronome.start() handles context.resume() which might throw/warn if blocked.
+          metronome.start().catch(err => console.warn('Autoplay blocked:', err));
+        }
+
+        // Clean up URL parameters to prevent re-applying on refresh if desired
+        if (tempoParam || playParam) {
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, '', newUrl);
+        }
 
         // Set up tick event handler
         const stopListening = metronome.onTick(event => {
@@ -195,7 +222,28 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     (sd: SubdivisionType) => metronome.setSubdivision(sd),
     [metronome]
   );
-  const setAccents = useCallback((acc: boolean[]) => metronome.setAccents(acc), [metronome]);
+  const setAccents = useCallback((acc: AccentLevel[]) => metronome.setAccents(acc), [metronome]);
+
+  const toggleAccent = useCallback(
+    (index: number) => {
+      const currentAccents = metronome.getCurrentState().accents;
+      if (!currentAccents) return;
+
+      const newAccents = [...currentAccents];
+      if (index >= 0 && index < newAccents.length) {
+        // Cycle: Normal (0) -> Accent (1) -> Mute (2) -> Normal (0)
+        let level = newAccents[index];
+        if (level === AccentLevel.Normal) level = AccentLevel.Accent;
+        else if (level === AccentLevel.Accent) level = AccentLevel.Mute;
+        else level = AccentLevel.Normal;
+
+        newAccents[index] = level;
+        metronome.setAccents(newAccents);
+      }
+    },
+    [metronome]
+  );
+
   const setVolume = useCallback((vol: number) => metronome.setVolume(vol), [metronome]);
   const setMuted = useCallback((m: boolean) => metronome.setMuted(m), [metronome]);
 
@@ -239,7 +287,7 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   );
 
   // Register tick callback
-  const onTick = useCallback((callback: (event: TickEvent) => void) => {
+  const onTick = useCallback((callback: (event: ITickEvent) => void) => {
     const emitter = emitterRef.current;
     emitter.on('tick', callback);
     return () => {
@@ -253,7 +301,7 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     tempo: state.tempo,
     timeSignature: state.timeSignature,
     subdivision: state.subdivision,
-    accents: state.accents,
+    accents: state.accents || [],
     volume: state.volume,
     muted: state.muted,
     soundId,
@@ -263,6 +311,7 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setTimeSignature,
     setSubdivision,
     setAccents,
+    toggleAccent,
     setVolume,
     setMuted,
     setSound,

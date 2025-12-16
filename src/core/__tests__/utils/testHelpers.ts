@@ -1,8 +1,12 @@
 /**
  * Test helper functions and utilities
  */
-import { OutputSourceConfig } from '../interfaces/IOutputSource';
-import { MetronomeConfig, TimeSignature, SubdivisionType, AccentLevel } from '../types/MetronomeTypes';
+import {
+  MetronomeConfig,
+  TimeSignature,
+  SubdivisionType,
+  OutputSourceConfig,
+} from '../../interfaces';
 
 /**
  * Creates a default MetronomeConfig for testing
@@ -12,7 +16,7 @@ export function createDefaultConfig(): MetronomeConfig {
     tempo: 120,
     timeSignature: { beats: 4, noteValue: 4 },
     subdivision: 'quarter',
-    accents: [AccentLevel.Accent, AccentLevel.Normal, AccentLevel.Normal, AccentLevel.Normal],
+    accents: [true, false, false, false],
     volume: 1.0,
     muted: false,
   };

@@ -1,6 +1,6 @@
 import { OutputSourceConfig } from '../interfaces/IOutputSource';
 import { ITickEvent } from '../interfaces/ITickEvent';
-import { MetronomeConfig } from '../types/MetronomeTypes';
+import { MetronomeConfig, AccentLevel } from '../types/MetronomeTypes';
 
 import { BaseOutputSource } from './BaseOutputSource';
 
@@ -183,8 +183,15 @@ export class WebAudioSource extends BaseOutputSource {
       await this.audioContext.resume();
     }
 
+    // Handle AccentLevel Logic
+    if (event.accentLevel === AccentLevel.Mute) {
+      return;
+    }
+
+    const isAccented = event.accentLevel === AccentLevel.Accent;
+
     // Play the click
-    this.playClick(event.timestamp, event.isAccented);
+    this.playClick(event.timestamp, isAccented);
   }
 
   /**

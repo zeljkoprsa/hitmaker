@@ -13,25 +13,9 @@ import {
   SubdivisionType,
   MetronomeConfig,
   MetronomeState,
+  AccentLevel,
 } from '../types/MetronomeTypes';
 export type { MetronomeConfig, MetronomeState };
-
-// Re-export specific interfaces if needed by consumers, but internally use the shared one.
-// However, the class implements logic that might need specific fields.
-// The local interface matched MetronomeConfig except for the restricted subdivision.
-
-export interface TickEvent {
-  type: 'beat';
-  timestamp: number;
-  beatNumber: number;
-  measureNumber: number;
-  tempo: number;
-  timeSignature: TimeSignature;
-  subdivision: SubdivisionType;
-  isAccented: boolean;
-  beatDuration: number;
-  nextTickTime: number;
-}
 
 export class Metronome {
   private audioContext: AudioContext | null = null;
@@ -52,12 +36,12 @@ export class Metronome {
     tempo: 120,
     timeSignature: { beats: 4, noteValue: 4 },
     subdivision: 'quarter',
-    accents: [true, false, false, false],
+    accents: [AccentLevel.Accent, AccentLevel.Normal, AccentLevel.Normal, AccentLevel.Normal],
     volume: 1.0,
     muted: false,
   };
 
-  private tickCallbacks: Set<(event: TickEvent) => void> = new Set();
+  private tickCallbacks: Set<(event: ITickEvent) => void> = new Set();
   private errorHandlers: Set<(error: Error) => void> = new Set();
   private subscribers: Set<() => void> = new Set();
 
@@ -76,6 +60,7 @@ export class Metronome {
 
   /**
    * Initializes the metronome with the provided configuration
+   * @throws Error if initialization fails
    */
   async initialize(config: MetronomeConfig): Promise<void> {
     try {
@@ -84,7 +69,12 @@ export class Metronome {
         tempo: config.tempo,
         timeSignature: config.timeSignature,
         subdivision: config.subdivision || 'quarter',
-        accents: config.accents || [true, false, false, false],
+        accents: config.accents || [
+          AccentLevel.Accent,
+          AccentLevel.Normal,
+          AccentLevel.Normal,
+          AccentLevel.Normal,
+        ],
         volume: config.volume ?? 1.0,
         muted: config.muted ?? false,
       };
@@ -132,8 +122,12 @@ export class Metronome {
           (this.audioContext as AudioContext & { outputLatency?: number }).outputLatency || 0;
         const totalLatency = baseLatency + outputLatency;
 
+        const totalLatencyMs = totalLatency * 1000;
+        const baseLatencyMs = baseLatency * 1000;
+        const outputLatencyMs = outputLatency * 1000;
+
         logger.info(
-          `Audio latency: ${totalLatency * 1000}ms (base: ${baseLatency * 1000}ms, output: ${outputLatency * 1000}ms)`
+          `Audio latency: ${totalLatencyMs}ms (base: ${baseLatencyMs}ms, output: ${outputLatencyMs}ms)`
         );
 
         if (totalLatency > 0.02) {
@@ -174,8 +168,8 @@ export class Metronome {
   private scheduleTick(time: number): void {
     if (!this.audioContext) return;
 
-    // Determine if this beat should be accented
-    const isAccented = this.config.accents[this.currentBeat] || false;
+    // Determine accent level for this beat
+    const accentLevel = this.config.accents[this.currentBeat] ?? AccentLevel.Normal;
 
     // Calculate beat duration in milliseconds
     const beatDuration = this.getBeatDuration();
@@ -189,7 +183,7 @@ export class Metronome {
       tempo: this.config.tempo,
       timeSignature: { ...this.config.timeSignature },
       subdivision: this.config.subdivision,
-      isAccented,
+      accentLevel,
       beatDuration,
       nextTickTime: time + 60 / this.config.tempo,
     };
@@ -222,7 +216,7 @@ export class Metronome {
     // Notify listeners
     this.tickCallbacks.forEach(callback => {
       try {
-        callback(tickEvent as TickEvent);
+        callback(tickEvent);
       } catch (error) {
         logger.error('Error in tick callback:', error);
       }
@@ -244,7 +238,7 @@ export class Metronome {
         tempo: this.config.tempo,
         timeSignature: { ...this.config.timeSignature },
         subdivision: this.config.subdivision,
-        isAccented: false, // Subdivisions are never accented
+        accentLevel: AccentLevel.Normal, // Subdivisions use Normal accent for now
         beatDuration,
         nextTickTime: time + 60 / this.config.tempo,
       };
@@ -278,7 +272,7 @@ export class Metronome {
       // Notify listeners of subdivision tick
       this.tickCallbacks.forEach(callback => {
         try {
-          callback(subdivisionEvent as TickEvent);
+          callback(subdivisionEvent);
         } catch (error) {
           logger.error('Error in subdivision tick callback:', error);
         }
@@ -414,7 +408,7 @@ export class Metronome {
   /**
    * Sets the accent pattern
    */
-  setAccents(accents: boolean[]): void {
+  setAccents(accents: AccentLevel[]): void {
     this.config.accents = accents;
     this.notifyChange();
   }
@@ -452,7 +446,7 @@ export class Metronome {
   /**
    * Registers a callback for tick events
    */
-  onTick(callback: (event: TickEvent) => void): () => void {
+  onTick(callback: (event: ITickEvent) => void): () => void {
     this.tickCallbacks.add(callback);
     return () => {
       this.tickCallbacks.delete(callback);

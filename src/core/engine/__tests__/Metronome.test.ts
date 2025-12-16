@@ -5,6 +5,7 @@
 
 import { OutputSourceRegistry } from '../../output/OutputSourceRegistry';
 import { Metronome } from '../Metronome';
+import { AccentLevel } from '../../types/MetronomeTypes';
 
 // Mock OutputSourceRegistry
 jest.mock('../../output/OutputSourceRegistry', () => ({
@@ -114,7 +115,7 @@ describe('Metronome', () => {
         tempo: 120,
         timeSignature: { beats: 4, noteValue: 4 },
         subdivision: 'quarter',
-        accents: [true, false, false, false],
+        accents: [AccentLevel.Accent, AccentLevel.Normal, AccentLevel.Normal, AccentLevel.Normal],
         volume: 1.0,
         muted: false,
       });
@@ -131,7 +132,7 @@ describe('Metronome', () => {
           tempo: 120,
           timeSignature: { beats: 4, noteValue: 4 },
           subdivision: 'quarter',
-          accents: [true, false, false, false],
+          accents: [AccentLevel.Accent, AccentLevel.Normal, AccentLevel.Normal, AccentLevel.Normal],
           volume: 1.0,
           muted: false,
         })
@@ -145,7 +146,7 @@ describe('Metronome', () => {
         tempo: 120,
         timeSignature: { beats: 4, noteValue: 4 },
         subdivision: 'quarter',
-        accents: [true, false, false, false],
+        accents: [AccentLevel.Accent, AccentLevel.Normal, AccentLevel.Normal, AccentLevel.Normal],
         volume: 1.0,
         muted: false,
       });
@@ -183,7 +184,7 @@ describe('Metronome', () => {
         tempo: 120,
         timeSignature: { beats: 4, noteValue: 4 },
         subdivision: 'quarter',
-        accents: [true, false, false, false],
+        accents: [AccentLevel.Accent, AccentLevel.Normal, AccentLevel.Normal, AccentLevel.Normal],
         volume: 1.0,
         muted: false,
       });
@@ -202,7 +203,7 @@ describe('Metronome', () => {
       expect(mockAudioSource.processTick).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'beat',
-          isAccented: expect.any(Boolean),
+          accentLevel: expect.any(Number),
         })
       );
     });
@@ -222,7 +223,7 @@ describe('Metronome', () => {
       // Verify the second call was for the subdivision
       expect(mockAudioSource.processTick.mock.calls[1][0]).toMatchObject({
         type: 'beat',
-        isAccented: false, // Subdivisions are never accented
+        accentLevel: AccentLevel.Normal, // Subdivisions are never accented
       });
     });
   });
@@ -233,7 +234,7 @@ describe('Metronome', () => {
         tempo: 120,
         timeSignature: { beats: 4, noteValue: 4 },
         subdivision: 'quarter',
-        accents: [true, false, false, false],
+        accents: [AccentLevel.Accent, AccentLevel.Normal, AccentLevel.Normal, AccentLevel.Normal],
         volume: 1.0,
         muted: false,
       });
@@ -273,7 +274,7 @@ describe('Metronome', () => {
         tempo: 120,
         timeSignature: { beats: 4, noteValue: 4 },
         subdivision: 'quarter',
-        accents: [true, false, false, false],
+        accents: [AccentLevel.Accent, AccentLevel.Normal, AccentLevel.Normal, AccentLevel.Normal],
         volume: 1.0,
         muted: false,
       });
@@ -315,7 +316,7 @@ describe('Metronome', () => {
         tempo: 120,
         timeSignature: { beats: 4, noteValue: 4 },
         subdivision: 'quarter',
-        accents: [true, false, false, false],
+        accents: [AccentLevel.Accent, AccentLevel.Normal, AccentLevel.Normal, AccentLevel.Normal],
         volume: 1.0,
         muted: false,
       });
@@ -490,7 +491,7 @@ describe('Metronome', () => {
         tempo: 120,
         timeSignature: { beats: 4, noteValue: 4 },
         subdivision: 'quarter',
-        accents: [true, false, false, false],
+        accents: [AccentLevel.Accent, AccentLevel.Normal, AccentLevel.Normal, AccentLevel.Normal],
         volume: 1.0,
         muted: false,
       });
