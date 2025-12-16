@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { TickEvent } from '../../core/engine/Metronome';
+import { ITickEvent } from '../../core/interfaces/ITickEvent';
 import { useMediaSession } from '../../hooks/useMediaSession';
 import { useResponsive } from '../../hooks/useResponsive';
 import { useWakeLock } from '../../hooks/useWakeLock';
@@ -30,6 +30,8 @@ const Metronome: React.FC = () => {
     isLoadingSound,
     setSound,
     onTick,
+    accents,
+    toggleAccent,
   } = useMetronome();
 
   // Enable Screen Wake Lock while playing
@@ -40,7 +42,7 @@ const Metronome: React.FC = () => {
 
   // Listen to beat events
   useEffect(() => {
-    const handleTick = (event: TickEvent) => {
+    const handleTick = (event: ITickEvent) => {
       // Only update on main beats, not subdivisions
       if (Number.isInteger(event.beatNumber)) {
         setCurrentBeat(event.beatNumber - 1); // Convert 1-based to 0-based
@@ -59,7 +61,12 @@ const Metronome: React.FC = () => {
         <div className={styles.controls}>
           {/* Visualize current beat within the time signature */}
           <div className={styles.beatVisualizer}>
-            <Displays.BeatVisualizer timeSignature={timeSignature} currentBeat={currentBeat} />
+            <Displays.BeatVisualizer
+              timeSignature={timeSignature}
+              currentBeat={currentBeat}
+              accents={accents}
+              onToggleAccent={toggleAccent}
+            />
           </div>
 
           {/* Playback controls group */}

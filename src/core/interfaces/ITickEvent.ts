@@ -3,13 +3,13 @@
  * This interface defines the structure of events emitted on each metronome tick,
  * providing timing information and context about the current musical state.
  */
-import { MetronomeEventType, TimeSignature, SubdivisionType } from '../types/MetronomeTypes';
+import { SubdivisionType, TimeSignature, AccentLevel } from '../types/MetronomeTypes';
 
 export interface ITickEvent {
   /**
    * The type of metronome event that occurred
    */
-  type: MetronomeEventType;
+  type: 'beat';
 
   /**
    * High-precision timestamp of when the tick occurred
@@ -39,12 +39,12 @@ export interface ITickEvent {
   /**
    * Current subdivision type being used
    */
-  subdivision: SubdivisionType;
+  subdivision?: SubdivisionType;
 
   /**
-   * Whether this tick represents an accented beat
+   * The accent level of this beat (Normal, Accent, Mute)
    */
-  isAccented: boolean;
+  accentLevel: AccentLevel;
 
   /**
    * The duration of one beat at the current tempo (in milliseconds)

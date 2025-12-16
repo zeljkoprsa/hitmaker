@@ -26,11 +26,17 @@ export interface MetronomeEvent {
   accents?: boolean[];
 }
 
+export enum AccentLevel {
+  Normal = 0, // Low sample
+  Accent = 1, // High sample
+  Mute = 2, // Silent
+}
+
 export interface MetronomeConfig {
   tempo: number;
   timeSignature: TimeSignature;
   subdivision?: SubdivisionType;
-  accents?: boolean[];
+  accents?: AccentLevel[]; // Dynamic accent levels
   volume?: number;
   muted?: boolean;
 }

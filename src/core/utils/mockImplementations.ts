@@ -11,23 +11,32 @@ import {
   OutputSourceConfig,
   OutputSourceType,
   MetronomeEventType,
+  AccentLevel,
 } from '../interfaces';
 
 /**
  * Mock implementation of ITickEvent for testing
  */
 export class MockTickEvent implements ITickEvent {
-  type: MetronomeEventType = 'beat';
+  type: 'beat' = 'beat';
   timestamp = Date.now();
   beatNumber = 1;
   measureNumber = 1;
   tempo = 120;
   timeSignature = { beats: 4, noteValue: 4 };
   subdivision = 'quarter' as SubdivisionType;
-  isAccented = false;
+  accentLevel = AccentLevel.Normal;
   beatDuration = 500;
   nextTickTime = Date.now() + 500;
 }
+
+// ...
+// Inside MockMetronomeEngine (I need to jump to it, but replace_file_content is contiguous)
+// I will split this into two calls or use one large replacement if appropriate.
+// Since lines 32-113 are MockOutputSource which doesn't change much except imports being available.
+// I'll replace the top chunk and then the MockMetronomeEngine chunk.
+
+// Call 1: Imports and MockTickEvent.
 
 /**
  * Mock implementation of IOutputSource for testing
@@ -155,7 +164,7 @@ export class MockMetronomeEngine implements IMetronomeEngine {
     this.config.subdivision = subdivision;
   }
 
-  setAccents(accents: boolean[]): void {
+  setAccents(accents: AccentLevel[]): void {
     this.config.accents = accents;
   }
 

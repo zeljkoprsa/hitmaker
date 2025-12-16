@@ -1,11 +1,12 @@
 import { logger } from '../../utils/logger';
 import { OutputSourceConfig } from '../interfaces/IOutputSource';
 import { ITickEvent } from '../interfaces/ITickEvent';
-import { MetronomeConfig } from '../types/MetronomeTypes';
+import { MetronomeConfig, AccentLevel } from '../types/MetronomeTypes';
 import { getSoundById } from '../types/SoundTypes';
 
 import { BaseOutputSource } from './BaseOutputSource';
 
+// ... (existing imports/interface)
 interface SampleAudioConfig {
   volume?: number;
   muted?: boolean;
@@ -239,12 +240,20 @@ export class SampleAudioSource extends BaseOutputSource {
       await this.audioContext.resume();
     }
 
+    // Handle AccentLevel Logic
+    if (event.accentLevel === AccentLevel.Mute) {
+      // logger.debug(`Skipping muted beat`);
+      return;
+    }
+
+    const isAccented = event.accentLevel === AccentLevel.Accent;
+
     logger.debug(
-      `Processing tick with sound ID: ${this.currentSoundId}, isAccented: ${event.isAccented}`
+      `Processing tick with sound ID: ${this.currentSoundId}, isAccented: ${isAccented}`
     );
 
     // Play the click
-    this.playClick(event.timestamp, event.isAccented);
+    this.playClick(event.timestamp, isAccented);
   }
 
   /**

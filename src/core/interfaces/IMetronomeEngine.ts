@@ -1,68 +1,23 @@
-/**
- * Interface defining the core functionality of the metronome engine.
- * This interface provides methods for initialization, playback control,
- * scheduling, and configuration of the metronome.
- */
-import { MetronomeConfig, TimeSignature, SubdivisionType } from '../types/MetronomeTypes';
+import { MetronomeConfig, TimeSignature, SubdivisionType, AccentLevel } from '../types/MetronomeTypes';
 
 import { ITickEvent } from './ITickEvent';
 
 export interface IMetronomeEngine {
-  /**
-   * Initializes the metronome engine with the provided configuration
-   * @param config Initial configuration for the metronome
-   * @returns Promise that resolves when initialization is complete
-   */
+  // ...
   initialize(config: MetronomeConfig): Promise<void>;
-
-  /**
-   * Cleans up resources and stops all scheduled events
-   * @returns Promise that resolves when cleanup is complete
-   */
   dispose(): Promise<void>;
-
-  /**
-   * Starts the metronome playback
-   * @returns Promise that resolves when playback has started
-   */
   start(): Promise<void>;
-
-  /**
-   * Stops the metronome playback
-   * @returns Promise that resolves when playback has stopped
-   */
   stop(): Promise<void>;
-
-  /**
-   * Schedules the next tick event
-   * @param time Time in milliseconds when the tick should occur
-   * @returns Promise that resolves with the scheduled tick event
-   */
   scheduleNextTick(time: number): Promise<ITickEvent>;
-
-  /**
-   * Updates the tempo of the metronome
-   * @param bpm New tempo in beats per minute
-   */
   setTempo(bpm: number): void;
-
-  /**
-   * Updates the time signature
-   * @param timeSignature New time signature
-   */
   setTimeSignature(timeSignature: TimeSignature): void;
-
-  /**
-   * Updates the subdivision type
-   * @param subdivision New subdivision type
-   */
   setSubdivision(subdivision: SubdivisionType): void;
 
   /**
    * Sets the accent pattern for beats in a measure
-   * @param accents Array of boolean values indicating which beats should be accented
+   * @param accents Array of AccentLevel values indicating beat emphasis
    */
-  setAccents(accents: boolean[]): void;
+  setAccents(accents: AccentLevel[]): void;
 
   /**
    * Adjusts the volume of the metronome
