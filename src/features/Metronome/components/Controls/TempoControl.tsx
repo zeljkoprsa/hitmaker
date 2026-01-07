@@ -1,7 +1,11 @@
-// src/features/Metronome/components/Controls/TempoControl.tsx
-
 import styled from '@emotion/styled';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  animate,
+  AnimationPlaybackControls,
+} from 'framer-motion';
 import React, { useCallback, useRef } from 'react';
 
 // Constants for visual and interaction settings
@@ -23,6 +27,7 @@ const SENSITIVITY_FACTORS = [1.0, 0.8, 0.5, 0.3, 0.2]; // Sensitivity factors fo
 const MIN_VELOCITY = 0.1; // Minimum velocity to consider (pixels/ms)
 const MAX_VELOCITY = 5.0; // Maximum velocity to consider (pixels/ms)
 const MAX_ACCELERATION_FACTOR = 3.0; // Maximum acceleration factor
+const INERTIA_THRESHOLD = 0.1; // Minimum velocity to trigger inertia
 
 const SPRING_CONFIG = {
   // Animation type for natural movement
@@ -88,6 +93,9 @@ export const TempoControl: React.FC<TempoControlProps> = ({ tempo, setTempo }) =
   const startX = useRef(0);
   const startPosition = useRef(0);
   const startTempo = useRef(tempo);
+
+  // Animation control ref
+  const animationRef = useRef<AnimationPlaybackControls | null>(null);
 
   // Refs for velocity tracking
   const lastX = useRef(0);
@@ -176,8 +184,11 @@ export const TempoControl: React.FC<TempoControlProps> = ({ tempo, setTempo }) =
   // Calculate elastic position with boundaries
   const calculateElasticPosition = useCallback(
     (rawPosition: number) => {
-      const minPosition = tempoToPosition(MIN_TEMPO);
-      const maxPosition = tempoToPosition(MAX_TEMPO);
+      const minOffset = tempoToPosition(MIN_TEMPO);
+      const maxOffset = tempoToPosition(MAX_TEMPO);
+
+      const minPosition = startPosition.current + minOffset;
+      const maxPosition = startPosition.current + maxOffset;
 
       if (rawPosition < minPosition) {
         const overshoot = minPosition - rawPosition;
@@ -197,27 +208,49 @@ export const TempoControl: React.FC<TempoControlProps> = ({ tempo, setTempo }) =
   // Snap position back to valid tempo range with spring animation
   const snapToValidRange = useCallback(() => {
     const currentPosition = position.get();
-    const currentTempo = positionToTempo(currentPosition);
+    // Calculate tempo based on delta from startPosition (assuming startPosition was valid for startTempo)
+    // Note: This heuristic might be slightly off if snap is called outside a drag context where startPosition is stale.
+    // However, snapToValidRange is primarily for drag cancel/end.
+    // To be safe, we can recalculate:
+
+    // Actually, for snap, we just want to ensure we aren't out of bounds.
+    // If we're out of bounds, snap to the bound.
+
+    // We can check the current projected tempo using the last known start reference
+    const delta = currentPosition - startPosition.current;
+    const currentTempo = positionToTempo(delta);
 
     if (currentTempo < MIN_TEMPO) {
-      position.set(tempoToPosition(MIN_TEMPO));
+      const minOffset = tempoToPosition(MIN_TEMPO);
+      position.set(startPosition.current + minOffset);
       setTempo(MIN_TEMPO);
     } else if (currentTempo > MAX_TEMPO) {
-      position.set(tempoToPosition(MAX_TEMPO));
+      const maxOffset = tempoToPosition(MAX_TEMPO);
+      position.set(startPosition.current + maxOffset);
       setTempo(MAX_TEMPO);
     } else {
-      // If we're in valid range, ensure tempo is properly set
       setTempo(Math.round(currentTempo));
     }
   }, [position, setTempo, tempoToPosition, positionToTempo]);
 
   const handlePointerDown = useCallback(
     (event: React.PointerEvent) => {
+      // Stop any active animation
+      if (animationRef.current) {
+        animationRef.current.stop();
+        animationRef.current = null;
+      }
+
       isDragging.current = true;
       event.currentTarget.setPointerCapture(event.pointerId);
       startX.current = event.clientX;
       startPosition.current = position.get();
       startTempo.current = tempo;
+
+      // Reset velocity tracking
+      lastX.current = event.clientX;
+      lastTime.current = performance.now();
+      velocity.current = 0;
     },
     [position, tempo]
   );
@@ -248,36 +281,60 @@ export const TempoControl: React.FC<TempoControlProps> = ({ tempo, setTempo }) =
       const elasticPosition = calculateElasticPosition(rawPosition);
       position.set(elasticPosition);
 
-      // Update tempo based on position
-      const newTempo = positionToTempo(elasticPosition);
+      // Update tempo based on position delta
+      const deltaFromStart = elasticPosition - startPosition.current;
+      const newTempo = positionToTempo(deltaFromStart);
       setTempo(newTempo);
 
       // Debug info
-      console.log(
-        `Velocity: ${velocity.current.toFixed(2)} px/ms, Acceleration: ${accelerationFactor.toFixed(2)}x, Tempo: ${newTempo}`
-      );
+      // console.log(`Velocity: ${ velocity.current.toFixed(2) } px / ms, Acceleration: ${ accelerationFactor.toFixed(2) } x, Tempo: ${ newTempo } `);
     },
     [setTempo, position, calculateElasticPosition, positionToTempo, getAccelerationFactor]
   );
 
   const handlePointerUp = useCallback(
     (_event: React.PointerEvent) => {
-      // Prefix unused parameter with underscore
       if (!isDragging.current) return;
       isDragging.current = false;
 
-      // Get current position and apply elastic effect
-      const currentPosition = position.get();
-      const elasticPosition = calculateElasticPosition(currentPosition);
-      position.set(elasticPosition);
+      // Check if we should trigger inertia
+      if (Math.abs(velocity.current) > INERTIA_THRESHOLD) {
+        // Reverse velocity because drag direction is inverted relative to value
+        // Note: loop velocity is px/ms, amplify it for inertia feel
+        const inertiaVelocity = -velocity.current * 1000; // px/sec
 
-      // Update tempo based on final position
-      const newTempo = Math.round(
-        Math.min(MAX_TEMPO, Math.max(MIN_TEMPO, positionToTempo(elasticPosition)))
-      );
-      setTempo(newTempo);
+        const minOffset = tempoToPosition(MIN_TEMPO);
+        const maxOffset = tempoToPosition(MAX_TEMPO);
+        const min = startPosition.current + minOffset;
+        const max = startPosition.current + maxOffset;
+
+        animationRef.current = animate(position, position.get(), {
+          type: 'inertia',
+          velocity: inertiaVelocity,
+          min,
+          max,
+          power: 0.1, // Friction/Momentum power
+          timeConstant: 300, // Deceleration curve
+          onUpdate: v => {
+            const delta = v - startPosition.current;
+            const t = positionToTempo(delta);
+            setTempo(t);
+          },
+        });
+      } else {
+        // Normal stop behavior
+        const currentPosition = position.get();
+        const elasticPosition = calculateElasticPosition(currentPosition);
+        position.set(elasticPosition);
+
+        const deltaFromStart = elasticPosition - startPosition.current;
+        const newTempo = Math.round(
+          Math.min(MAX_TEMPO, Math.max(MIN_TEMPO, positionToTempo(deltaFromStart)))
+        );
+        setTempo(newTempo);
+      }
     },
-    [setTempo, position, calculateElasticPosition, positionToTempo]
+    [setTempo, position, calculateElasticPosition, positionToTempo, tempoToPosition]
   );
 
   const handlePointerCancel = useCallback(
