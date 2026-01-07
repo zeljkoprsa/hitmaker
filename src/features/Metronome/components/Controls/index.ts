@@ -1,5 +1,6 @@
 // src/features/Metronome/components/Controls/index.ts
 
+import { AccentControl } from './AccentControl';
 import { StartStopButton } from './StartStopButton';
 import { SubdivisionControl } from './SubdivisionControl';
 import { TapTempoControl } from './TapTempoControl';
@@ -17,6 +18,7 @@ export {
   SubdivisionControl,
   VolumeControl,
   TapTempoControl,
+  AccentControl,
 };
 
 // Export as namespace object
@@ -28,4 +30,5 @@ export const Controls = {
   SubdivisionControl,
   VolumeControl,
   TapTempoControl,
+  AccentControl,
 };

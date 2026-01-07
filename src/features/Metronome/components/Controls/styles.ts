@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { motion } from 'framer-motion'; // Import motion from framer-motion
+import { motion } from 'framer-motion';
 
 import { transition } from '../../../../shared/styles/mixins';
 
@@ -223,7 +223,6 @@ export const TempoSlider = styled.input`
   outline: none;
   opacity: 0.7;
   ${transition({ properties: 'opacity' })}
-  opacity: 0.7;
 
   &:hover {
     opacity: 1;
@@ -247,7 +246,6 @@ export const TempoSlider = styled.input`
     background-color: ${({ theme }) => theme.colors.metronome.accent};
     cursor: pointer;
     ${transition({ properties: 'background-color' })}
-    background-color: ${({ theme }) => theme.colors.metronome.accent};
 
     &:hover {
       background-color: ${({ theme }) => theme.colors.metronome.accent};
@@ -585,4 +583,80 @@ export const VolumeIcon = styled.span`
   color: ${({ theme }) => theme.colors.text.primary};
   font-size: ${({ theme }) => theme.typography.fontSizes.md};
   ${transition({ properties: 'color' })}
+`;
+
+// Accent Control Styles
+export const AccentControlContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+  background-color: var(--color-neutral-800);
+  border-radius: var(--radius-xs);
+`;
+
+export const AccentHeader = styled.div`
+  font-family: ${({ theme }) => theme.typography.fontFamily.base};
+  font-size: ${({ theme }) => theme.typography.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  margin-bottom: ${({ theme }) => theme.spacing.xs};
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+export const NoteList = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+  width: 100%;
+  flex-wrap: wrap;
+`;
+
+interface NoteButtonProps {
+  accentLevel: number; // 0=Normal, 1=Accent, 2=Mute
+}
+
+export const NoteButton = styled.button<NoteButtonProps>`
+  background: none;
+  border: none;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme, accentLevel }) => {
+    switch (accentLevel) {
+      case 1: // Accent
+        return theme.colors.metronome.accent;
+      case 2: // Mute
+        return theme.colors.metronome.midBackground; // Dimmed/Grey
+      default: // Normal (0)
+        return theme.colors.metronome.primary;
+    }
+  }};
+  opacity: ${({ accentLevel }) => (accentLevel === 2 ? 0.5 : 1)};
+  transform: scale(${({ accentLevel }) => (accentLevel === 1 ? 1.1 : 1)});
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+    transform: scale(1.15);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    filter: ${({ accentLevel, theme }) =>
+      accentLevel === 1 ? `drop-shadow(0 0 4px ${theme.colors.metronome.accent}80)` : 'none'};
+  }
 `;
