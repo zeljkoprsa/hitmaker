@@ -390,7 +390,7 @@ interface CustomButtonProps {
 const MotionButton = motion.button;
 
 // Create a styled component that accepts the selected prop
-export const TimeSignatureOption = styled(MotionButton)<CustomButtonProps>`
+export const TimeSignatureOption = styled(MotionButton) <CustomButtonProps>`
   width: 82px;
   height: 82px;
   padding: 0;
@@ -426,7 +426,7 @@ export const TimeSignatureOption = styled(MotionButton)<CustomButtonProps>`
 `;
 
 // Create a styled component that accepts the selected prop
-export const SubdivisionOption = styled(MotionButton)<CustomButtonProps>`
+export const SubdivisionOption = styled(MotionButton) <CustomButtonProps>`
   width: 82px;
   height: 82px;
   padding: 0;
@@ -592,7 +592,7 @@ export const AccentControlContainer = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 0;
+  padding: ${({ theme }) => theme.spacing.sm} 0;
   background-color: var(--color-neutral-800);
   border-radius: var(--radius-xs);
 `;
@@ -601,7 +601,7 @@ export const AccentHeader = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.base};
   font-size: ${({ theme }) => theme.typography.fontSizes.sm};
   color: ${({ theme }) => theme.colors.text.secondary};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
+  margin-bottom: ${({ theme }) => theme.spacing.sm};
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -657,6 +657,6 @@ export const NoteButton = styled.button<NoteButtonProps>`
     height: 24px;
     fill: currentColor;
     filter: ${({ accentLevel, theme }) =>
-      accentLevel === 1 ? `drop-shadow(0 0 4px ${theme.colors.metronome.accent}80)` : 'none'};
+    accentLevel === 1 ? `drop-shadow(0 0 4px ${theme.colors.metronome.accent}80)` : 'none'};
   }
 `;
