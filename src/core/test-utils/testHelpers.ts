@@ -2,7 +2,12 @@
  * Test helper functions and utilities
  */
 import { OutputSourceConfig } from '../interfaces/IOutputSource';
-import { MetronomeConfig, TimeSignature, SubdivisionType, AccentLevel } from '../types/MetronomeTypes';
+import {
+  MetronomeConfig,
+  TimeSignature,
+  SubdivisionType,
+  AccentLevel,
+} from '../types/MetronomeTypes';
 
 /**
  * Creates a default MetronomeConfig for testing

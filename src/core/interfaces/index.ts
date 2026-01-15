@@ -21,4 +21,4 @@ export * from './IMIDIInputSource';
 export * from './IAudioFileSource';
 
 // Re-export common types that might be needed across different modules
-export type { AudioEvent, AudioEventType, AudioEventCallback } from './AudioEvents';
+// export type { AudioEvent, AudioEventType, AudioEventCallback } from './AudioEvents';

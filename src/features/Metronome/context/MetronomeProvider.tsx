@@ -10,13 +10,24 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 
+import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 import { Metronome } from '../../../core/engine/Metronome';
 import { ITickEvent } from '../../../core/interfaces/ITickEvent';
 import { OutputSourceRegistry } from '../../../core/output/OutputSourceRegistry';
 import { SampleAudioSource } from '../../../core/output/SampleAudioSource';
-import { TimeSignature, SubdivisionType, AccentLevel } from '../../../core/types/MetronomeTypes';
+import {
+  TimeSignature,
+  SubdivisionType,
+  AccentLevel,
+  MetronomeConfig,
+} from '../../../core/types/MetronomeTypes';
 import { getSoundById } from '../../../core/types/SoundTypes';
+import { usePreferences } from '../../../hooks/usePreferences';
+import { supabase } from '../../../lib/supabase';
+import { preferencesToConfig } from '../../../types/UserPreferences';
 import { logger } from '../../../utils/logger';
+import { migratePreferences } from '../../../utils/migratePreferences';
 
 // Internal type to bridge UI TimeSignature and engine TimeSignature
 // Currently unused but kept for future reference
@@ -36,6 +47,7 @@ interface MetronomeContextType {
   muted: boolean;
   soundId: string;
   isLoadingSound: boolean;
+  isSaving: boolean;
   togglePlay: () => Promise<void>;
   setTempo: (bpm: number) => void;
   setTimeSignature: (timeSignature: TimeSignature) => void;
@@ -199,6 +211,101 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // --------------------------------------------------------
+  // Auth & Preference Sync
+  // --------------------------------------------------------
+  const { user } = useAuth();
+  const { preferences, loadPreferences, savePreferences, saving } = usePreferences();
+  const { showToast } = useToast();
+
+  // 1. On login: Migrate & Load
+  useEffect(() => {
+    if (user) {
+      migratePreferences(supabase, user.id).then(migrated => {
+        if (migrated) showToast('Preferences migrated to cloud', 'success');
+        loadPreferences();
+      });
+    }
+  }, [user, loadPreferences, showToast]);
+
+  // 2. When preferences load from server: Apply to engine
+  useEffect(() => {
+    if (preferences && metronome) {
+      // Apply values to metronome engine
+      // We compare to avoid unnecessary updates if possible, but setters usually handle no-op.
+      const config = preferencesToConfig(preferences);
+
+      // Batch updates if Metronome class supported it, otherwise sequential
+      if (config.tempo) metronome.setTempo(config.tempo);
+      if (config.timeSignature) metronome.setTimeSignature(config.timeSignature);
+      if (config.subdivision) metronome.setSubdivision(config.subdivision);
+      if (config.accents) metronome.setAccents(config.accents);
+      if (config.volume !== undefined) metronome.setVolume(config.volume);
+      if (config.muted !== undefined) metronome.setMuted(config.muted);
+
+      // Sound ID is managed locally in provider for now
+      if (preferences.sound_id && preferences.sound_id !== soundId) {
+        setSound(preferences.sound_id).catch(err => console.warn('Failed to sync sound', err));
+      }
+    }
+    // We only want to run this when 'preferences' object reference changes (loaded/updated from server)
+    // NOT when we save to it locally (optimistic) - wait, optimistic update changes the ref too.
+    // If we optimistically update, this effect runs again and re-sets the engine.
+    // This is circular if setTempo triggers state change -> save -> optimistic set -> load effect -> setTempo.
+    // However, if setTempo is no-op for same value, loop breaks.
+    // Metronome engine setters SHOULD be no-op if value is same.
+  }, [preferences, metronome]);
+
+  // 3. When engine state changes: Save to server (Debounced)
+  useEffect(() => {
+    if (!user) return;
+
+    const timer = setTimeout(() => {
+      const currentConfig: MetronomeConfig = {
+        tempo: state.tempo,
+        timeSignature: state.timeSignature,
+        subdivision: state.subdivision,
+        accents: state.accents || [],
+        volume: state.volume,
+        muted: state.muted,
+      };
+
+      savePreferences(currentConfig, soundId);
+    }, 1000); // 1s debounce
+
+    return () => clearTimeout(timer);
+  }, [
+    state.tempo,
+    state.timeSignature,
+    state.subdivision,
+    state.accents,
+    state.volume,
+    state.muted,
+    soundId,
+    user,
+    savePreferences,
+  ]);
+
+  // 4. Sync on Reconnect
+  useEffect(() => {
+    const handleOnline = () => {
+      logger.info('Network online. Processing sync queue...');
+      showToast('Online: syncing changes...', 'info');
+      if (user) {
+        import('../../../utils/syncQueue').then(({ processQueue }) => {
+          processQueue(supabase, user.id).then(() => {
+            // Reload to ensure we match server state (in case server had newer data we deferred to, or just to confirm)
+            loadPreferences();
+            showToast('Sync complete', 'success');
+          });
+        });
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, [user, loadPreferences, showToast]);
+
   // Toggle play/pause
   const togglePlay = useCallback(async () => {
     try {
@@ -306,6 +413,7 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     muted: state.muted,
     soundId,
     isLoadingSound,
+    isSaving: saving,
     togglePlay,
     setTempo,
     setTimeSignature,

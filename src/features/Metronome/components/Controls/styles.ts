@@ -390,7 +390,7 @@ interface CustomButtonProps {
 const MotionButton = motion.button;
 
 // Create a styled component that accepts the selected prop
-export const TimeSignatureOption = styled(MotionButton) <CustomButtonProps>`
+export const TimeSignatureOption = styled(MotionButton)<CustomButtonProps>`
   width: 82px;
   height: 82px;
   padding: 0;
@@ -426,7 +426,7 @@ export const TimeSignatureOption = styled(MotionButton) <CustomButtonProps>`
 `;
 
 // Create a styled component that accepts the selected prop
-export const SubdivisionOption = styled(MotionButton) <CustomButtonProps>`
+export const SubdivisionOption = styled(MotionButton)<CustomButtonProps>`
   width: 82px;
   height: 82px;
   padding: 0;
@@ -657,6 +657,6 @@ export const NoteButton = styled.button<NoteButtonProps>`
     height: 24px;
     fill: currentColor;
     filter: ${({ accentLevel, theme }) =>
-    accentLevel === 1 ? `drop-shadow(0 0 4px ${theme.colors.metronome.accent}80)` : 'none'};
+      accentLevel === 1 ? `drop-shadow(0 0 4px ${theme.colors.metronome.accent}80)` : 'none'};
   }
 `;

@@ -1,0 +1,48 @@
+.button {
+  background-color: var(--color-neutral-800);
+  border: 1px solid var(--color-neutral-700);
+  border-radius: var(--radius-full);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  padding: 4px 12px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.button:hover {
+  background-color: var(--color-neutral-700);
+  border-color: var(--color-neutral-600);
+}
+
+.avatar {
+  background-color: var(--color-accent);
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xs);
+  margin-right: -4px;
+}
+
+.signInText {
+  font-weight: var(--font-weight-medium);
+}
+
+.placeholder {
+  width: 80px;
+  height: 36px;
+  background-color: var(--color-neutral-800);
+  border-radius: var(--radius-full);
+  opacity: 0.5;
+}
