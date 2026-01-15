@@ -9,7 +9,6 @@ import OnboardingModal from './components/OnboardingModal';
 import SyncStatus from './components/SyncStatus';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
-
 import './App.module.css';
 import { theme } from './styles/theme';
 import './styles/fonts.css';
