@@ -4,9 +4,8 @@ import React from 'react';
 import { MetronomeProvider } from '@features/Metronome/context/MetronomeProvider';
 import Metronome from '@features/Metronome/Metronome';
 
-import AuthButton from './components/Auth/AuthButton';
+import { Header } from './components/Header';
 import OnboardingModal from './components/OnboardingModal';
-import SyncStatus from './components/SyncStatus';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import './App.module.css';
@@ -22,20 +21,7 @@ const App: React.FC = () => {
           <MetronomeProvider>
             <div className="metronome-app">
               <OnboardingModal />
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '1rem',
-                  right: '1rem',
-                  zIndex: 100,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                }}
-              >
-                <SyncStatus />
-                <AuthButton />
-              </div>
+              <Header />
               <Metronome />
             </div>
           </MetronomeProvider>
