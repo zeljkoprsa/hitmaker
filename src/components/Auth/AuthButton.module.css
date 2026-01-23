@@ -1,0 +1,68 @@
+.button {
+  background-color: var(--color-background-button);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  padding: 4px 16px;
+  height: 36px;
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.button:hover {
+  border-color: rgba(246, 65, 5, 0.3);
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.avatar {
+  background: linear-gradient(135deg, var(--color-accent) 0%, #d63a04 100%);
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xs);
+  box-shadow: 0 2px 8px rgba(246, 65, 5, 0.3);
+}
+
+.signInText {
+  font-weight: var(--font-weight-medium);
+}
+
+.placeholder {
+  min-width: 80px;
+  height: 36px;
+  background-color: var(--color-background-button);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  opacity: 0.6;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}

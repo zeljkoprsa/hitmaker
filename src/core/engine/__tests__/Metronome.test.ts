@@ -4,8 +4,8 @@
  */
 
 import { OutputSourceRegistry } from '../../output/OutputSourceRegistry';
-import { Metronome } from '../Metronome';
 import { AccentLevel } from '../../types/MetronomeTypes';
+import { Metronome } from '../Metronome';
 
 // Mock OutputSourceRegistry
 jest.mock('../../output/OutputSourceRegistry', () => ({

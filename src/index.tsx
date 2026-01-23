@@ -3,8 +3,6 @@ import { PostHogProvider } from 'posthog-js/react';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { MetronomeProvider } from '@features/Metronome/context/MetronomeProvider';
-
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';

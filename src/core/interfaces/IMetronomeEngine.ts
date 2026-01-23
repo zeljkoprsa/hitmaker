@@ -1,4 +1,9 @@
-import { MetronomeConfig, TimeSignature, SubdivisionType, AccentLevel } from '../types/MetronomeTypes';
+import {
+  MetronomeConfig,
+  TimeSignature,
+  SubdivisionType,
+  AccentLevel,
+} from '../types/MetronomeTypes';
 
 import { ITickEvent } from './ITickEvent';
 

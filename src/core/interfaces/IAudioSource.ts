@@ -6,7 +6,8 @@ import type { AudioEventType, AudioEventCallback } from 'core/interfaces/AudioEv
 
 export interface IAudioSource<
   TEventType extends string = AudioEventType,
-  TCallback extends Function = AudioEventCallback,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TCallback extends (...args: any[]) => any = AudioEventCallback,
 > {
   // Properties
   readonly id: string;
