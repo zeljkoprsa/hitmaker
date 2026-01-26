@@ -3,13 +3,16 @@ import React from 'react';
 import AuthButton from '../Auth/AuthButton';
 import SyncStatus from '../SyncStatus';
 
-import { HeaderContainer } from './styles';
+import { HeaderContainer, Logo, HeaderRight } from './styles';
 
 export const Header: React.FC = () => {
   return (
     <HeaderContainer>
-      <SyncStatus />
-      <AuthButton />
+      <Logo src="/hitmaker-logo.svg" alt="Hitmaker" />
+      <HeaderRight>
+        <SyncStatus />
+        <AuthButton />
+      </HeaderRight>
     </HeaderContainer>
   );
 };
