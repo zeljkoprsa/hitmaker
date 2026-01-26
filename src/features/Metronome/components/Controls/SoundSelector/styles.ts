@@ -38,11 +38,6 @@ export const SoundButton = styled.button<SoundButtonProps>`
   }
 `;
 
-export const SoundIcon = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSizes.xl};
-  line-height: 1;
-`;
-
 export const SoundLabel = styled.span`
   font-size: ${({ theme }) => theme.typography.fontSizes.md};
   font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
@@ -85,29 +80,6 @@ export const DropdownPanel = styled(motion.div)`
 
   &::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
-  }
-`;
-
-export const CategorySection = styled.div`
-  ${flex({ direction: 'column', gap: 'md' })}
-
-  &:not(:last-child) {
-    margin-bottom: ${({ theme }) => theme.spacing.xl};
-    padding-bottom: ${({ theme }) => theme.spacing.lg};
-    border-bottom: ${({ theme }) => theme.borders.width.thin} solid rgba(255, 255, 255, 0.05);
-  }
-`;
-
-export const CategoryHeader = styled.div`
-  ${flex({ direction: 'row', align: 'center', gap: 'sm' })}
-  font-size: ${({ theme }) => theme.typography.fontSizes.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
-  color: ${({ theme }) => theme.colors.text.secondary};
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-
-  span:first-of-type {
-    font-size: ${({ theme }) => theme.typography.fontSizes.md};
   }
 `;
 
@@ -224,22 +196,9 @@ export const PlayIcon = styled.span<PlayIconProps>`
   `}
 `;
 
-export const SoundCardContent = styled.div`
-  ${flex({ direction: 'column', gap: 'xs' })}
-  width: 100%;
-  padding-right: ${({ theme }) => theme.spacing.xl};
-`;
-
 export const SoundName = styled.span`
   font-size: ${({ theme }) => theme.typography.fontSizes.md};
   font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
   line-height: ${({ theme }) => theme.typography.lineHeights.tight};
-`;
-
-export const SoundDescription = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.text.secondary};
-  line-height: ${({ theme }) => theme.typography.lineHeights.tight};
-  opacity: 0.8;
 `;

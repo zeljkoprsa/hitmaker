@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import { getSoundById, SOUNDS } from '../../../../../core/types/SoundTypes';
 import { AnimationWrapper } from '../../AnimationWrapper';
@@ -6,16 +6,11 @@ import { AnimationWrapper } from '../../AnimationWrapper';
 import {
   SoundSelectorContainer,
   SoundButton,
-  SoundIcon,
   SoundLabel,
   DropdownPanel,
-  CategorySection,
-  CategoryHeader,
   SoundGrid,
   SoundCard,
-  SoundCardContent,
   SoundName,
-  SoundDescription,
   CheckIcon,
   PreviewButton,
   PlayIcon,
@@ -63,13 +58,6 @@ export const SoundSelector: React.FC<SoundSelectorProps> = ({
     }
   }, [isOpen]);
 
-  // Group sounds by category
-  const soundsByCategory = useMemo(() => {
-    const percussion = SOUNDS.filter(s => s.category === 'percussion');
-    const electronic = SOUNDS.filter(s => s.category === 'electronic');
-    return { percussion, electronic };
-  }, []);
-
   const handleSelect = (soundId: string) => {
     onSoundChange(soundId);
     setIsOpen(false);
@@ -82,10 +70,6 @@ export const SoundSelector: React.FC<SoundSelectorProps> = ({
     setTimeout(() => setPreviewingId(null), 300);
   };
 
-  const getCategoryIcon = (category: string) => {
-    return category === 'percussion' ? '🥁' : '🎹';
-  };
-
   return (
     <SoundSelectorContainer ref={containerRef}>
       <SoundButton
@@ -95,7 +79,6 @@ export const SoundSelector: React.FC<SoundSelectorProps> = ({
         aria-label="Select sound"
         aria-expanded={isOpen}
       >
-        <SoundIcon>{getCategoryIcon(currentSound?.category || 'percussion')}</SoundIcon>
         <SoundLabel>{isLoading ? 'Loading...' : currentLabel}</SoundLabel>
       </SoundButton>
 
@@ -107,87 +90,35 @@ export const SoundSelector: React.FC<SoundSelectorProps> = ({
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <CategorySection>
-              <CategoryHeader>
-                <span>🥁</span>
-                <span>Percussion</span>
-              </CategoryHeader>
-              <SoundGrid>
-                {soundsByCategory.percussion.map(sound => (
-                  <SoundCard
-                    key={sound.id}
-                    onClick={() => handleSelect(sound.id)}
-                    isSelected={sound.id === currentSoundId}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {sound.id === currentSoundId && (
-                      <CheckIcon
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                      >
-                        ✓
-                      </CheckIcon>
-                    )}
-                    <PreviewButton
-                      onClick={e => handlePreview(e, sound.id)}
-                      isPreviewing={previewingId === sound.id}
-                      aria-label={`Preview ${sound.name}`}
+            <SoundGrid>
+              {SOUNDS.map(sound => (
+                <SoundCard
+                  key={sound.id}
+                  onClick={() => handleSelect(sound.id)}
+                  isSelected={sound.id === currentSoundId}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {sound.id === currentSoundId && (
+                    <CheckIcon
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                     >
-                      <PlayIcon isPreviewing={previewingId === sound.id}>▶</PlayIcon>
-                    </PreviewButton>
-                    <SoundCardContent>
-                      <SoundName>{sound.name}</SoundName>
-                      {sound.description && (
-                        <SoundDescription>{sound.description}</SoundDescription>
-                      )}
-                    </SoundCardContent>
-                  </SoundCard>
-                ))}
-              </SoundGrid>
-            </CategorySection>
-
-            <CategorySection>
-              <CategoryHeader>
-                <span>🎹</span>
-                <span>Electronic</span>
-              </CategoryHeader>
-              <SoundGrid>
-                {soundsByCategory.electronic.map(sound => (
-                  <SoundCard
-                    key={sound.id}
-                    onClick={() => handleSelect(sound.id)}
-                    isSelected={sound.id === currentSoundId}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                      ✓
+                    </CheckIcon>
+                  )}
+                  <PreviewButton
+                    onClick={e => handlePreview(e, sound.id)}
+                    isPreviewing={previewingId === sound.id}
+                    aria-label={`Preview ${sound.name}`}
                   >
-                    {sound.id === currentSoundId && (
-                      <CheckIcon
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                      >
-                        ✓
-                      </CheckIcon>
-                    )}
-                    <PreviewButton
-                      onClick={e => handlePreview(e, sound.id)}
-                      isPreviewing={previewingId === sound.id}
-                      aria-label={`Preview ${sound.name}`}
-                    >
-                      <PlayIcon isPreviewing={previewingId === sound.id}>▶</PlayIcon>
-                    </PreviewButton>
-                    <SoundCardContent>
-                      <SoundName>{sound.name}</SoundName>
-                      {sound.description && (
-                        <SoundDescription>{sound.description}</SoundDescription>
-                      )}
-                    </SoundCardContent>
-                  </SoundCard>
-                ))}
-              </SoundGrid>
-            </CategorySection>
+                    <PlayIcon isPreviewing={previewingId === sound.id}>▶</PlayIcon>
+                  </PreviewButton>
+                  <SoundName>{sound.name}</SoundName>
+                </SoundCard>
+              ))}
+            </SoundGrid>
           </DropdownPanel>
         )}
       </AnimationWrapper>
