@@ -5,7 +5,10 @@
       "Bash(npx serve -s build)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(git push:*)",
+      "WebFetch(domain:json-render.dev)",
+      "Bash(npx serve -s build -p 3000)"
     ]
   }
 }
