@@ -32,9 +32,11 @@ export const DisplayButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-background);
+  background: transparent;
   border: none;
-  border-radius: 3px;
+  outline: none;
+  box-shadow: none;
+  border-radius: ${({ theme }) => theme.borders.radius.sm};
   color: ${({ theme }) => theme.colors.metronome.primary};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: ${({ theme }) => theme.typography.fontSizes.lg};
@@ -347,7 +349,8 @@ export const SliderHandle = styled.div`
 export const TimeSignatureContainer = styled.div`
   position: relative;
   display: flex;
-  border-radius: 3px;
+  justify-content: center;
+  border-radius: ${({ theme }) => theme.borders.radius.sm};
 `;
 
 export const TimeSignatureList = styled(motion.div)`

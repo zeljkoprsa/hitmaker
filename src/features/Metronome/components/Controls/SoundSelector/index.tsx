@@ -11,8 +11,6 @@ import {
   SoundCard,
   SoundName,
   CheckIcon,
-  PreviewButton,
-  PlayIcon,
 } from './styles';
 
 interface SoundSelectorProps {
@@ -27,7 +25,6 @@ export const SoundSelector: React.FC<SoundSelectorProps> = ({
   isLoading,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [previewingId, setPreviewingId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const currentSound = getSoundById(currentSoundId);
@@ -62,13 +59,6 @@ export const SoundSelector: React.FC<SoundSelectorProps> = ({
     setIsOpen(false);
   };
 
-  const handlePreview = (e: React.MouseEvent, soundId: string) => {
-    e.stopPropagation();
-    // TODO: Implement sound preview
-    setPreviewingId(soundId);
-    setTimeout(() => setPreviewingId(null), 300);
-  };
-
   return (
     <SoundSelectorContainer ref={containerRef}>
       <DisplayButton
@@ -95,26 +85,11 @@ export const SoundSelector: React.FC<SoundSelectorProps> = ({
                   key={sound.id}
                   onClick={() => handleSelect(sound.id)}
                   isSelected={sound.id === currentSoundId}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  role="option"
+                  aria-selected={sound.id === currentSoundId}
                 >
-                  {sound.id === currentSoundId && (
-                    <CheckIcon
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                    >
-                      ✓
-                    </CheckIcon>
-                  )}
-                  <PreviewButton
-                    onClick={e => handlePreview(e, sound.id)}
-                    isPreviewing={previewingId === sound.id}
-                    aria-label={`Preview ${sound.name}`}
-                  >
-                    <PlayIcon isPreviewing={previewingId === sound.id}>▶</PlayIcon>
-                  </PreviewButton>
                   <SoundName>{sound.name}</SoundName>
+                  {sound.id === currentSoundId && <CheckIcon>✓</CheckIcon>}
                 </SoundCard>
               ))}
             </SoundGrid>
