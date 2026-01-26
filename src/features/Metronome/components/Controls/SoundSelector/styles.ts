@@ -5,44 +5,8 @@ import { flex, transition } from '../../../../../shared/styles/mixins';
 
 export const SoundSelectorContainer = styled.div`
   position: relative;
-  width: 100%;
   display: flex;
-  justify-content: center;
-`;
-
-interface SoundButtonProps {
-  isOpen: boolean;
-}
-
-export const SoundButton = styled.button<SoundButtonProps>`
-  ${flex({ direction: 'row', align: 'center', gap: 'md' })}
-  min-width: ${({ theme }) => `calc(${theme.spacing.xxxl} * 4)`};
-  padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.xl}`};
-  background-color: ${({ theme }) => theme.colors.metronome.background};
-  border: ${({ theme }) => theme.borders.width.thin} solid
-    ${({ theme, isOpen }) => (isOpen ? theme.colors.metronome.accent : `${theme.colors.text.primary}1A`)};
-  border-radius: ${({ theme }) => theme.borders.radius.xl};
-  color: ${({ theme }) => theme.colors.text.primary};
-  cursor: pointer;
-  ${transition({ properties: ['border-color', 'background-color', 'transform'], speed: 'fast' })}
-
-  &:hover:not(:disabled) {
-    background-color: ${({ theme }) => theme.colors.metronome.midBackground};
-    border-color: ${({ theme, isOpen }) =>
-      isOpen ? theme.colors.metronome.accent : `${theme.colors.text.primary}33`};
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
-
-export const SoundLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSizes.md};
-  font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
-  font-family: ${({ theme }) => theme.typography.fontFamily.base};
-  text-transform: capitalize;
+  border-radius: ${({ theme }) => theme.borders.radius.sm};
 `;
 
 export const DropdownPanel = styled(motion.div)`

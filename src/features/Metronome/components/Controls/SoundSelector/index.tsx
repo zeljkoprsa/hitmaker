@@ -2,11 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import { getSoundById, SOUNDS } from '../../../../../core/types/SoundTypes';
 import { AnimationWrapper } from '../../AnimationWrapper';
+import { DisplayButton } from '../styles';
 
 import {
   SoundSelectorContainer,
-  SoundButton,
-  SoundLabel,
   DropdownPanel,
   SoundGrid,
   SoundCard,
@@ -72,15 +71,15 @@ export const SoundSelector: React.FC<SoundSelectorProps> = ({
 
   return (
     <SoundSelectorContainer ref={containerRef}>
-      <SoundButton
+      <DisplayButton
         onClick={() => setIsOpen(!isOpen)}
-        isOpen={isOpen}
         disabled={isLoading}
         aria-label="Select sound"
         aria-expanded={isOpen}
+        aria-haspopup="listbox"
       >
-        <SoundLabel>{isLoading ? 'Loading...' : currentLabel}</SoundLabel>
-      </SoundButton>
+        <span>{isLoading ? '...' : currentLabel}</span>
+      </DisplayButton>
 
       <AnimationWrapper mode="wait">
         {isOpen && (
