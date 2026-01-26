@@ -16,11 +16,11 @@ interface SoundButtonProps {
 
 export const SoundButton = styled.button<SoundButtonProps>`
   ${flex({ direction: 'row', align: 'center', gap: 'md' })}
-  min-width: 200px;
+  min-width: ${({ theme }) => `calc(${theme.spacing.xxxl} * 4)`};
   padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.xl}`};
   background-color: ${({ theme }) => theme.colors.metronome.background};
   border: ${({ theme }) => theme.borders.width.thin} solid
-    ${({ theme, isOpen }) => (isOpen ? theme.colors.metronome.accent : 'rgba(255, 255, 255, 0.1)')};
+    ${({ theme, isOpen }) => (isOpen ? theme.colors.metronome.accent : `${theme.colors.text.primary}1A`)};
   border-radius: ${({ theme }) => theme.borders.radius.xl};
   color: ${({ theme }) => theme.colors.text.primary};
   cursor: pointer;
@@ -29,7 +29,7 @@ export const SoundButton = styled.button<SoundButtonProps>`
   &:hover:not(:disabled) {
     background-color: ${({ theme }) => theme.colors.metronome.midBackground};
     border-color: ${({ theme, isOpen }) =>
-      isOpen ? theme.colors.metronome.accent : 'rgba(255, 255, 255, 0.2)'};
+      isOpen ? theme.colors.metronome.accent : `${theme.colors.text.primary}33`};
   }
 
   &:disabled {
@@ -54,32 +54,30 @@ export const DropdownPanel = styled(motion.div)`
   max-height: 70vh;
   overflow-y: auto;
   background-color: ${({ theme }) => theme.colors.metronome.background};
-  border: ${({ theme }) => theme.borders.width.thin} solid rgba(255, 255, 255, 0.1);
+  border: ${({ theme }) => theme.borders.width.thin} solid ${({ theme }) => `${theme.colors.text.primary}1A`};
   border-radius: ${({ theme }) => theme.borders.radius.lg};
   padding: ${({ theme }) => theme.spacing.lg};
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: ${({ theme }) => theme.shadows.xl};
   z-index: ${({ theme }) => theme.zIndices.dropdown};
   backdrop-filter: blur(20px);
 
   /* Custom scrollbar styling */
   &::-webkit-scrollbar {
-    width: 8px;
+    width: ${({ theme }) => theme.spacing.md};
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
+    background: ${({ theme }) => `${theme.colors.text.primary}0D`};
     border-radius: ${({ theme }) => theme.borders.radius.sm};
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: ${({ theme }) => `${theme.colors.text.primary}33`};
     border-radius: ${({ theme }) => theme.borders.radius.sm};
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: ${({ theme }) => `${theme.colors.text.primary}4D`};
   }
 `;
 
@@ -98,10 +96,10 @@ export const SoundCard = styled(motion.button)<SoundCardProps>`
   ${flex({ direction: 'column', align: 'flex-start', gap: 'sm' })}
   padding: ${({ theme }) => theme.spacing.md};
   background-color: ${({ theme, isSelected }) =>
-    isSelected ? theme.colors.metronome.midBackground : 'rgba(255, 255, 255, 0.03)'};
+    isSelected ? theme.colors.metronome.midBackground : `${theme.colors.text.primary}08`};
   border: ${({ theme, isSelected }) =>
     `${theme.borders.width.thin} solid ${
-      isSelected ? theme.colors.metronome.accent : 'rgba(255, 255, 255, 0.08)'
+      isSelected ? theme.colors.metronome.accent : `${theme.colors.text.primary}14`
     }`};
   border-radius: ${({ theme }) => theme.borders.radius.md};
   cursor: pointer;
@@ -111,9 +109,9 @@ export const SoundCard = styled(motion.button)<SoundCardProps>`
 
   &:hover {
     background-color: ${({ theme, isSelected }) =>
-      isSelected ? theme.colors.metronome.midBackground : 'rgba(255, 255, 255, 0.06)'};
+      isSelected ? theme.colors.metronome.midBackground : `${theme.colors.text.primary}0F`};
     border-color: ${({ theme, isSelected }) =>
-      isSelected ? theme.colors.metronome.accent : 'rgba(255, 255, 255, 0.15)'};
+      isSelected ? theme.colors.metronome.accent : `${theme.colors.text.primary}26`};
   }
 
   &:hover button {
@@ -124,8 +122,8 @@ export const SoundCard = styled(motion.button)<SoundCardProps>`
   ${({ isSelected, theme }) =>
     isSelected &&
     `
-    box-shadow: 0 0 0 1px ${theme.colors.metronome.accent}40,
-                0 4px 12px ${theme.colors.metronome.accent}20;
+    box-shadow: 0 0 0 ${theme.borders.width.thin} ${theme.colors.metronome.accent}40,
+                ${theme.shadows.md};
   `}
 `;
 
@@ -133,19 +131,15 @@ export const CheckIcon = styled(motion.div)`
   position: absolute;
   top: ${({ theme }) => theme.spacing.sm};
   right: ${({ theme }) => theme.spacing.sm};
-  width: 20px;
-  height: 20px;
-  background: linear-gradient(
-    135deg,
-    ${({ theme }) => theme.colors.metronome.accent} 0%,
-    #d63a04 100%
-  );
+  width: ${({ theme }) => theme.spacing.xl};
+  height: ${({ theme }) => theme.spacing.xl};
+  background: ${({ theme }) => theme.colors.metronome.accent};
   border-radius: ${({ theme }) => theme.borders.radius.round};
-  color: white;
+  color: ${({ theme }) => theme.colors.text.inverse};
   font-size: ${({ theme }) => theme.typography.fontSizes.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeights.bold};
   ${flex({ justify: 'center', align: 'center' })}
-  box-shadow: 0 2px 8px ${({ theme }) => theme.colors.metronome.accent}40;
+  box-shadow: ${({ theme }) => theme.shadows.sm};
 `;
 
 interface PreviewButtonProps {
@@ -156,10 +150,10 @@ export const PreviewButton = styled.button<PreviewButtonProps>`
   position: absolute;
   bottom: ${({ theme }) => theme.spacing.sm};
   right: ${({ theme }) => theme.spacing.sm};
-  width: 28px;
-  height: 28px;
+  width: ${({ theme }) => theme.spacing.xxl};
+  height: ${({ theme }) => theme.spacing.xxl};
   background-color: ${({ theme, isPreviewing }) =>
-    isPreviewing ? theme.colors.metronome.accent : 'rgba(255, 255, 255, 0.1)'};
+    isPreviewing ? theme.colors.metronome.accent : `${theme.colors.text.primary}1A`};
   border: none;
   border-radius: ${({ theme }) => theme.borders.radius.round};
   color: ${({ theme }) => theme.colors.text.primary};
@@ -186,7 +180,7 @@ interface PlayIconProps {
 export const PlayIcon = styled.span<PlayIconProps>`
   font-size: ${({ theme }) => theme.typography.fontSizes.xs};
   line-height: 1;
-  margin-left: 2px;
+  margin-left: ${({ theme }) => theme.spacing.xs};
   ${transition({ properties: 'transform', speed: 'fast' })}
 
   ${({ isPreviewing }) =>
