@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
 
-import { StatusContainer, StatusText, Spinner } from './styles';
+import { StatusDot } from './styles';
 
 const SyncStatus: React.FC = () => {
   const { isSaving } = useMetronome();
@@ -20,28 +20,26 @@ const SyncStatus: React.FC = () => {
     };
   }, []);
 
-  if (!online) {
-    return (
-      <StatusContainer status="offline">
-        <StatusText>Offline</StatusText>
-      </StatusContainer>
-    );
-  }
+  const getStatus = () => {
+    if (!online) return 'offline';
+    if (isSaving) return 'saving';
+    return 'synced';
+  };
 
-  if (isSaving) {
-    return (
-      <StatusContainer status="saving">
-        <Spinner />
-        <StatusText>Saving...</StatusText>
-      </StatusContainer>
-    );
-  }
+  const status = getStatus();
 
-  return (
-    <StatusContainer status="synced">
-      <StatusText>Synced</StatusText>
-    </StatusContainer>
-  );
+  const getTitle = () => {
+    switch (status) {
+      case 'offline':
+        return 'Offline';
+      case 'saving':
+        return 'Saving...';
+      case 'synced':
+        return 'Synced';
+    }
+  };
+
+  return <StatusDot status={status} title={getTitle()} aria-label={getTitle()} />;
 };
 
 export default SyncStatus;
