@@ -397,6 +397,40 @@ export class Metronome {
   setTimeSignature(timeSignature: { beats: number; noteValue: number }): void {
     this.config.timeSignature = timeSignature;
     this.currentBeat = 0; // Reset beat counter on time signature change
+
+    // Calculate default accents based on time signature
+    const newAccents: AccentLevel[] = new Array(timeSignature.beats).fill(AccentLevel.Normal);
+
+    // Always accent the first beat
+    if (newAccents.length > 0) {
+      newAccents[0] = AccentLevel.Accent;
+    }
+
+    // Apply specific patterns for compound meters
+    if (timeSignature.noteValue === 8) {
+      if (timeSignature.beats === 6) {
+        // 6/8: Strong on 1, Strong on 4
+        newAccents[3] = AccentLevel.Accent;
+      } else if (timeSignature.beats === 9) {
+        // 9/8: Strong on 1, 4, 7
+        newAccents[3] = AccentLevel.Accent;
+        newAccents[6] = AccentLevel.Accent;
+      } else if (timeSignature.beats === 12) {
+        // 12/8: Strong on 1, 4, 7, 10
+        newAccents[3] = AccentLevel.Accent;
+        newAccents[6] = AccentLevel.Accent;
+        newAccents[9] = AccentLevel.Accent;
+      }
+    } else if (timeSignature.noteValue === 4) {
+      if (timeSignature.beats === 4) {
+        // 4/4: Strong on 1, Medium/Strong on 3 (optional, but let's stick to standard practice of often accenting 3 slightly or just 1)
+        // For now, let's keep it simple: Accent on 1 is already set.
+        // Many metronomes treat 3 as a secondary accent.
+        newAccents[2] = AccentLevel.Accent;
+      }
+    }
+
+    this.config.accents = newAccents;
     this.notifyChange();
   }
 

@@ -616,4 +616,40 @@ describe('Metronome', () => {
       expect(timeDifference).toBeCloseTo(60 / 240, 2); // Should be close to the period of 240 BPM in seconds
     });
   });
+
+  describe('time signature changes', () => {
+    it('should set default accents when changing time signature', () => {
+      // Test 6/8 default accents (Strong, Normal, Normal, Strong, Normal, Normal)
+      metronome.setTimeSignature({ beats: 6, noteValue: 8 });
+      const state68 = metronome.getCurrentState();
+      expect(state68.accents).toBeDefined();
+      if (state68.accents) {
+        expect(state68.accents).toHaveLength(6);
+        expect(state68.accents[0]).toBe(AccentLevel.Accent);
+        expect(state68.accents[3]).toBe(AccentLevel.Accent);
+        expect(state68.accents[1]).toBe(AccentLevel.Normal);
+      }
+
+      // Test 9/8 default accents (Strong on 1, 4, 7)
+      metronome.setTimeSignature({ beats: 9, noteValue: 8 });
+      const state98 = metronome.getCurrentState();
+      expect(state98.accents).toBeDefined();
+      if (state98.accents) {
+        expect(state98.accents).toHaveLength(9);
+        expect(state98.accents[0]).toBe(AccentLevel.Accent);
+        expect(state98.accents[3]).toBe(AccentLevel.Accent);
+        expect(state98.accents[6]).toBe(AccentLevel.Accent);
+      }
+
+      // Test 7/8 default accents (Strong on 1 only)
+      metronome.setTimeSignature({ beats: 7, noteValue: 8 });
+      const state78 = metronome.getCurrentState();
+      expect(state78.accents).toBeDefined();
+      if (state78.accents) {
+        expect(state78.accents).toHaveLength(7);
+        expect(state78.accents[0]).toBe(AccentLevel.Accent);
+        expect(state78.accents[1]).toBe(AccentLevel.Normal);
+      }
+    });
+  });
 });

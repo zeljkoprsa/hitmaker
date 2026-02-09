@@ -23,6 +23,12 @@ const timeSignatureOptions: TimeSignatureOption[] = [
   { beats: 3, noteValue: 4, display: '3/4' },
   { beats: 2, noteValue: 4, display: '2/4' },
   { beats: 1, noteValue: 4, display: '1/4' },
+  { beats: 2, noteValue: 2, display: '2/2' },
+  { beats: 6, noteValue: 8, display: '6/8' },
+  { beats: 9, noteValue: 8, display: '9/8' },
+  { beats: 12, noteValue: 8, display: '12/8' },
+  { beats: 5, noteValue: 4, display: '5/4' },
+  { beats: 7, noteValue: 8, display: '7/8' },
 ];
 
 interface TimeSignatureControlProps {
