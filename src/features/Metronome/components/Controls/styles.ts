@@ -58,6 +58,13 @@ export const DisplayButton = styled.button`
     outline: none;
     color: ${({ theme }) => theme.colors.metronome.accent};
   }
+
+  /* Touch devices: add active state feedback */
+  @media (hover: none) and (pointer: coarse) {
+    &:active {
+      transform: scale(0.98);
+    }
+  }
 `;
 
 export const CollapsibleContainer = styled.div`
@@ -134,6 +141,11 @@ export const TempoControlContainer = styled.div`
   width: 100%;
   max-width: 600px;
   gap: ${({ theme }) => theme.spacing.xl};
+
+  /* Small mobile: reduce gap */
+  @media (max-width: 375px) {
+    gap: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 export const TempoControlStyled = styled.div<TempoControlProps>`
@@ -175,6 +187,8 @@ export const TempoButton = styled.button`
   background: none;
   color: ${({ theme }) => theme.colors.text.primary};
   cursor: pointer;
+  min-width: 44px; /* iOS touch target minimum */
+  min-height: 44px;
   ${transition({ properties: ['color', 'transform'] })}
 
   &:hover {
@@ -188,11 +202,20 @@ export const TempoButton = styled.button`
   &:focus {
     outline: none;
   }
+
+  /* Touch devices: disable hover effects */
+  @media (hover: none) and (pointer: coarse) {
+    &:hover {
+      transform: none;
+    }
+  }
 `;
 
 export const TempoControlButton = styled.button`
   width: ${({ theme }) => theme.spacing.xl};
   height: ${({ theme }) => theme.spacing.xl};
+  min-width: 44px; /* iOS touch target minimum */
+  min-height: 44px;
   border-radius: 3px;
   border: none;
   font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
@@ -206,6 +229,13 @@ export const TempoControlButton = styled.button`
 
   &:active {
     background-color: ${({ theme }) => theme.colors.metronome.accent};
+  }
+
+  /* Touch devices: add active feedback */
+  @media (hover: none) and (pointer: coarse) {
+    &:active {
+      transform: scale(0.95);
+    }
   }
 `;
 
@@ -252,6 +282,24 @@ export const TempoSlider = styled.input`
     &:hover {
       background-color: ${({ theme }) => theme.colors.metronome.accent};
     }
+  }
+
+  /* Touch devices: larger touch targets */
+  @media (hover: none) and (pointer: coarse) {
+    &::-webkit-slider-thumb {
+      width: 20px;
+      height: 20px;
+    }
+
+    &::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  /* Small mobile: reduce slider width */
+  @media (max-width: 375px) {
+    width: 150px;
   }
 `;
 
@@ -426,6 +474,13 @@ export const TimeSignatureOption = styled(MotionButton)<CustomButtonProps>`
     outline: none;
     color: ${({ theme }) => theme.colors.metronome.accent};
   }
+
+  /* Touch devices: add active state feedback */
+  @media (hover: none) and (pointer: coarse) {
+    &:active {
+      transform: scale(0.98);
+    }
+  }
 `;
 
 // Create a styled component that accepts the selected prop
@@ -462,12 +517,19 @@ export const SubdivisionOption = styled(MotionButton)<CustomButtonProps>`
     outline: none;
     color: ${({ theme }) => theme.colors.metronome.accent};
   }
+
+  /* Touch devices: add active state feedback */
+  @media (hover: none) and (pointer: coarse) {
+    &:active {
+      transform: scale(0.98);
+    }
+  }
 `;
 
 // Tap Tempo Control Styles
 export const TapTempoButton = styled.button<TapTempoButtonProps>`
   width: 102px;
-  height: 36px;
+  height: 44px; /* Increased from 36px for iOS touch target minimum */
   padding: 0;
   display: flex;
   align-items: center;
@@ -493,6 +555,17 @@ export const TapTempoButton = styled.button<TapTempoButtonProps>`
 
   &:hover {
     color: ${({ theme }) => theme.colors.metronome.accent};
+  }
+
+  /* Touch devices: disable hover transform, add active state */
+  @media (hover: none) and (pointer: coarse) {
+    &:hover {
+      transform: none;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
   }
 `;
 
@@ -578,6 +651,29 @@ export const VolumeSlider = styled.input`
 
     &::-moz-range-thumb {
       box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.metronome.accent};
+    }
+  }
+
+  /* Touch devices: larger touch targets */
+  @media (hover: none) and (pointer: coarse) {
+    &::-webkit-slider-thumb {
+      width: 20px;
+      height: 20px;
+    }
+
+    &::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      &::-webkit-slider-thumb {
+        transform: none;
+      }
+
+      &::-moz-range-thumb {
+        transform: none;
+      }
     }
   }
 `;
@@ -690,6 +786,27 @@ export const NoteButton = styled.button<NoteButtonProps>`
     filter: ${({ accentLevel, theme }) =>
       accentLevel === 1 ? `drop-shadow(0 0 4px ${theme.colors.metronome.accent}80)` : 'none'};
   }
+
+  /* Touch devices: disable hover scale, add active feedback */
+  @media (hover: none) and (pointer: coarse) {
+    /* Increase touch target size */
+    width: 44px;
+    height: 44px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    &:hover {
+      transform: scale(${({ accentLevel }) => (accentLevel === 1 ? 1.1 : 1)});
+      opacity: ${({ accentLevel }) => (accentLevel === 2 ? 0.5 : 1)};
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
 `;
 
 // Preset Pattern Button Styles
@@ -723,6 +840,7 @@ export const PresetButton = styled.button<PresetButtonProps>`
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  min-height: 44px; /* iOS touch target minimum */
 
   &:hover:not(:disabled) {
     background-color: ${({ theme }) => `${theme.colors.metronome.accent}30`};
@@ -742,5 +860,16 @@ export const PresetButton = styled.button<PresetButtonProps>`
   &:focus {
     outline: none;
     box-shadow: 0 0 0 2px ${({ theme }) => `${theme.colors.metronome.accent}40`};
+  }
+
+  /* Touch devices: disable hover transform, add active feedback */
+  @media (hover: none) and (pointer: coarse) {
+    &:hover:not(:disabled) {
+      transform: none;
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.98);
+    }
   }
 `;

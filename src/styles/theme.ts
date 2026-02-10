@@ -72,13 +72,35 @@ interface Typography {
 }
 
 interface Breakpoints {
+  // Device type flags (computed at runtime)
   mobile: boolean;
   tablet: boolean;
   desktop: boolean;
+
+  // Raw breakpoint values (in pixels)
   values: {
+    smallMobile: number;
     mobile: number;
+    largeMobile: number;
     tablet: number;
     desktop: number;
+    largeDesktop: number;
+    ultraWide: number;
+  };
+
+  // Media query strings for CSS-in-JS
+  mediaQueries: {
+    smallMobile: string;
+    mobile: string;
+    largeMobile: string;
+    tablet: string;
+    desktop: string;
+    largeDesktop: string;
+    ultraWide: string;
+    touch: string;
+    hover: string;
+    portrait: string;
+    landscape: string;
   };
 }
 
@@ -130,6 +152,30 @@ interface ZIndices {
   tooltip: number;
 }
 
+interface FluidTypography {
+  clamp: {
+    xs: string;
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+    xxl: string;
+    xxxl: string;
+  };
+}
+
+interface FluidSpacing {
+  clamp: {
+    xs: string;
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+    xxl: string;
+    xxxl: string;
+  };
+}
+
 export interface CustomTheme {
   colors: Colors;
   spacing: Spacing;
@@ -139,6 +185,8 @@ export interface CustomTheme {
   transitions: Transitions;
   zIndices: ZIndices;
   breakpoints: Breakpoints;
+  fluidTypography: FluidTypography;
+  fluidSpacing: FluidSpacing;
 }
 
 // Theme implementation
@@ -244,13 +292,57 @@ export const theme: CustomTheme = {
     tooltip: 1500,
   },
   breakpoints: {
+    // These will be set at runtime by useResponsive
     mobile: false,
     tablet: false,
     desktop: false,
+
     values: {
-      mobile: 0,
-      tablet: 640,
+      smallMobile: 320,
+      mobile: 375,
+      largeMobile: 428,
+      tablet: 768,
       desktop: 1024,
+      largeDesktop: 1440,
+      ultraWide: 1920,
+    },
+
+    mediaQueries: {
+      smallMobile: '@media (min-width: 320px)',
+      mobile: '@media (min-width: 375px)',
+      largeMobile: '@media (min-width: 428px)',
+      tablet: '@media (min-width: 768px)',
+      desktop: '@media (min-width: 1024px)',
+      largeDesktop: '@media (min-width: 1440px)',
+      ultraWide: '@media (min-width: 1920px)',
+      touch: '@media (hover: none) and (pointer: coarse)',
+      hover: '@media (hover: hover) and (pointer: fine)',
+      portrait: '@media (orientation: portrait)',
+      landscape: '@media (orientation: landscape)',
+    },
+  },
+
+  fluidTypography: {
+    clamp: {
+      xs: 'clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem)',
+      sm: 'clamp(0.875rem, 0.8rem + 0.375vw, 1rem)',
+      md: 'clamp(1rem, 0.9rem + 0.5vw, 1.125rem)',
+      lg: 'clamp(1.125rem, 1rem + 0.625vw, 1.25rem)',
+      xl: 'clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem)',
+      xxl: 'clamp(1.5rem, 1.3rem + 1vw, 2rem)',
+      xxxl: 'clamp(2rem, 1.5rem + 2.5vw, 3rem)',
+    },
+  },
+
+  fluidSpacing: {
+    clamp: {
+      xs: 'clamp(0.125rem, 0.1rem + 0.125vw, 0.25rem)',
+      sm: 'clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem)',
+      md: 'clamp(0.5rem, 0.4rem + 0.5vw, 1rem)',
+      lg: 'clamp(1rem, 0.8rem + 1vw, 1.5rem)',
+      xl: 'clamp(1.5rem, 1.2rem + 1.5vw, 2rem)',
+      xxl: 'clamp(2rem, 1.5rem + 2.5vw, 3rem)',
+      xxxl: 'clamp(3rem, 2rem + 5vw, 4rem)',
     },
   },
 };
