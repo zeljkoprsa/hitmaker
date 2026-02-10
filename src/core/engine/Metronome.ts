@@ -15,6 +15,7 @@ import {
   MetronomeState,
   AccentLevel,
 } from '../types/MetronomeTypes';
+import { getDefaultAccentPattern } from '../utils/timeSignatureUtils';
 export type { MetronomeConfig, MetronomeState };
 
 export class Metronome {
@@ -387,6 +388,8 @@ export class Metronome {
   setTempo(bpm: number): void {
     // Clamp tempo to valid range
     const clampedBpm = Math.max(30, Math.min(500, bpm));
+    // Skip update if value hasn't changed
+    if (this.config.tempo === clampedBpm) return;
     this.config.tempo = clampedBpm;
     this.notifyChange();
   }
@@ -395,46 +398,26 @@ export class Metronome {
    * Sets the time signature
    */
   setTimeSignature(timeSignature: { beats: number; noteValue: number }): void {
+    // Skip update if value hasn't changed
+    if (
+      this.config.timeSignature.beats === timeSignature.beats &&
+      this.config.timeSignature.noteValue === timeSignature.noteValue
+    ) {
+      return;
+    }
+
     this.config.timeSignature = timeSignature;
     this.currentBeat = 0; // Reset beat counter on time signature change
 
-    // Calculate default accents based on time signature
-    const newAccents: AccentLevel[] = new Array(timeSignature.beats).fill(AccentLevel.Normal);
+    // Use centralized default accent pattern logic
+    this.config.accents = getDefaultAccentPattern(timeSignature.beats, timeSignature.noteValue);
 
-    // Always accent the first beat
-    if (newAccents.length > 0) {
-      newAccents[0] = AccentLevel.Accent;
-    }
-
-    // Apply specific patterns for compound meters
-    if (timeSignature.noteValue === 8) {
-      if (timeSignature.beats === 6) {
-        // 6/8: Strong on 1, Strong on 4
-        newAccents[3] = AccentLevel.Accent;
-      } else if (timeSignature.beats === 9) {
-        // 9/8: Strong on 1, 4, 7
-        newAccents[3] = AccentLevel.Accent;
-        newAccents[6] = AccentLevel.Accent;
-      } else if (timeSignature.beats === 12) {
-        // 12/8: Strong on 1, 4, 7, 10
-        newAccents[3] = AccentLevel.Accent;
-        newAccents[6] = AccentLevel.Accent;
-        newAccents[9] = AccentLevel.Accent;
-      }
-    } else if (timeSignature.noteValue === 4) {
-      if (timeSignature.beats === 4) {
-        // 4/4: Strong on 1, Medium/Strong on 3 (optional, but let's stick to standard practice of often accenting 3 slightly or just 1)
-        // For now, let's keep it simple: Accent on 1 is already set.
-        // Many metronomes treat 3 as a secondary accent.
-        newAccents[2] = AccentLevel.Accent;
-      }
-    }
-
-    this.config.accents = newAccents;
     this.notifyChange();
   }
 
   setSubdivision(subdivision: SubdivisionType): void {
+    // Skip update if value hasn't changed
+    if (this.config.subdivision === subdivision) return;
     this.config.subdivision = subdivision;
     this.notifyChange();
   }
@@ -443,6 +426,13 @@ export class Metronome {
    * Sets the accent pattern
    */
   setAccents(accents: AccentLevel[]): void {
+    // Skip update if array hasn't changed (deep equality check)
+    if (
+      this.config.accents.length === accents.length &&
+      this.config.accents.every((level, index) => level === accents[index])
+    ) {
+      return;
+    }
     this.config.accents = accents;
     this.notifyChange();
   }
@@ -453,6 +443,8 @@ export class Metronome {
   setVolume(volume: number): void {
     // Clamp volume to valid range
     const clampedVolume = Math.max(0, Math.min(1, volume));
+    // Skip update if value hasn't changed
+    if (this.config.volume === clampedVolume) return;
     this.config.volume = clampedVolume;
 
     // Update config on audio sources
@@ -467,6 +459,8 @@ export class Metronome {
    * Sets the muted state
    */
   setMuted(muted: boolean): void {
+    // Skip update if value hasn't changed
+    if (this.config.muted === muted) return;
     this.config.muted = muted;
 
     // Update config on audio sources

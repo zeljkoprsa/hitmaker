@@ -271,7 +271,7 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       };
 
       savePreferences(currentConfig, soundId);
-    }, 1000); // 1s debounce
+    }, 2000); // 2s debounce - reduces database writes while still feeling responsive
 
     return () => clearTimeout(timer);
   }, [
