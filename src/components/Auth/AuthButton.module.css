@@ -30,6 +30,13 @@
   transform: translateY(0);
 }
 
+.avatarContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .avatar {
   background: linear-gradient(135deg, var(--color-accent) 0%, #d63a04 100%);
   color: white;
@@ -42,6 +49,43 @@
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-xs);
   box-shadow: 0 2px 8px rgba(246, 65, 5, 0.3);
+}
+
+.syncIndicator {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--color-background);
+  transition: background-color 0.3s ease;
+}
+
+.statusSynced {
+  background-color: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+}
+
+.statusSyncing {
+  background-color: var(--color-accent);
+  box-shadow: 0 0 6px rgba(246, 65, 5, 0.5);
+  animation: pulse-sync 1.5s ease-in-out infinite;
+}
+
+.statusOffline {
+  background-color: #f59e0b;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+}
+
+@keyframes pulse-sync {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .signInText {
