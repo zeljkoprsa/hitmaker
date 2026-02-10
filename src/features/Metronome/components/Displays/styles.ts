@@ -17,37 +17,53 @@ export const BeatVisualizerContainer = styled.div`
 
 export const Beat = styled.div<{ active: boolean; accentLevel?: number }>`
   flex: 1;
-  height: 100%;
   cursor: pointer;
-  background-color: ${({ theme, active, accentLevel = 0 }) => {
-    // Mute = 2
-    if (accentLevel === 2) {
-      // Show very faint outline or transparent
-      return active ? theme.colors.metronome.midBackground : 'transparent';
-    }
+  display: flex;
+  align-items: flex-end;
+  position: relative;
 
-    // Accent = 1
-    if (accentLevel === 1) {
-      return theme.colors.metronome.accent;
-    }
+  /* Height is fixed to container, inner element varies */
+  height: 100%;
 
-    // Normal = 0
-    // Active normal beat gets a color, inactive gets background
-    return active ? theme.colors.text.primary : theme.colors.metronome.midBackground;
-  }};
+  /* Inner bar that changes height based on accent level */
+  &::before {
+    content: '';
+    width: 100%;
+    background-color: ${({ theme, active }) =>
+      active ? theme.colors.metronome.accent : theme.colors.metronome.midBackground};
+    border-radius: ${({ theme }) => theme.borders.radius.sm}
+      ${({ theme }) => theme.borders.radius.sm} 0 0;
+    transition: all ${({ theme }) => theme.transitions.duration.fast} ease;
 
-  opacity: ${({ active, accentLevel = 0 }) => {
-    if (active) return 1;
-    // Inactive states
-    if (accentLevel === 2) return 0.1; // Ghosted mute
-    if (accentLevel === 1) return 0.5; // Dimmed accent
-    return 1; // Normal inactive (midBackground color handles the dimness look)
-  }};
+    /* Height based on accent level */
+    height: ${({ accentLevel = 0 }) => {
+      if (accentLevel === 2) return '20%'; // Mute - shortest
+      if (accentLevel === 1) return '100%'; // Accent - tallest
+      return '60%'; // Normal - medium
+    }};
 
-  border: ${({ theme, accentLevel = 0 }) =>
-    accentLevel === 2 ? `1px dashed ${theme.colors.metronome.midBackground}` : 'none'};
+    /* Active beat gets brighter and slightly larger */
+    ${({ active }) =>
+      active &&
+      `
+      transform: scaleY(1.05);
+      filter: brightness(1.2);
+      box-shadow: 0 0 8px rgba(246, 65, 5, 0.4);
+    `}
 
-  transition: all ${({ theme }) => theme.transitions.duration.fast} ease;
+    /* Muted beats get dashed border */
+    ${({ theme, accentLevel = 0 }) =>
+      accentLevel === 2 &&
+      `
+      border: 1px dashed ${theme.colors.metronome.midBackground};
+      background-color: transparent;
+    `}
+  }
+
+  /* Hover effect */
+  &:hover::before {
+    filter: brightness(1.1);
+  }
 `;
 
 // TimeSignatureDisplay styles

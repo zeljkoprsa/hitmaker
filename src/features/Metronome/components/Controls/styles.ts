@@ -595,18 +595,46 @@ export const AccentControlContainer = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: ${({ theme }) => theme.spacing.sm} 0;
+  padding: ${({ theme }) => theme.spacing.lg} 0;
   background-color: var(--color-neutral-800);
   border-radius: var(--radius-xs);
 `;
 
-export const AccentHeader = styled.div`
+interface AccentHeaderProps {
+  isCustom?: boolean;
+}
+
+export const AccentHeader = styled.div<AccentHeaderProps>`
   font-family: ${({ theme }) => theme.typography.fontFamily.base};
   font-size: ${({ theme }) => theme.typography.fontSizes.sm};
   color: ${({ theme }) => theme.colors.text.secondary};
-  margin-bottom: ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacing.md};
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+
+  .custom-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.sm}`};
+    background-color: ${({ theme }) => `${theme.colors.metronome.accent}20`};
+    color: ${({ theme }) => theme.colors.metronome.accent};
+    border: 1px solid ${({ theme }) => theme.colors.metronome.accent};
+    border-radius: ${({ theme }) => theme.borders.radius.sm};
+    font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+    font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1;
+
+    &::before {
+      content: '•';
+      margin-right: ${({ theme }) => theme.spacing.xs};
+      font-size: ${({ theme }) => theme.typography.fontSizes.md};
+    }
+  }
 `;
 
 export const NoteList = styled.div`
@@ -661,5 +689,58 @@ export const NoteButton = styled.button<NoteButtonProps>`
     fill: currentColor;
     filter: ${({ accentLevel, theme }) =>
       accentLevel === 1 ? `drop-shadow(0 0 4px ${theme.colors.metronome.accent}80)` : 'none'};
+  }
+`;
+
+// Preset Pattern Button Styles
+export const PresetButtonList = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing.md};
+  width: 100%;
+  flex-wrap: wrap;
+  padding: 0 ${({ theme }) => theme.spacing.md};
+`;
+
+interface PresetButtonProps {
+  active?: boolean;
+}
+
+export const PresetButton = styled.button<PresetButtonProps>`
+  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
+  border: ${({ theme, active }) =>
+    active
+      ? `2px solid ${theme.colors.metronome.accent}`
+      : `2px solid ${theme.colors.metronome.midBackground}`};
+  border-radius: ${({ theme }) => theme.borders.radius.md};
+  background-color: ${({ theme, active }) =>
+    active ? `${theme.colors.metronome.accent}20` : 'transparent'};
+  color: ${({ theme, active }) =>
+    active ? theme.colors.metronome.accent : theme.colors.metronome.primary};
+  font-size: ${({ theme }) => theme.typography.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    background-color: ${({ theme }) => `${theme.colors.metronome.accent}30`};
+    border-color: ${({ theme }) => theme.colors.metronome.accent};
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.8;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px ${({ theme }) => `${theme.colors.metronome.accent}40`};
   }
 `;
