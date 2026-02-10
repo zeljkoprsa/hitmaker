@@ -388,6 +388,8 @@ export class Metronome {
   setTempo(bpm: number): void {
     // Clamp tempo to valid range
     const clampedBpm = Math.max(30, Math.min(500, bpm));
+    // Skip update if value hasn't changed
+    if (this.config.tempo === clampedBpm) return;
     this.config.tempo = clampedBpm;
     this.notifyChange();
   }
@@ -396,6 +398,14 @@ export class Metronome {
    * Sets the time signature
    */
   setTimeSignature(timeSignature: { beats: number; noteValue: number }): void {
+    // Skip update if value hasn't changed
+    if (
+      this.config.timeSignature.beats === timeSignature.beats &&
+      this.config.timeSignature.noteValue === timeSignature.noteValue
+    ) {
+      return;
+    }
+
     this.config.timeSignature = timeSignature;
     this.currentBeat = 0; // Reset beat counter on time signature change
 
@@ -406,6 +416,8 @@ export class Metronome {
   }
 
   setSubdivision(subdivision: SubdivisionType): void {
+    // Skip update if value hasn't changed
+    if (this.config.subdivision === subdivision) return;
     this.config.subdivision = subdivision;
     this.notifyChange();
   }
@@ -414,6 +426,13 @@ export class Metronome {
    * Sets the accent pattern
    */
   setAccents(accents: AccentLevel[]): void {
+    // Skip update if array hasn't changed (deep equality check)
+    if (
+      this.config.accents.length === accents.length &&
+      this.config.accents.every((level, index) => level === accents[index])
+    ) {
+      return;
+    }
     this.config.accents = accents;
     this.notifyChange();
   }
@@ -424,6 +443,8 @@ export class Metronome {
   setVolume(volume: number): void {
     // Clamp volume to valid range
     const clampedVolume = Math.max(0, Math.min(1, volume));
+    // Skip update if value hasn't changed
+    if (this.config.volume === clampedVolume) return;
     this.config.volume = clampedVolume;
 
     // Update config on audio sources
@@ -438,6 +459,8 @@ export class Metronome {
    * Sets the muted state
    */
   setMuted(muted: boolean): void {
+    // Skip update if value hasn't changed
+    if (this.config.muted === muted) return;
     this.config.muted = muted;
 
     // Update config on audio sources

@@ -51,16 +51,22 @@ export const usePreferences = () => {
       if (!user) return;
       setSaving(true);
 
-      const newPrefs = configToPreferences(config, soundId, preferences || {});
-      newPrefs.user_id = user.id;
+      // Create new preferences using current state via functional update
+      let newPrefs: UserPreferences | null = null;
+      setPreferences(prev => {
+        newPrefs = configToPreferences(config, soundId, prev || {});
+        newPrefs.user_id = user.id;
+        // Optimistic update locally
+        return { ...prev, ...newPrefs } as UserPreferences;
+      });
 
-      // Optimistic update locally
-      setPreferences(prev => ({ ...prev, ...newPrefs }) as UserPreferences);
+      // TypeScript: newPrefs is assigned synchronously in setPreferences callback
+      if (!newPrefs) return;
 
       if (!navigator.onLine) {
         // Offline? Add to queue
         import('../utils/syncQueue').then(({ addToQueue }) => {
-          addToQueue(newPrefs);
+          addToQueue(newPrefs!);
           console.log('Offline: Preferences queued for sync.');
           setSaving(false);
         });
@@ -79,7 +85,7 @@ export const usePreferences = () => {
         setSaving(false);
       }
     },
-    [user, preferences]
+    [user]
   );
 
   // Create a default entry if needed
