@@ -32,6 +32,7 @@ const Metronome: React.FC = () => {
     onTick,
     accents,
     toggleAccent,
+    setAccents,
   } = useMetronome();
 
   // Enable Screen Wake Lock while playing
@@ -69,6 +70,13 @@ const Metronome: React.FC = () => {
             />
           </div>
 
+          {/* Accent pattern presets - positioned right below visualizer */}
+          <Controls.AccentControl
+            accents={accents || []}
+            timeSignature={timeSignature}
+            onApplyPreset={setAccents}
+          />
+
           {/* Playback controls group */}
           <div className={styles.playbackControls}>
             <div className={styles.startStopControl}>
@@ -99,9 +107,6 @@ const Metronome: React.FC = () => {
               />
             </div>
           </div>
-
-          {/* Accent control */}
-          <Controls.AccentControl accents={accents || []} onToggleAccent={toggleAccent} />
 
           {/* Tempo slider */}
           <div className={styles.tempoSlider}>
