@@ -5,8 +5,8 @@
   color: var(--color-text-primary);
   cursor: pointer;
   padding: 4px 16px;
-  height: 36px;
-  min-width: 80px;
+  height: 44px; /* Increased from 36px for iOS touch target minimum */
+  min-width: 88px; /* Slightly increased for better proportion */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,8 +93,8 @@
 }
 
 .placeholder {
-  min-width: 80px;
-  height: 36px;
+  min-width: 88px;
+  height: 44px; /* Match button height */
   background-color: var(--color-background-button);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-full);
@@ -108,5 +108,16 @@
   }
   50% {
     opacity: 0.3;
+  }
+}
+
+/* Touch device specific - disable hover effects on touch screens */
+@media (hover: none) and (pointer: coarse) {
+  .button:hover {
+    transform: none;
+  }
+
+  .button:active {
+    transform: scale(0.98);
   }
 }
