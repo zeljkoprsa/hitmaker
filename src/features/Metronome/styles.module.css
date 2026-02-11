@@ -207,7 +207,8 @@
 
 .tempoSlider {
   width: 100%;
-  padding: var(--spacing-xs) 0;
+  height: clamp(70px, 15vw, 82px); /* Match grid height */
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -218,7 +219,8 @@
 
 .soundSelector {
   width: 100%;
-  padding: var(--spacing-xs) 0;
+  height: clamp(70px, 15vw, 82px); /* Match grid height */
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
