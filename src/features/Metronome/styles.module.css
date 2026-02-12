@@ -6,38 +6,16 @@
   width: 100%;
   /* Replace fixed max-width with responsive scaling */
   max-width: 100%;
-  padding: 0 var(--spacing-md);
+  padding: 0; /* No padding on mobile/tablet - edge to edge */
   margin: 0 auto;
   box-sizing: border-box;
   color: var(--text-primary);
 }
 
-/* Small mobile: constrained width */
-@media (min-width: 320px) {
+/* Mobile and Tablet: Full width edge-to-edge */
+@media (max-width: 768px) {
   .layout {
-    max-width: 320px;
-  }
-}
-
-/* Standard mobile */
-@media (min-width: 375px) {
-  .layout {
-    max-width: 375px;
-  }
-}
-
-/* Large mobile */
-@media (min-width: 428px) {
-  .layout {
-    max-width: 420px;
-  }
-}
-
-/* Tablet portrait */
-@media (min-width: 768px) {
-  .layout {
-    max-width: 600px;
-    gap: var(--spacing-sm);
+    max-width: 100%;
   }
 }
 
@@ -46,6 +24,7 @@
   .layout {
     max-width: 800px;
     gap: var(--spacing-md);
+    padding: 0 var(--spacing-md); /* Add padding back for desktop+ */
   }
 }
 
