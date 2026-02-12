@@ -50,6 +50,11 @@ export const DisplayButton = styled.button`
     transform: translateY(2px);
   }
 
+  img {
+    display: block;
+    margin: 0 auto;
+  }
+
   &:hover {
     color: ${({ theme }) => theme.colors.metronome.accent};
   }
@@ -398,6 +403,7 @@ export const TimeSignatureContainer = styled.div`
   position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   border-radius: ${({ theme }) => theme.borders.radius.sm};
 `;
 
@@ -449,6 +455,8 @@ export const TimeSignatureList = styled(motion.div)`
 export const SubdivisionContainer = styled.div`
   position: relative;
   display: flex;
+  justify-content: center;
+  align-items: center;
   border-radius: 3px;
 `;
 
