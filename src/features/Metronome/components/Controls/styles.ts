@@ -50,6 +50,11 @@ export const DisplayButton = styled.button`
     transform: translateY(2px);
   }
 
+  img {
+    display: block;
+    margin: 0 auto;
+  }
+
   &:hover {
     color: ${({ theme }) => theme.colors.metronome.accent};
   }
@@ -398,38 +403,107 @@ export const TimeSignatureContainer = styled.div`
   position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   border-radius: ${({ theme }) => theme.borders.radius.sm};
 `;
 
 export const TimeSignatureList = styled(motion.div)`
   position: absolute;
-  left: calc(82px + 2px); /* Button width + gap */
+  left: 0; /* Align with left edge of app container */
   top: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 columns = 2 rows for 9 items */
   gap: 2px;
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   z-index: 1000;
   border-radius: 3px;
+
+  /* Mobile: 3 columns, horizontal scroll if needed */
+  @media (max-width: 427px) {
+    left: 0;
+    right: 0;
+    top: calc(70px + 2px); /* Position below smaller button */
+    grid-template-columns: repeat(3, 70px); /* 3 columns of 70px buttons */
+    max-width: calc(100vw - 32px);
+    overflow-x: auto;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(246, 65, 5, 0.5);
+      border-radius: 2px;
+    }
+  }
+
+  /* Tablet: 4 columns */
+  @media (min-width: 428px) and (max-width: 767px) {
+    grid-template-columns: repeat(4, 76px);
+  }
+
+  /* Desktop: 5 columns */
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(5, 82px);
+  }
 `;
 
 // Subdivision Control Styles
 export const SubdivisionContainer = styled.div`
   position: relative;
   display: flex;
+  justify-content: center;
+  align-items: center;
   border-radius: 3px;
 `;
 
 export const SubdivisionList = styled(motion.div)`
   position: absolute;
-  right: 100%;
+  right: 0; /* Align with right edge of app container */
   left: auto;
   top: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Usually fewer subdivision options */
   gap: 2px;
-  margin-right: 2px; /* Gap between button and dropdown */
-  background-color: transparent;
+  margin-right: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   z-index: 1000;
   border-radius: 3px;
+
+  /* Mobile: position below, 2 columns */
+  @media (max-width: 427px) {
+    right: 0;
+    left: 0;
+    top: calc(70px + 2px); /* Position below smaller button */
+    grid-template-columns: repeat(2, 70px);
+    max-width: calc(100vw - 32px);
+    overflow-x: auto;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(246, 65, 5, 0.5);
+      border-radius: 2px;
+    }
+  }
+
+  /* Tablet: 3 columns */
+  @media (min-width: 428px) and (max-width: 767px) {
+    grid-template-columns: repeat(3, 76px);
+  }
+
+  /* Desktop: 3 columns */
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 82px);
+  }
 `;
 
 // Define types for our custom props
@@ -481,6 +555,20 @@ export const TimeSignatureOption = styled(MotionButton)<CustomButtonProps>`
       transform: scale(0.98);
     }
   }
+
+  /* Mobile: smaller buttons for better fit */
+  @media (max-width: 427px) {
+    width: 70px;
+    height: 70px;
+    font-size: ${({ theme }) => theme.typography.fontSizes.md};
+    flex-shrink: 0; /* Prevent shrinking in scroll container */
+  }
+
+  /* Tablet: slightly smaller */
+  @media (min-width: 428px) and (max-width: 767px) {
+    width: 76px;
+    height: 76px;
+  }
 `;
 
 // Create a styled component that accepts the selected prop
@@ -523,6 +611,20 @@ export const SubdivisionOption = styled(MotionButton)<CustomButtonProps>`
     &:active {
       transform: scale(0.98);
     }
+  }
+
+  /* Mobile: smaller buttons for better fit */
+  @media (max-width: 427px) {
+    width: 70px;
+    height: 70px;
+    font-size: ${({ theme }) => theme.typography.fontSizes.md};
+    flex-shrink: 0;
+  }
+
+  /* Tablet: slightly smaller */
+  @media (min-width: 428px) and (max-width: 767px) {
+    width: 76px;
+    height: 76px;
   }
 `;
 
@@ -829,10 +931,10 @@ export const PresetButton = styled.button<PresetButtonProps>`
   border: ${({ theme, active }) =>
     active
       ? `2px solid ${theme.colors.metronome.accent}`
-      : `2px solid ${theme.colors.metronome.midBackground}`};
+      : `2px solid ${theme.colors.metronome.background}`};
   border-radius: ${({ theme }) => theme.borders.radius.md};
   background-color: ${({ theme, active }) =>
-    active ? `${theme.colors.metronome.accent}20` : 'transparent'};
+    active ? `${theme.colors.metronome.accent}20` : theme.colors.metronome.background};
   color: ${({ theme, active }) =>
     active ? theme.colors.metronome.accent : theme.colors.metronome.primary};
   font-size: ${({ theme }) => theme.typography.fontSizes.sm};

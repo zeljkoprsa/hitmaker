@@ -6,38 +6,16 @@
   width: 100%;
   /* Replace fixed max-width with responsive scaling */
   max-width: 100%;
-  padding: 0 var(--spacing-md);
+  padding: 0; /* No padding on mobile/tablet - edge to edge */
   margin: 0 auto;
   box-sizing: border-box;
   color: var(--text-primary);
 }
 
-/* Small mobile: constrained width */
-@media (min-width: 320px) {
+/* Mobile and Tablet: Full width edge-to-edge */
+@media (max-width: 768px) {
   .layout {
-    max-width: 320px;
-  }
-}
-
-/* Standard mobile */
-@media (min-width: 375px) {
-  .layout {
-    max-width: 375px;
-  }
-}
-
-/* Large mobile */
-@media (min-width: 428px) {
-  .layout {
-    max-width: 420px;
-  }
-}
-
-/* Tablet portrait */
-@media (min-width: 768px) {
-  .layout {
-    max-width: 600px;
-    gap: var(--spacing-sm);
+    max-width: 100%;
   }
 }
 
@@ -46,6 +24,7 @@
   .layout {
     max-width: 800px;
     gap: var(--spacing-md);
+    padding: 0 var(--spacing-md); /* Add padding back for desktop+ */
   }
 }
 
@@ -164,7 +143,7 @@
 .tempoSection {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
-  gap: var(--spacing-xs);
+  gap: 2px; /* Minimal gap to match grid system */
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -175,14 +154,7 @@
 @media (max-width: 374px) {
   .tempoSection {
     grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
-  }
-}
-
-/* Tablet and larger: increase spacing */
-@media (min-width: 768px) {
-  .tempoSection {
-    gap: var(--spacing-sm);
+    gap: 2px;
   }
 }
 
@@ -207,7 +179,8 @@
 
 .tempoSlider {
   width: 100%;
-  padding: var(--spacing-xs) 0;
+  height: clamp(70px, 15vw, 82px); /* Match grid height */
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -218,7 +191,8 @@
 
 .soundSelector {
   width: 100%;
-  padding: var(--spacing-xs) 0;
+  height: clamp(70px, 15vw, 82px); /* Match grid height */
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
