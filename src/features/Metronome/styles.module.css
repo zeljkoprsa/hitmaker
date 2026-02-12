@@ -164,7 +164,7 @@
 .tempoSection {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
-  gap: var(--spacing-xs);
+  gap: 2px; /* Minimal gap to match grid system */
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -175,14 +175,7 @@
 @media (max-width: 374px) {
   .tempoSection {
     grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
-  }
-}
-
-/* Tablet and larger: increase spacing */
-@media (min-width: 768px) {
-  .tempoSection {
-    gap: var(--spacing-sm);
+    gap: 2px;
   }
 }
 
