@@ -931,10 +931,10 @@ export const PresetButton = styled.button<PresetButtonProps>`
   border: ${({ theme, active }) =>
     active
       ? `2px solid ${theme.colors.metronome.accent}`
-      : `2px solid ${theme.colors.metronome.midBackground}`};
+      : `2px solid ${theme.colors.metronome.background}`};
   border-radius: ${({ theme }) => theme.borders.radius.md};
   background-color: ${({ theme, active }) =>
-    active ? `${theme.colors.metronome.accent}20` : 'transparent'};
+    active ? `${theme.colors.metronome.accent}20` : theme.colors.metronome.background};
   color: ${({ theme, active }) =>
     active ? theme.colors.metronome.accent : theme.colors.metronome.primary};
   font-size: ${({ theme }) => theme.typography.fontSizes.sm};
