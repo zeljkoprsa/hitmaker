@@ -927,14 +927,10 @@ interface PresetButtonProps {
 }
 
 export const PresetButton = styled.button<PresetButtonProps>`
-  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
-  border: ${({ theme, active }) =>
-    active
-      ? `2px solid ${theme.colors.metronome.accent}`
-      : `2px solid ${theme.colors.metronome.background}`};
+  padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.xl}`};
+  border: none;
   border-radius: ${({ theme }) => theme.borders.radius.md};
-  background-color: ${({ theme, active }) =>
-    active ? `${theme.colors.metronome.accent}20` : theme.colors.metronome.background};
+  background-color: ${({ theme }) => theme.colors.metronome.background};
   color: ${({ theme, active }) =>
     active ? theme.colors.metronome.accent : theme.colors.metronome.primary};
   font-size: ${({ theme }) => theme.typography.fontSizes.sm};
@@ -945,8 +941,7 @@ export const PresetButton = styled.button<PresetButtonProps>`
   min-height: 44px; /* iOS touch target minimum */
 
   &:hover:not(:disabled) {
-    background-color: ${({ theme }) => `${theme.colors.metronome.accent}30`};
-    border-color: ${({ theme }) => theme.colors.metronome.accent};
+    color: ${({ theme }) => theme.colors.metronome.accent};
     transform: translateY(-1px);
   }
 
@@ -961,7 +956,6 @@ export const PresetButton = styled.button<PresetButtonProps>`
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px ${({ theme }) => `${theme.colors.metronome.accent}40`};
   }
 
   /* Touch devices: disable hover transform, add active feedback */
