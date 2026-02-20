@@ -100,7 +100,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 's
           )}
         </div>
 
-
         <form onSubmit={handleAuth} className={styles.form}>
           <div className={styles.inputGroup}>
             <label htmlFor="email">Email</label>

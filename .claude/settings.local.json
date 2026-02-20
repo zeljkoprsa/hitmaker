@@ -9,7 +9,12 @@
       "Bash(git push:*)",
       "WebFetch(domain:json-render.dev)",
       "Bash(npx serve -s build -p 3000)",
-      "Bash(git -C /Users/zeljkoprsa/Library/Mobile\\\\ Documents/com~apple~CloudDocs/Development/Apps/useless status:*)"
+      "Bash(git -C /Users/zeljkoprsa/Library/Mobile\\\\ Documents/com~apple~CloudDocs/Development/Apps/useless status:*)",
+      "Bash(export NODE_OPTIONS:*)",
+      "Bash(xargs:*)",
+      "Bash(brctl download:*)",
+      "Bash(pkill:*)",
+      "WebSearch"
     ]
   }
 }
