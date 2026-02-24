@@ -276,58 +276,56 @@ export class Metronome {
     // Save last tick time
     this.lastTickTime = time;
 
-    // If subdivision is eighth, schedule the eighth note tick
-    if (this.config.subdivision === 'eighth') {
-      const eighthTime = time + this.getBeatDuration() / 2000; // Half a beat later
-
-      // Create subdivision tick event
-      const subdivisionEvent: ITickEvent = {
-        type: 'beat',
-        timestamp: eighthTime,
-        beatNumber: this.currentBeat + 1.5, // Fractional beat number for subdivision
-        measureNumber: this.currentMeasure,
-        tempo: this.config.tempo,
-        timeSignature: { ...this.config.timeSignature },
-        subdivision: this.config.subdivision,
-        accentLevel: AccentLevel.Normal, // Subdivisions use Normal accent for now
-        beatDuration,
-        nextTickTime: time + 60 / this.config.tempo,
-      };
-
-      // Process subdivision tick on the active audio source (same as main beats)
-      // Get the active audio source from the registry for subdivision
+    // Schedule subdivision ticks for eighth and sixteenth notes
+    if (this.config.subdivision === 'eighth' || this.config.subdivision === 'sixteenth') {
+      const beatDurationSec = this.getBeatDuration() / 1000;
+      const offsets = this.config.subdivision === 'sixteenth' ? [0.25, 0.5, 0.75] : [0.5];
       const activeSourceForSubdivision = this.outputRegistry.getActiveSource();
 
-      // Process subdivision tick on the active audio source
-      if (activeSourceForSubdivision) {
-        logger.debug(
-          `Processing subdivision tick with ACTIVE audio source type: ${activeSourceForSubdivision.type}, ID: ${activeSourceForSubdivision.id}, enabled: ${activeSourceForSubdivision.isEnabled}`
-        );
-        activeSourceForSubdivision.processTick(subdivisionEvent).catch(error => {
-          console.error('Error processing subdivision tick:', error);
-          this.notifyError(error);
-        });
-      } else if (this.audioSource) {
-        // Fall back to the original audio source if no active source is set
-        logger.debug(
-          `No active source found for subdivision, falling back to original source type: ${this.audioSource.type}, ID: ${this.audioSource.id}, enabled: ${this.audioSource.isEnabled}`
-        );
-        this.audioSource.processTick(subdivisionEvent).catch(error => {
-          console.error('Error processing subdivision tick:', error);
-          this.notifyError(error);
-        });
-      } else {
-        logger.warn('No audio source available for subdivision tick');
-      }
+      for (const fraction of offsets) {
+        const subTime = time + beatDurationSec * fraction;
 
-      // Notify listeners of subdivision tick
-      this.tickCallbacks.forEach(callback => {
-        try {
-          callback(subdivisionEvent);
-        } catch (error) {
-          logger.error('Error in subdivision tick callback:', error);
+        const subdivisionEvent: ITickEvent = {
+          type: 'beat',
+          timestamp: subTime,
+          beatNumber: this.currentBeat + 1.5, // Fractional beat number for subdivision
+          measureNumber: this.currentMeasure,
+          tempo: this.config.tempo,
+          timeSignature: { ...this.config.timeSignature },
+          subdivision: this.config.subdivision,
+          accentLevel: AccentLevel.Normal,
+          beatDuration,
+          nextTickTime: time + 60 / this.config.tempo,
+        };
+
+        if (activeSourceForSubdivision) {
+          logger.debug(
+            `Processing subdivision tick with ACTIVE audio source type: ${activeSourceForSubdivision.type}, ID: ${activeSourceForSubdivision.id}, enabled: ${activeSourceForSubdivision.isEnabled}`
+          );
+          activeSourceForSubdivision.processTick(subdivisionEvent).catch(error => {
+            console.error('Error processing subdivision tick:', error);
+            this.notifyError(error);
+          });
+        } else if (this.audioSource) {
+          logger.debug(
+            `No active source found for subdivision, falling back to original source type: ${this.audioSource.type}, ID: ${this.audioSource.id}, enabled: ${this.audioSource.isEnabled}`
+          );
+          this.audioSource.processTick(subdivisionEvent).catch(error => {
+            console.error('Error processing subdivision tick:', error);
+            this.notifyError(error);
+          });
+        } else {
+          logger.warn('No audio source available for subdivision tick');
         }
-      });
+
+        this.tickCallbacks.forEach(callback => {
+          try {
+            callback(subdivisionEvent);
+          } catch (error) {
+            logger.error('Error in subdivision tick callback:', error);
+          }
+        });
+      }
     }
   }
 
