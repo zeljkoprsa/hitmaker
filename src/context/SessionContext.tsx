@@ -79,7 +79,15 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
     const id = setTimeout(() => setCountdown(c => (c ?? 1) - 1), 1000);
     return () => clearTimeout(id);
-  }, [sessionPhase, countdown, activeSession, currentBlockIndex, applyBlock, isPlaying, togglePlay]);
+  }, [
+    sessionPhase,
+    countdown,
+    activeSession,
+    currentBlockIndex,
+    applyBlock,
+    isPlaying,
+    togglePlay,
+  ]);
 
   const createSession = useCallback(
     (data: Pick<PracticeSession, 'name' | 'blocks'>): PracticeSession => {
