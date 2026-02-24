@@ -21,6 +21,7 @@ interface SubdivisionOptionType {
 const subdivisionOptions: SubdivisionOptionType[] = [
   { value: 'quarter', display: 'Quarter', image: '/assets/images/quarter-note-subdivision.svg' },
   { value: 'eighth', display: 'Eighth', image: '/assets/images/eighth-note-subdivision.svg' },
+  { value: 'sixteenth', display: '16th', image: '/assets/images/sixteenth-note-subdivision.svg' },
 ];
 
 const getSubdivisionLabel = (subdivision: SubdivisionType): string => {

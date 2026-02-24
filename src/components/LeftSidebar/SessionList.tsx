@@ -9,6 +9,7 @@ import { SectionHeader } from '../Sidebar/styles';
 interface SessionListProps {
   onEdit: (session: PracticeSession) => void;
   onNew: () => void;
+  onClose: () => void;
 }
 
 const List = styled.div`
@@ -174,8 +175,13 @@ const SessionCard: React.FC<{
   </Card>
 );
 
-const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew }) => {
+const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose }) => {
   const { sessions, deleteSession, duplicateSession, startSession } = useSession();
+
+  const handleStart = (s: PracticeSession) => {
+    startSession(s);
+    onClose();
+  };
 
   return (
     <>
@@ -187,7 +193,7 @@ const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew }) => {
             session={s}
             isStarter
             onDuplicate={() => duplicateSession(s)}
-            onStart={() => startSession(s)}
+            onStart={() => handleStart(s)}
           />
         ))}
       </List>
@@ -203,7 +209,7 @@ const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew }) => {
                 onEdit={() => onEdit(s)}
                 onDelete={() => deleteSession(s.id)}
                 onDuplicate={() => duplicateSession(s)}
-                onStart={() => startSession(s)}
+                onStart={() => handleStart(s)}
               />
             ))}
           </List>

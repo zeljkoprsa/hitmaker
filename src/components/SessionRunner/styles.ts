@@ -1,4 +1,7 @@
+import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
+
+// --- Runner bar (running / paused) ---
 
 export const RunnerBar = styled.div`
   position: fixed;
@@ -13,7 +16,7 @@ export const RunnerBar = styled.div`
   padding-bottom: calc(10px + env(safe-area-inset-bottom, 0));
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 `;
 
 export const RunnerInfo = styled.div`
@@ -85,6 +88,33 @@ export const NextButton = styled.button`
   }
 `;
 
+export const IconButton = styled.button`
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: ${({ theme }) => theme.borders.radius.sm};
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 15px;
+  cursor: pointer;
+  width: 36px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.8);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  &:active {
+    color: rgba(255, 255, 255, 0.6);
+  }
+`;
+
 export const EndButton = styled.button`
   background: none;
   border: none;
@@ -103,4 +133,95 @@ export const EndButton = styled.button`
   &:hover {
     color: rgba(255, 255, 255, 0.6);
   }
+`;
+
+// --- Pre-session preview overlay ---
+
+export const PreviewOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: ${({ theme }) => theme.zIndices.popover};
+  background: rgba(18, 18, 18, 0.97);
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px;
+  padding-bottom: calc(32px + env(safe-area-inset-bottom, 0));
+  text-align: center;
+`;
+
+export const PreviewTitle = styled.h2`
+  margin: 0 0 8px;
+  font-size: 30px;
+  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+  color: ${({ theme }) => theme.colors.metronome.primary};
+  letter-spacing: -0.02em;
+`;
+
+export const PreviewMeta = styled.p`
+  margin: 0 0 4px;
+  font-size: ${({ theme }) => theme.typography.fontSizes.sm};
+  color: rgba(255, 255, 255, 0.35);
+`;
+
+export const PreviewBlock = styled.p`
+  margin: 0;
+  font-size: ${({ theme }) => theme.typography.fontSizes.sm};
+  color: rgba(255, 255, 255, 0.55);
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+`;
+
+export const PreviewDivider = styled.div`
+  width: 32px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 24px 0;
+`;
+
+export const PreviewInstructions = styled.p`
+  margin: 0;
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  color: rgba(255, 255, 255, 0.2);
+  max-width: 280px;
+  line-height: 1.5;
+`;
+
+export const PreviewFooter = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+`;
+
+// --- Countdown ---
+
+const popIn = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
+
+export const CountdownNumber = styled.div`
+  font-size: 96px;
+  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.metronome.accent};
+  line-height: 1;
+  letter-spacing: -0.04em;
+  animation: ${popIn} 0.25s ease-out both;
+`;
+
+export const CountdownLabel = styled.p`
+  margin: 16px 0 0;
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 `;

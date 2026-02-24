@@ -110,7 +110,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
         <PanelContent>
           {view === 'list' ? (
             <>
-              <SessionList onEdit={handleEdit} onNew={handleNew} />
+              <SessionList onEdit={handleEdit} onNew={handleNew} onClose={onClose} />
               <SectionDivider />
               <PlaylistsSection />
             </>

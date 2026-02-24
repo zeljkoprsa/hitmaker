@@ -3,8 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { useSession } from '../../context/SessionContext';
 
 import {
+  CountdownLabel,
+  CountdownNumber,
   EndButton,
+  IconButton,
   NextButton,
+  PreviewBlock,
+  PreviewDivider,
+  PreviewFooter,
+  PreviewInstructions,
+  PreviewMeta,
+  PreviewOverlay,
+  PreviewTitle,
   RunnerBar,
   RunnerInfo,
   RunnerMeta,
@@ -19,21 +29,30 @@ const formatTime = (seconds: number): string => {
 };
 
 export const SessionRunner: React.FC = () => {
-  const { activeSession, currentBlockIndex, blockStartedAt, advanceBlock, endSession } =
-    useSession();
+  const {
+    activeSession,
+    currentBlockIndex,
+    blockStartedAt,
+    sessionPhase,
+    countdown,
+    beginSession,
+    pauseSession,
+    resumeSession,
+    restartBlock,
+    advanceBlock,
+    endSession,
+  } = useSession();
+
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
-    if (!blockStartedAt) {
-      setElapsed(0);
-      return;
-    }
-    setElapsed(0);
+    if (!blockStartedAt || sessionPhase !== 'running') return;
+    setElapsed(Math.floor((Date.now() - blockStartedAt.getTime()) / 1000));
     const id = setInterval(() => {
       setElapsed(Math.floor((Date.now() - blockStartedAt.getTime()) / 1000));
     }, 1000);
     return () => clearInterval(id);
-  }, [blockStartedAt]);
+  }, [blockStartedAt, sessionPhase]);
 
   if (!activeSession) return null;
 
@@ -42,9 +61,53 @@ export const SessionRunner: React.FC = () => {
   const remaining = totalSecs - elapsed;
   const overtime = remaining < 0;
   const isLast = currentBlockIndex === activeSession.blocks.length - 1;
+  const totalMin = activeSession.blocks.reduce((s, b) => s + b.durationMinutes, 0);
+  const blockCount = activeSession.blocks.length;
 
+  // --- Preview overlay ---
+  if (sessionPhase === 'preview') {
+    const first = activeSession.blocks[0];
+    const firstBlockInfo = [
+      `${first.tempo} BPM`,
+      `${first.timeSignature.beats}/${first.timeSignature.noteValue}`,
+      first.label,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+
+    return (
+      <PreviewOverlay>
+        <PreviewTitle>{activeSession.name}</PreviewTitle>
+        <PreviewMeta>
+          {blockCount === 1 ? '1 block' : `${blockCount} blocks`} · {totalMin} min
+        </PreviewMeta>
+        <PreviewBlock>{firstBlockInfo}</PreviewBlock>
+        <PreviewDivider />
+        <PreviewInstructions>Set your posture, find the tempo, take a breath.</PreviewInstructions>
+        <PreviewFooter>
+          <NextButton onClick={beginSession}>Let&apos;s Go</NextButton>
+          <EndButton onClick={endSession} aria-label="Cancel">
+            &#x2715;
+          </EndButton>
+        </PreviewFooter>
+      </PreviewOverlay>
+    );
+  }
+
+  // --- Countdown overlay ---
+  if (sessionPhase === 'countdown') {
+    return (
+      <PreviewOverlay>
+        <CountdownNumber key={countdown}>{countdown}</CountdownNumber>
+        <CountdownLabel>Get ready</CountdownLabel>
+      </PreviewOverlay>
+    );
+  }
+
+  // --- Runner bar (running / paused) ---
+  const isPaused = sessionPhase === 'paused';
   const metaParts = [
-    `${currentBlockIndex + 1}/${activeSession.blocks.length}`,
+    `${currentBlockIndex + 1}/${blockCount}`,
     block.label,
     `${block.tempo} BPM · ${block.timeSignature.beats}/${block.timeSignature.noteValue}`,
   ].filter(Boolean);
@@ -56,9 +119,20 @@ export const SessionRunner: React.FC = () => {
         <RunnerMeta>{metaParts.join(' · ')}</RunnerMeta>
       </RunnerInfo>
 
-      <RunnerTimer overtime={overtime}>
+      <RunnerTimer overtime={overtime && !isPaused}>
         {overtime ? `+${formatTime(-remaining)}` : formatTime(remaining)}
       </RunnerTimer>
+
+      <IconButton
+        onClick={isPaused ? resumeSession : pauseSession}
+        aria-label={isPaused ? 'Resume' : 'Pause'}
+      >
+        {isPaused ? '▶' : '⏸'}
+      </IconButton>
+
+      <IconButton onClick={restartBlock} aria-label="Restart block">
+        ↺
+      </IconButton>
 
       <NextButton onClick={advanceBlock}>{isLast ? 'Done' : 'Next →'}</NextButton>
 
