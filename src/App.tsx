@@ -6,8 +6,8 @@ import Metronome from '@features/Metronome/Metronome';
 
 import { Header } from './components/Header';
 import { LeftSidebar } from './components/LeftSidebar';
-import { Sidebar } from './components/Sidebar';
 import { SessionRunner } from './components/SessionRunner';
+import { Sidebar } from './components/Sidebar';
 import { AuthProvider } from './context/AuthContext';
 import { SessionProvider } from './context/SessionContext';
 import { ToastProvider } from './context/ToastContext';

@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import React from 'react';
 
+import { useSession } from '../../context/SessionContext';
 import { PracticeSession } from '../../core/types/SessionTypes';
 import { STARTER_SESSIONS } from '../../features/Sessions/starterSessions';
-import { useSession } from '../../context/SessionContext';
 import { SectionHeader } from '../Sidebar/styles';
 
 interface SessionListProps {
@@ -97,7 +97,9 @@ const IconButton = styled.button`
   padding: 4px 6px;
   min-height: 28px;
   border-radius: ${({ theme }) => theme.borders.radius.sm};
-  transition: color 150ms ease, background-color 150ms ease;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
 
   &:hover {
     color: ${({ theme }) => theme.colors.metronome.primary};

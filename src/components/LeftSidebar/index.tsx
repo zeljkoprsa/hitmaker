@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
 import { PracticeSession } from '../../core/types/SessionTypes';
-
 import PlaylistsSection from '../Sidebar/sections/PlaylistsSection';
 import {
   CloseButton,
@@ -95,7 +94,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
 
   return (
     <>
-      <Overlay isOpen={isOpen} onClick={view === 'edit' ? handleBack : onClose} aria-hidden="true" />
+      <Overlay
+        isOpen={isOpen}
+        onClick={view === 'edit' ? handleBack : onClose}
+        aria-hidden="true"
+      />
       <Panel isOpen={isOpen} side="left" role="dialog" aria-modal="true" aria-label={getTitle()}>
         <PanelHeader>
           <PanelTitle>{getTitle()}</PanelTitle>
@@ -112,11 +115,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
               <PlaylistsSection />
             </>
           ) : (
-            <SessionEditor
-              session={editingSession}
-              onSave={handleSaved}
-              onCancel={handleBack}
-            />
+            <SessionEditor session={editingSession} onSave={handleSaved} onCancel={handleBack} />
           )}
         </PanelContent>
       </Panel>

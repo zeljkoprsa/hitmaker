@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import React, { useState } from 'react';
 
+import { useSession } from '../../context/SessionContext';
 import { SubdivisionType, TimeSignature } from '../../core/types/MetronomeTypes';
 import { PracticeSession, SessionBlock } from '../../core/types/SessionTypes';
-import { useSession } from '../../context/SessionContext';
 import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
 
 interface SessionEditorProps {
@@ -390,9 +390,7 @@ const SessionEditor: React.FC<SessionEditorProps> = ({ session, onSave, onCancel
                 <FieldLabel>Subdivision</FieldLabel>
                 <Select
                   value={block.subdivision}
-                  onChange={e =>
-                    updateBlock(i, { subdivision: e.target.value as SubdivisionType })
-                  }
+                  onChange={e => updateBlock(i, { subdivision: e.target.value as SubdivisionType })}
                 >
                   {SUB_OPTIONS.map(o => (
                     <option key={o.value} value={o.value}>

@@ -2,7 +2,15 @@ import React, { useEffect, useState } from 'react';
 
 import { useSession } from '../../context/SessionContext';
 
-import { EndButton, NextButton, RunnerBar, RunnerInfo, RunnerMeta, RunnerName, RunnerTimer } from './styles';
+import {
+  EndButton,
+  NextButton,
+  RunnerBar,
+  RunnerInfo,
+  RunnerMeta,
+  RunnerName,
+  RunnerTimer,
+} from './styles';
 
 const formatTime = (seconds: number): string => {
   const m = Math.floor(Math.abs(seconds) / 60);
