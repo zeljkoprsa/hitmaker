@@ -14,7 +14,9 @@
       "Bash(xargs:*)",
       "Bash(brctl download:*)",
       "Bash(pkill:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(cd:*)",
+      "Bash(tail:*)"
     ]
   }
 }
