@@ -54,10 +54,59 @@ export class Metronome {
     // Create audio context immediately if possible, but don't fail if we can't (browser policy)
     try {
       this.audioContext = new AudioContext();
+      this.setupAudioContextListeners();
     } catch (e) {
       logger.warn('Could not create AudioContext in constructor:', e);
     }
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    }
   }
+
+  private setupAudioContextListeners() {
+    if (!this.audioContext) return;
+    this.audioContext.onstatechange = () => {
+      logger.info(`[Metronome] AudioContext state changed to: ${this.audioContext?.state}`);
+      if (
+        this.playing &&
+        this.audioContext &&
+        (this.audioContext.state === 'suspended' ||
+          (this.audioContext.state as string) === 'interrupted')
+      ) {
+        // Try to automatically resume if we were playing
+        this.audioContext
+          .resume()
+          .catch(e => logger.error('Could not auto-resume audio context:', e));
+      }
+    };
+  }
+
+  private handleVisibilityChange = (): void => {
+    if (document.visibilityState === 'visible') {
+      if (this.playing && this.audioContext) {
+        // If the context got suspended by the OS, try to resume it
+        if (
+          this.audioContext.state === 'suspended' ||
+          (this.audioContext.state as string) === 'interrupted'
+        ) {
+          this.audioContext
+            .resume()
+            .catch(e => logger.error('Could not resume audio context on visibility change', e));
+        }
+
+        // Reset the scheduling time to prevent scheduling a barrage of missed ticks
+        const now = this.audioContext.currentTime;
+        // Add a small buffer (e.g. 0.05s) so the next note plays immediately without overlapping the current time exactly
+        if (this.nextNoteTime < now) {
+          logger.info(
+            `[Metronome] Resetting nextNoteTime after sleep/background. Was ${this.nextNoteTime}, now ${now}.`
+          );
+          this.nextNoteTime = now + 0.05;
+        }
+      }
+    }
+  };
 
   /**
    * Initializes the metronome with the provided configuration
@@ -88,6 +137,7 @@ export class Metronome {
             (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
           if (AudioContextClass) {
             this.audioContext = new AudioContextClass();
+            this.setupAudioContextListeners();
           } else {
             logger.error('Browser does not support Web Audio API');
           }
@@ -315,6 +365,7 @@ export class Metronome {
             (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
           if (AudioContextClass) {
             this.audioContext = new AudioContextClass();
+            this.setupAudioContextListeners();
           }
         } catch (e) {
           logger.warn('Failed to lazy-initialize AudioContext:', e);
@@ -523,6 +574,10 @@ export class Metronome {
    * Cleans up resources
    */
   async dispose(): Promise<void> {
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    }
+
     await this.stop();
 
     // Dispose of audio sources
@@ -532,6 +587,7 @@ export class Metronome {
 
     // Close audio context
     if (this.audioContext) {
+      this.audioContext.onstatechange = null;
       await this.audioContext.close();
       this.audioContext = null;
     }

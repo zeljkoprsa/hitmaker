@@ -12,12 +12,26 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const BYPASS_AUTH = process.env.REACT_APP_BYPASS_AUTH === 'true';
+
+const mockUser: User = {
+  id: 'local-dev-user',
+  email: 'dev@local.test',
+  created_at: '2024-01-01T00:00:00.000Z',
+  app_metadata: {},
+  user_metadata: {},
+  aud: 'authenticated',
+  role: 'authenticated',
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(BYPASS_AUTH ? mockUser : null);
+  const [loading, setLoading] = useState(!BYPASS_AUTH);
 
   useEffect(() => {
+    if (BYPASS_AUTH) return;
+
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -38,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signOut = async () => {
+    if (BYPASS_AUTH) return;
     await supabase.auth.signOut();
   };
 

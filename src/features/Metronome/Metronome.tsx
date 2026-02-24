@@ -1,9 +1,7 @@
 // src/features/Metronome/Metronome.tsx
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 
-import AuthModal from '../../components/Auth/AuthModal';
-import { SignInBanner } from '../../components/SignInBanner';
 import { ITickEvent } from '../../core/interfaces/ITickEvent';
 import { useMediaSession } from '../../hooks/useMediaSession';
 import { useResponsive } from '../../hooks/useResponsive';
@@ -14,14 +12,9 @@ import { SoundSelector } from './components/Controls/SoundSelector';
 import { useMetronome } from './context/MetronomeProvider';
 import styles from './styles.module.css';
 
-const SESSION_KEY = 'metronome_session_changed';
-
 const Metronome: React.FC = () => {
   const { isMobile: _isMobile } = useResponsive();
   const [currentBeat, setCurrentBeat] = useState(0);
-  const [showSignInBanner, setShowSignInBanner] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const hasChangedSettings = useRef(false);
 
   // Destructure state and functions from the metronome context
   const {
@@ -48,19 +41,6 @@ const Metronome: React.FC = () => {
   // Enable Media Session controls (Lock Screen Play/Pause + Next/Prev for Tempo)
   useMediaSession({ isPlaying, tempo, togglePlay, setTempo });
 
-  // Track setting changes and show banner on first change
-  useEffect(() => {
-    // Check if this is a fresh session
-    const sessionChanged = sessionStorage.getItem(SESSION_KEY);
-
-    if (!sessionChanged && !hasChangedSettings.current) {
-      // Track any setting change
-      hasChangedSettings.current = true;
-      sessionStorage.setItem(SESSION_KEY, 'true');
-      setShowSignInBanner(true);
-    }
-  }, [tempo, timeSignature, subdivision, soundId, accents]);
-
   // Listen to beat events
   useEffect(() => {
     const handleTick = (event: ITickEvent) => {
@@ -80,9 +60,6 @@ const Metronome: React.FC = () => {
     <div className={styles.layout}>
       <div className={styles.content}>
         <div className={styles.controls}>
-          {/* Smart sign-in banner - appears after first setting change */}
-          {showSignInBanner && <SignInBanner onSignInClick={() => setShowAuthModal(true)} />}
-
           {/* Visualize current beat within the time signature */}
           <div className={styles.beatVisualizer}>
             <Displays.BeatVisualizer
@@ -146,9 +123,6 @@ const Metronome: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Auth modal for sign-in from banner */}
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 };
