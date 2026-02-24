@@ -54,7 +54,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [countdown, setCountdown] = useState<number | null>(null);
   const [pausedAt, setPausedAt] = useState<number | null>(null);
 
-  const { setTempo, setTimeSignature, setSubdivision } = useMetronome();
+  const { isPlaying, togglePlay, setTempo, setTimeSignature, setSubdivision } = useMetronome();
   const { showToast } = useToast();
 
   const applyBlock = useCallback(
@@ -67,18 +67,19 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [setTempo, setTimeSignature, setSubdivision]
   );
 
-  // Countdown tick — fires every second until 0, then starts the block
+  // Countdown tick — fires every second until 0, then starts the block and the metronome
   useEffect(() => {
     if (sessionPhase !== 'countdown' || countdown === null) return;
     if (countdown === 0) {
       if (activeSession) applyBlock(activeSession.blocks[currentBlockIndex]);
+      if (!isPlaying) togglePlay().catch(() => {});
       setSessionPhase('running');
       setCountdown(null);
       return;
     }
     const id = setTimeout(() => setCountdown(c => (c ?? 1) - 1), 1000);
     return () => clearTimeout(id);
-  }, [sessionPhase, countdown, activeSession, currentBlockIndex, applyBlock]);
+  }, [sessionPhase, countdown, activeSession, currentBlockIndex, applyBlock, isPlaying, togglePlay]);
 
   const createSession = useCallback(
     (data: Pick<PracticeSession, 'name' | 'blocks'>): PracticeSession => {
@@ -182,6 +183,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (!activeSession) return;
     const nextIndex = currentBlockIndex + 1;
     if (nextIndex >= activeSession.blocks.length) {
+      if (isPlaying) togglePlay().catch(() => {});
       setActiveSession(null);
       setCurrentBlockIndex(0);
       setBlockStartedAt(null);
@@ -194,16 +196,17 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setPausedAt(null);
     setSessionPhase('running');
     applyBlock(activeSession.blocks[nextIndex]);
-  }, [activeSession, currentBlockIndex, applyBlock, showToast]);
+  }, [activeSession, currentBlockIndex, applyBlock, isPlaying, togglePlay, showToast]);
 
   const endSession = useCallback(() => {
+    if (isPlaying) togglePlay().catch(() => {});
     setActiveSession(null);
     setCurrentBlockIndex(0);
     setBlockStartedAt(null);
     setPausedAt(null);
     setSessionPhase('idle');
     setCountdown(null);
-  }, []);
+  }, [isPlaying, togglePlay]);
 
   return (
     <SessionContext.Provider
