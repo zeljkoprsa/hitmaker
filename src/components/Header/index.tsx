@@ -1,17 +1,29 @@
 import React from 'react';
 
-import AuthButton from '../Auth/AuthButton';
-import SyncStatus from '../SyncStatus';
+import UserAvatar from '../Auth/UserAvatar';
 
-import { HeaderContainer, Logo, HeaderRight } from './styles';
+import { HeaderContainer, HeaderLeft, HeaderRight, Logo, MenuButton } from './styles';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  onOpenSidebar: () => void;
+  onOpenLeftSidebar: () => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ onOpenSidebar, onOpenLeftSidebar }) => {
   return (
     <HeaderContainer>
-      <Logo src="/hitmaker-logo.svg" alt="Hitmaker" />
+      <HeaderLeft>
+        <MenuButton onClick={onOpenLeftSidebar} aria-label="Open menu">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect y="2" width="18" height="1.5" rx="0.75" fill="currentColor" />
+            <rect y="8.25" width="18" height="1.5" rx="0.75" fill="currentColor" />
+            <rect y="14.5" width="18" height="1.5" rx="0.75" fill="currentColor" />
+          </svg>
+        </MenuButton>
+        <Logo src="/hitmaker-logo.svg" alt="Hitmaker" />
+      </HeaderLeft>
       <HeaderRight>
-        <SyncStatus />
-        <AuthButton />
+        <UserAvatar onOpen={onOpenSidebar} />
       </HeaderRight>
     </HeaderContainer>
   );
