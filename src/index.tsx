@@ -2,6 +2,7 @@
 import { PostHogProvider } from 'posthog-js/react';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -20,7 +21,9 @@ root.render(
         debug: process.env.NODE_ENV === 'development',
       }}
     >
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </PostHogProvider>
   </React.StrictMode>
 );

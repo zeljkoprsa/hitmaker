@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { useToast } from '../../context/ToastContext';
 import { supabase } from '../../lib/supabase';
@@ -395,6 +396,32 @@ const SignInView: React.FC<SignInViewProps> = ({ onClose }) => {
         {view === 'forgot' && (
           <LinkButton onClick={() => handleViewChange('signin')}>Back to sign in</LinkButton>
         )}
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '16px',
+          marginTop: '16px',
+          paddingTop: '16px',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <Link
+          to="/privacy"
+          target="_blank"
+          style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', textDecoration: 'none' }}
+        >
+          Privacy Policy
+        </Link>
+        <Link
+          to="/terms"
+          target="_blank"
+          style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', textDecoration: 'none' }}
+        >
+          Terms of Service
+        </Link>
       </div>
     </>
   );
