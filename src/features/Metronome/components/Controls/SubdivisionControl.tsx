@@ -35,9 +35,7 @@ export const SubdivisionControl: React.FC<SubdivisionControlProps> = ({
     (): PickerOption<SubdivisionType>[] =>
       subdivisionOptions.map(opt => ({
         value: opt.value,
-        renderItem: () => (
-          <img src={opt.image} alt={opt.display} width="42" height="42" />
-        ),
+        renderItem: () => <img src={opt.image} alt={opt.display} width="42" height="42" />,
         ariaLabel: `${opt.display} notes subdivision`,
       })),
     []
