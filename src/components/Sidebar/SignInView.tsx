@@ -387,6 +387,23 @@ const SignInView: React.FC<SignInViewProps> = ({ onClose }) => {
         <SubmitButton type="submit" disabled={loading}>
           {getSubmitLabel()}
         </SubmitButton>
+
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+          <Link
+            to="/privacy"
+            target="_blank"
+            style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', textDecoration: 'none' }}
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            to="/terms"
+            target="_blank"
+            style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', textDecoration: 'none' }}
+          >
+            Terms of Service
+          </Link>
+        </div>
       </Form>
 
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}>
@@ -396,32 +413,6 @@ const SignInView: React.FC<SignInViewProps> = ({ onClose }) => {
         {view === 'forgot' && (
           <LinkButton onClick={() => handleViewChange('signin')}>Back to sign in</LinkButton>
         )}
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '16px',
-          marginTop: '16px',
-          paddingTop: '16px',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-        }}
-      >
-        <Link
-          to="/privacy"
-          target="_blank"
-          style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', textDecoration: 'none' }}
-        >
-          Privacy Policy
-        </Link>
-        <Link
-          to="/terms"
-          target="_blank"
-          style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', textDecoration: 'none' }}
-        >
-          Terms of Service
-        </Link>
       </div>
     </>
   );
