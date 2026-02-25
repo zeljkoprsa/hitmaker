@@ -398,142 +398,105 @@ export const SliderHandle = styled.div`
   box-shadow: 0 0 8px rgba(246, 65, 5, 0.5);
 `;
 
-// Time Signature Control Styles
-export const TimeSignatureContainer = styled.div`
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+// ─── Scroll Picker ───────────────────────────────────────────────────────────
+
+// The visible window — fills the grid cell via absolute inset (no flow contribution)
+// Using absolute positioning breaks the circular min-content dependency in CSS Grid
+export const ScrollPickerStrip = styled.div`
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
   border-radius: ${({ theme }) => theme.borders.radius.sm};
-`;
 
-export const TimeSignatureList = styled(motion.div)`
-  position: absolute;
-  left: 0; /* Align with left edge of app container */
-  top: 0;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 columns = 2 rows for 9 items */
-  gap: 2px;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  z-index: 1000;
-  border-radius: 3px;
+  /* Fade masks — hide adjacent items, create the "dial window" effect */
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30%;
+    pointer-events: none;
+    z-index: 1;
+  }
 
-  /* Mobile: 3 columns, horizontal scroll if needed */
-  @media (max-width: 427px) {
+  &::before {
     left: 0;
+    background: linear-gradient(
+      to right,
+      ${({ theme }) => theme.colors.metronome.background} 0%,
+      transparent 100%
+    );
+  }
+
+  &::after {
     right: 0;
-    top: calc(70px + 2px); /* Position below smaller button */
-    grid-template-columns: repeat(3, 70px); /* 3 columns of 70px buttons */
-    max-width: calc(100vw - 32px);
-    overflow-x: auto;
-    scrollbar-width: thin;
-    -webkit-overflow-scrolling: touch;
-
-    &::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background-color: rgba(246, 65, 5, 0.5);
-      border-radius: 2px;
-    }
-  }
-
-  /* Tablet: 4 columns */
-  @media (min-width: 428px) and (max-width: 767px) {
-    grid-template-columns: repeat(4, 76px);
-  }
-
-  /* Desktop: 5 columns */
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(5, 82px);
+    background: linear-gradient(
+      to left,
+      ${({ theme }) => theme.colors.metronome.background} 0%,
+      transparent 100%
+    );
   }
 `;
 
-// Subdivision Control Styles
-export const SubdivisionContainer = styled.div`
-  position: relative;
+// The scrollable track — padding-inline = (stripWidth/2 - itemWidth/2) so first/last items can center-snap
+// width: 100% + box-sizing: border-box ensures padding is absorbed inside the track's box
+export const ScrollPickerTrack = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 3px;
-`;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  /* 41px = half of 82px item width */
+  padding-inline: calc(50% - 41px);
+  scrollbar-width: none;
 
-export const SubdivisionList = styled(motion.div)`
-  position: absolute;
-  right: 0; /* Align with right edge of app container */
-  left: auto;
-  top: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Usually fewer subdivision options */
-  gap: 2px;
-  margin-right: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  z-index: 1000;
-  border-radius: 3px;
-
-  /* Mobile: position below, 2 columns */
-  @media (max-width: 427px) {
-    right: 0;
-    left: 0;
-    top: calc(70px + 2px); /* Position below smaller button */
-    grid-template-columns: repeat(2, 70px);
-    max-width: calc(100vw - 32px);
-    overflow-x: auto;
-    scrollbar-width: thin;
-    -webkit-overflow-scrolling: touch;
-
-    &::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background-color: rgba(246, 65, 5, 0.5);
-      border-radius: 2px;
-    }
+  &::-webkit-scrollbar {
+    display: none;
   }
 
-  /* Tablet: 3 columns */
+  /* Tablet: 76px items, half = 38px */
   @media (min-width: 428px) and (max-width: 767px) {
-    grid-template-columns: repeat(3, 76px);
+    padding-inline: calc(50% - 38px);
   }
 
-  /* Desktop: 3 columns */
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(3, 82px);
+  /* Mobile: 70px items, half = 35px */
+  @media (max-width: 427px) {
+    padding-inline: calc(50% - 35px);
   }
 `;
 
-// Define types for our custom props
-interface CustomButtonProps {
+interface ScrollPickerItemProps {
   selected?: boolean;
 }
 
-// Create a motion button component that accepts a selected prop
-const MotionButton = motion.button;
-
-// Create a styled component that accepts the selected prop
-export const TimeSignatureOption = styled(MotionButton)<CustomButtonProps>`
+export const ScrollPickerItem = styled.button<ScrollPickerItemProps>`
+  flex-shrink: 0;
+  /* Width determines snap geometry; height fills the cell */
   width: 82px;
-  height: 82px;
-  padding: 0;
+  height: 100%;
+  scroll-snap-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-neutral-800);
+  background: transparent;
   border: none;
-  border-radius: 3px;
-  margin: 0 1px;
+  padding: 0;
   color: ${({ theme, selected }) =>
     selected ? theme.colors.metronome.accent : theme.colors.metronome.primary};
+  opacity: ${({ selected }) => (selected ? 1 : 0.45)};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: ${({ theme }) => theme.typography.fontSizes.lg};
   line-height: 1;
   text-align: center;
   cursor: pointer;
-  transition: color 0.2s ease;
+  border-radius: ${({ theme }) => theme.borders.radius.sm};
+  transition:
+    color 0.15s ease,
+    opacity 0.15s ease;
+  outline: none;
 
   span {
     display: inline-block;
@@ -541,6 +504,7 @@ export const TimeSignatureOption = styled(MotionButton)<CustomButtonProps>`
   }
 
   &:hover {
+    opacity: 0.8;
     color: ${({ theme }) => theme.colors.metronome.accent};
   }
 
@@ -549,83 +513,49 @@ export const TimeSignatureOption = styled(MotionButton)<CustomButtonProps>`
     color: ${({ theme }) => theme.colors.metronome.accent};
   }
 
-  /* Touch devices: add active state feedback */
+  /* Touch devices */
   @media (hover: none) and (pointer: coarse) {
+    &:hover {
+      opacity: ${({ selected }) => (selected ? 1 : 0.45)};
+      color: ${({ theme, selected }) =>
+        selected ? theme.colors.metronome.accent : theme.colors.metronome.primary};
+    }
+
     &:active {
       transform: scale(0.98);
     }
   }
 
-  /* Mobile: smaller buttons for better fit */
-  @media (max-width: 427px) {
-    width: 70px;
-    height: 70px;
-    font-size: ${({ theme }) => theme.typography.fontSizes.md};
-    flex-shrink: 0; /* Prevent shrinking in scroll container */
-  }
-
-  /* Tablet: slightly smaller */
+  /* Tablet: 76px item width */
   @media (min-width: 428px) and (max-width: 767px) {
     width: 76px;
-    height: 76px;
+    font-size: ${({ theme }) => theme.typography.fontSizes.md};
+  }
+
+  /* Mobile: 70px item width */
+  @media (max-width: 427px) {
+    width: 70px;
+    font-size: ${({ theme }) => theme.typography.fontSizes.md};
   }
 `;
 
-// Create a styled component that accepts the selected prop
-export const SubdivisionOption = styled(MotionButton)<CustomButtonProps>`
-  width: 82px;
-  height: 82px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-neutral-800);
-  border: none;
-  border-radius: 3px;
-  margin: 0 1px;
-  color: ${({ theme, selected }) =>
-    selected ? theme.colors.metronome.accent : theme.colors.metronome.primary};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSizes.lg};
-  line-height: 1;
-  text-align: center;
-  cursor: pointer;
-  transition: color 0.2s ease;
+// ─── Time Signature Control Styles ───────────────────────────────────────────
 
-  span {
-    display: inline-block;
-    transform: translateY(2px);
-  }
+// ─── Time Signature Control Styles ───────────────────────────────────────────
 
-  &:hover {
-    color: ${({ theme }) => theme.colors.metronome.accent};
-  }
+export const TimeSignatureContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+`;
 
-  &:focus {
-    outline: none;
-    color: ${({ theme }) => theme.colors.metronome.accent};
-  }
 
-  /* Touch devices: add active state feedback */
-  @media (hover: none) and (pointer: coarse) {
-    &:active {
-      transform: scale(0.98);
-    }
-  }
+// ─── Subdivision Control Styles ──────────────────────────────────────────────
 
-  /* Mobile: smaller buttons for better fit */
-  @media (max-width: 427px) {
-    width: 70px;
-    height: 70px;
-    font-size: ${({ theme }) => theme.typography.fontSizes.md};
-    flex-shrink: 0;
-  }
-
-  /* Tablet: slightly smaller */
-  @media (min-width: 428px) and (max-width: 767px) {
-    width: 76px;
-    height: 76px;
-  }
+export const SubdivisionContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
 `;
 
 // Tap Tempo Control Styles
