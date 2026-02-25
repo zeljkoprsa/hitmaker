@@ -549,7 +549,6 @@ export const TimeSignatureContainer = styled.div`
   height: 100%;
 `;
 
-
 // ─── Subdivision Control Styles ──────────────────────────────────────────────
 
 export const SubdivisionContainer = styled.div`
