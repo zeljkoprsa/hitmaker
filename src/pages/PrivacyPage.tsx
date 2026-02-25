@@ -102,9 +102,9 @@ const PrivacyPage: React.FC = () => (
       <Section>
         <SectionTitle>Overview</SectionTitle>
         <Body>
-          Hitmaker ("we", "us", or "our") is a professional metronome web application. This policy
+          Hitmaker (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) is a professional metronome web application. This policy
           explains what information we collect, why we collect it, and how we handle it. We keep
-          things simple: we collect only what's necessary to provide the service.
+          things simple: we collect only what&apos;s necessary to provide the service.
         </Body>
       </Section>
 
@@ -118,14 +118,14 @@ const PrivacyPage: React.FC = () => (
         </Body>
         <Body>
           <strong style={{ color: 'rgba(255,255,255,0.85)' }}>Usage data</strong> — We collect
-          anonymous usage events (e.g. features used, session duration) to understand how the app
-          is being used and to improve it. This data is not linked to personally identifiable
+          anonymous usage events (e.g. features used, session duration) to understand how the app is
+          being used and to improve it. This data is not linked to personally identifiable
           information.
         </Body>
         <Body>
-          <strong style={{ color: 'rgba(255,255,255,0.85)' }}>Preferences</strong> — Tempo,
-          time signature, subdivision, and other settings are stored so your preferences persist
-          across sessions.
+          <strong style={{ color: 'rgba(255,255,255,0.85)' }}>Preferences</strong> — Tempo, time
+          signature, subdivision, and other settings are stored so your preferences persist across
+          sessions.
         </Body>
       </Section>
 
@@ -146,18 +146,39 @@ const PrivacyPage: React.FC = () => (
         <List>
           <li>
             <strong style={{ color: 'rgba(255,255,255,0.85)' }}>Supabase</strong> — Authentication
-            and database storage. Your account data is stored on Supabase's infrastructure.
-            See <ContactLink href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">Supabase's Privacy Policy</ContactLink>.
+            and database storage. Your account data is stored on Supabase&apos;s infrastructure. See{' '}
+            <ContactLink
+              href="https://supabase.com/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Supabase&apos;s Privacy Policy
+            </ContactLink>
+            .
           </li>
           <li>
-            <strong style={{ color: 'rgba(255,255,255,0.85)' }}>PostHog</strong> — Anonymous
-            product analytics. Events are processed on EU-based infrastructure.
-            See <ContactLink href="https://posthog.com/privacy" target="_blank" rel="noopener noreferrer">PostHog's Privacy Policy</ContactLink>.
+            <strong style={{ color: 'rgba(255,255,255,0.85)' }}>PostHog</strong> — Anonymous product
+            analytics. Events are processed on EU-based infrastructure. See{' '}
+            <ContactLink
+              href="https://posthog.com/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              PostHog&apos;s Privacy Policy
+            </ContactLink>
+            .
           </li>
           <li>
             <strong style={{ color: 'rgba(255,255,255,0.85)' }}>Google OAuth</strong> — Optional
-            sign-in method. Only used if you choose "Continue with Google".
-            See <ContactLink href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy Policy</ContactLink>.
+            sign-in method. Only used if you choose &ldquo;Continue with Google&rdquo;. See{' '}
+            <ContactLink
+              href="https://policies.google.com/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Google&apos;s Privacy Policy
+            </ContactLink>
+            .
           </li>
         </List>
       </Section>
@@ -190,15 +211,15 @@ const PrivacyPage: React.FC = () => (
         </List>
         <Body>
           To exercise any of these rights, contact us at{' '}
-          <ContactLink href="mailto:privacy@hitmaker.app">privacy@hitmaker.app</ContactLink>.
+          <ContactLink href="mailto:hi@tryuseless.com">hi@tryuseless.com</ContactLink>.
         </Body>
       </Section>
 
       <Section>
         <SectionTitle>Changes to This Policy</SectionTitle>
         <Body>
-          We may update this policy from time to time. Significant changes will be communicated
-          via the app or by email. Continued use of Hitmaker after changes take effect constitutes
+          We may update this policy from time to time. Significant changes will be communicated via
+          the app or by email. Continued use of Hitmaker after changes take effect constitutes
           acceptance of the updated policy.
         </Body>
       </Section>
@@ -207,7 +228,7 @@ const PrivacyPage: React.FC = () => (
         <SectionTitle>Contact</SectionTitle>
         <Body>
           Questions about this policy? Reach us at{' '}
-          <ContactLink href="mailto:privacy@hitmaker.app">privacy@hitmaker.app</ContactLink>.
+          <ContactLink href="mailto:hi@tryuseless.com">hi@tryuseless.com</ContactLink>.
         </Body>
       </Section>
     </Content>

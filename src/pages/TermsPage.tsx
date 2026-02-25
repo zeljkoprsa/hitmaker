@@ -102,7 +102,7 @@ const TermsPage: React.FC = () => (
       <Section>
         <SectionTitle>Acceptance of Terms</SectionTitle>
         <Body>
-          By accessing or using Hitmaker ("the Service"), you agree to be bound by these Terms of
+          By accessing or using Hitmaker (&ldquo;the Service&rdquo;), you agree to be bound by these Terms of
           Service. If you do not agree to these terms, please do not use the Service.
         </Body>
       </Section>
@@ -154,7 +154,7 @@ const TermsPage: React.FC = () => (
       <Section>
         <SectionTitle>Disclaimer of Warranties</SectionTitle>
         <Body>
-          The Service is provided "as is" and "as available" without warranties of any kind, either
+          The Service is provided &ldquo;as is&rdquo; and &ldquo;as available&rdquo; without warranties of any kind, either
           express or implied. We do not warrant that the Service will be uninterrupted, error-free,
           or free of harmful components.
         </Body>
@@ -191,7 +191,7 @@ const TermsPage: React.FC = () => (
         <SectionTitle>Changes to These Terms</SectionTitle>
         <Body>
           We may revise these Terms from time to time. The updated version will be indicated by the
-          "Last updated" date above. Continued use of the Service after changes take effect
+          &ldquo;Last updated&rdquo; date above. Continued use of the Service after changes take effect
           constitutes your acceptance of the revised Terms.
         </Body>
       </Section>
@@ -200,7 +200,7 @@ const TermsPage: React.FC = () => (
         <SectionTitle>Contact</SectionTitle>
         <Body>
           Questions about these Terms? Contact us at{' '}
-          <ContactLink href="mailto:legal@hitmaker.app">legal@hitmaker.app</ContactLink>.
+          <ContactLink href="mailto:hi@tryuseless.com">hi@tryuseless.com</ContactLink>.
         </Body>
       </Section>
     </Content>
