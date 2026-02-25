@@ -102,9 +102,10 @@ const PrivacyPage: React.FC = () => (
       <Section>
         <SectionTitle>Overview</SectionTitle>
         <Body>
-          Hitmaker (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) is a professional metronome web application. This policy
-          explains what information we collect, why we collect it, and how we handle it. We keep
-          things simple: we collect only what&apos;s necessary to provide the service.
+          Hitmaker (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) is a professional
+          metronome web application. This policy explains what information we collect, why we
+          collect it, and how we handle it. We keep things simple: we collect only what&apos;s
+          necessary to provide the service.
         </Body>
       </Section>
 
