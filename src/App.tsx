@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@emotion/react';
 import React, { useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
 
 import { MetronomeProvider } from '@features/Metronome/context/MetronomeProvider';
 import Metronome from '@features/Metronome/Metronome';
@@ -11,6 +12,8 @@ import { Sidebar } from './components/Sidebar';
 import { AuthProvider } from './context/AuthContext';
 import { SessionProvider } from './context/SessionContext';
 import { ToastProvider } from './context/ToastContext';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
 import './App.module.css';
 import { theme } from './styles/theme';
 import './styles/fonts.css';
@@ -27,27 +30,36 @@ const App: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <AuthProvider>
-        <ToastProvider>
-          <MetronomeProvider>
-            <SessionProvider>
-              <div className="metronome-app">
-                <Header
-                  onOpenSidebar={() => setIsSidebarOpen(true)}
-                  onOpenLeftSidebar={() => setIsLeftSidebarOpen(true)}
-                />
-                <Metronome />
-                <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-                <LeftSidebar
-                  isOpen={isLeftSidebarOpen}
-                  onClose={() => setIsLeftSidebarOpen(false)}
-                />
-                <SessionRunner />
-              </div>
-            </SessionProvider>
-          </MetronomeProvider>
-        </ToastProvider>
-      </AuthProvider>
+      <Routes>
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route
+          path="*"
+          element={
+            <AuthProvider>
+              <ToastProvider>
+                <MetronomeProvider>
+                  <SessionProvider>
+                    <div className="metronome-app">
+                      <Header
+                        onOpenSidebar={() => setIsSidebarOpen(true)}
+                        onOpenLeftSidebar={() => setIsLeftSidebarOpen(true)}
+                      />
+                      <Metronome />
+                      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+                      <LeftSidebar
+                        isOpen={isLeftSidebarOpen}
+                        onClose={() => setIsLeftSidebarOpen(false)}
+                      />
+                      <SessionRunner />
+                    </div>
+                  </SessionProvider>
+                </MetronomeProvider>
+              </ToastProvider>
+            </AuthProvider>
+          }
+        />
+      </Routes>
     </ThemeProvider>
   );
 };
