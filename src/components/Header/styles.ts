@@ -24,6 +24,26 @@ export const Logo = styled.img`
   width: auto;
 `;
 
+export const MenuButtonWrapper = styled.div`
+  position: relative;
+  display: flex;
+`;
+
+export const StreakBadge = styled.span`
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: ${({ theme }) => theme.colors.metronome.accent};
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 8px;
+  pointer-events: none;
+  white-space: nowrap;
+`;
+
 export const MenuButton = styled.button`
   background: none;
   border: none;

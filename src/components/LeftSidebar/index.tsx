@@ -13,6 +13,7 @@ import {
 } from '../Sidebar/styles';
 
 import SessionEditor from './SessionEditor';
+import SessionHistory from './SessionHistory';
 import SessionList from './SessionList';
 import TempoTrainerForm from './TempoTrainerForm';
 
@@ -21,7 +22,7 @@ interface LeftSidebarProps {
   onClose: () => void;
 }
 
-type View = 'list' | 'edit' | 'trainer';
+type View = 'list' | 'edit' | 'trainer' | 'history';
 
 export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => {
   const [view, setView] = useState<View>('list');
@@ -31,7 +32,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (view === 'edit' || view === 'trainer') {
+        if (view === 'edit' || view === 'trainer' || view === 'history') {
           setView('list');
         } else {
           onClose();
@@ -71,6 +72,10 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
     setView('trainer');
   };
 
+  const handleHistory = () => {
+    setView('history');
+  };
+
   const handleSaved = () => {
     setView('list');
     setEditingSession(null);
@@ -84,11 +89,12 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
   const getTitle = () => {
     if (view === 'edit') return editingSession ? 'Edit Session' : 'New Session';
     if (view === 'trainer') return 'Tempo Trainer';
+    if (view === 'history') return 'Practice History';
     return 'Practice';
   };
 
   const handleClose = () => {
-    if (view === 'edit' || view === 'trainer') {
+    if (view === 'edit' || view === 'trainer' || view === 'history') {
       handleBack();
     } else {
       onClose();
@@ -105,6 +111,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
         onClick={view === 'list' ? onClose : handleBack}
         aria-hidden="true"
       />
+
       <Panel isOpen={isOpen} side="left" role="dialog" aria-modal="true" aria-label={getTitle()}>
         <PanelHeader>
           <PanelTitle>{getTitle()}</PanelTitle>
@@ -121,6 +128,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
                 onNew={handleNew}
                 onClose={onClose}
                 onTrainer={handleTrainer}
+                onHistory={handleHistory}
               />
               <SectionDivider />
               <PlaylistsSection />
@@ -132,6 +140,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
           {view === 'trainer' && (
             <TempoTrainerForm onStart={onClose} onCancel={handleBack} />
           )}
+          {view === 'history' && <SessionHistory onBack={handleBack} />}
         </PanelContent>
       </Panel>
     </>

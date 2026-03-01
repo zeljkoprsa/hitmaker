@@ -11,6 +11,7 @@ interface SessionListProps {
   onNew: () => void;
   onClose: () => void;
   onTrainer: () => void;
+  onHistory: () => void;
 }
 
 const List = styled.div`
@@ -170,6 +171,33 @@ const TrainerButton = styled.button`
   }
 `;
 
+const HistoryButton = styled.button`
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: ${({ theme }) => theme.borders.radius.md};
+  color: rgba(255, 255, 255, 0.35);
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
+  cursor: pointer;
+  padding: 10px 12px;
+  min-height: 40px;
+  margin-top: 4px;
+  text-align: left;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.metronome.primary};
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.07);
+  }
+`;
+
 const formatMeta = (session: PracticeSession): string => {
   const total = session.blocks.reduce((s, b) => s + b.durationMinutes, 0);
   const blockLabel = session.blocks.length === 1 ? '1 block' : `${session.blocks.length} blocks`;
@@ -202,7 +230,7 @@ const SessionCard: React.FC<{
   </Card>
 );
 
-const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose, onTrainer }) => {
+const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose, onTrainer, onHistory }) => {
   const { sessions, deleteSession, duplicateSession, startSession } = useSession();
 
   const handleStart = (s: PracticeSession) => {
@@ -247,6 +275,7 @@ const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose, onTra
       )}
 
       <NewButton onClick={onNew}>+ New Session</NewButton>
+      <HistoryButton onClick={onHistory}>Practice History →</HistoryButton>
     </>
   );
 };

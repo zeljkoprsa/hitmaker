@@ -17,3 +17,12 @@ export interface PracticeSession {
   updatedAt: string;
   isStarter?: boolean;
 }
+
+export interface SessionHistoryEntry {
+  id: string;
+  sessionId: string | null;
+  sessionName: string;
+  completedAt: string; // ISO string
+  blocksCompleted: number;
+  totalDurationMinutes: number;
+}
