@@ -10,6 +10,7 @@ interface SessionListProps {
   onEdit: (session: PracticeSession) => void;
   onNew: () => void;
   onClose: () => void;
+  onTrainer: () => void;
 }
 
 const List = styled.div`
@@ -143,6 +144,32 @@ const NewButton = styled.button`
   }
 `;
 
+const TrainerButton = styled.button`
+  width: 100%;
+  background: rgba(246, 65, 5, 0.05);
+  border: 1px solid rgba(246, 65, 5, 0.25);
+  border-radius: ${({ theme }) => theme.borders.radius.md};
+  color: ${({ theme }) => theme.colors.metronome.accent};
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+  cursor: pointer;
+  padding: 12px;
+  min-height: 44px;
+  text-align: left;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+
+  &:hover {
+    background: rgba(246, 65, 5, 0.1);
+    border-color: rgba(246, 65, 5, 0.45);
+  }
+
+  &:active {
+    background: rgba(246, 65, 5, 0.14);
+  }
+`;
+
 const formatMeta = (session: PracticeSession): string => {
   const total = session.blocks.reduce((s, b) => s + b.durationMinutes, 0);
   const blockLabel = session.blocks.length === 1 ? '1 block' : `${session.blocks.length} blocks`;
@@ -175,7 +202,7 @@ const SessionCard: React.FC<{
   </Card>
 );
 
-const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose }) => {
+const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose, onTrainer }) => {
   const { sessions, deleteSession, duplicateSession, startSession } = useSession();
 
   const handleStart = (s: PracticeSession) => {
@@ -185,7 +212,10 @@ const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose }) => 
 
   return (
     <>
-      <SectionHeader>Starters</SectionHeader>
+      <SectionHeader>Tempo Trainer</SectionHeader>
+      <TrainerButton onClick={onTrainer}>⚡ Build speed from Start to End BPM →</TrainerButton>
+
+      <SectionHeader style={{ marginTop: 20 }}>Starters</SectionHeader>
       <List>
         {STARTER_SESSIONS.map(s => (
           <SessionCard

@@ -168,9 +168,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const pauseSession = useCallback(() => {
     if (sessionPhase !== 'running') return;
+    if (isPlaying) togglePlay().catch(() => {});
     setPausedAt(Date.now());
     setSessionPhase('paused');
-  }, [sessionPhase]);
+  }, [sessionPhase, isPlaying, togglePlay]);
 
   const resumeSession = useCallback(() => {
     if (sessionPhase !== 'paused' || pausedAt === null || blockStartedAt === null) return;
@@ -178,14 +179,16 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setBlockStartedAt(new Date(blockStartedAt.getTime() + pauseDuration));
     setPausedAt(null);
     setSessionPhase('running');
-  }, [sessionPhase, pausedAt, blockStartedAt]);
+    if (!isPlaying) togglePlay().catch(() => {});
+  }, [sessionPhase, pausedAt, blockStartedAt, isPlaying, togglePlay]);
 
   const restartBlock = useCallback(() => {
     if (!activeSession) return;
     applyBlock(activeSession.blocks[currentBlockIndex]);
     setPausedAt(null);
     setSessionPhase('running');
-  }, [activeSession, currentBlockIndex, applyBlock]);
+    if (!isPlaying) togglePlay().catch(() => {});
+  }, [activeSession, currentBlockIndex, applyBlock, isPlaying, togglePlay]);
 
   const advanceBlock = useCallback(() => {
     if (!activeSession) return;
