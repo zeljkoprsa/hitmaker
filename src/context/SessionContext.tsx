@@ -2,7 +2,9 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 
 import { PracticeSession, SessionBlock } from '../core/types/SessionTypes';
 import { useMetronome } from '../features/Metronome/context/MetronomeProvider';
+import { supabase } from '../lib/supabase';
 
+import { useAuth } from './AuthContext';
 import { useToast } from './ToastContext';
 
 const STORAGE_KEY = 'hitmaker_sessions';
@@ -56,6 +58,62 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const { isPlaying, togglePlay, setTempo, setTimeSignature, setSubdivision } = useMetronome();
   const { showToast } = useToast();
+  const { user } = useAuth();
+
+  // --- Supabase sync helpers ---
+
+  const syncToSupabase = useCallback(
+    async (session: PracticeSession) => {
+      if (!user) return;
+      await supabase.from('user_sessions').upsert({
+        id: session.id,
+        user_id: user.id,
+        name: session.name,
+        blocks: session.blocks,
+        created_at: session.createdAt,
+        updated_at: session.updatedAt,
+      });
+    },
+    [user]
+  );
+
+  const removeFromSupabase = useCallback(
+    async (id: string) => {
+      if (!user) return;
+      await supabase.from('user_sessions').delete().eq('id', id);
+    },
+    [user]
+  );
+
+  // On login: fetch remote sessions, merge (remote wins), migrate local-only sessions up
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from('user_sessions')
+        .select('*')
+        .eq('user_id', user.id);
+
+      const remote: PracticeSession[] = (data ?? []).map(r => ({
+        id: r.id,
+        name: r.name,
+        blocks: r.blocks,
+        createdAt: r.created_at,
+        updatedAt: r.updated_at,
+      }));
+
+      setSessions(local => {
+        const remoteIds = new Set(remote.map(s => s.id));
+        const localOnly = local.filter(s => !remoteIds.has(s.id));
+        localOnly.forEach(s => syncToSupabase(s)); // migrate local-only up to cloud
+        const merged = [...remote, ...localOnly];
+        persistSessions(merged);
+        return merged;
+      });
+    })();
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // --- Metronome block application ---
 
   const applyBlock = useCallback(
     (block: SessionBlock) => {
@@ -89,6 +147,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     togglePlay,
   ]);
 
+  // --- CRUD ---
+
   const createSession = useCallback(
     (data: Pick<PracticeSession, 'name' | 'blocks'>): PracticeSession => {
       const session: PracticeSession = {
@@ -102,47 +162,62 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         persistSessions(next);
         return next;
       });
+      syncToSupabase(session);
       return session;
     },
-    []
+    [syncToSupabase]
   );
 
   const updateSession = useCallback(
     (id: string, data: Pick<PracticeSession, 'name' | 'blocks'>): void => {
+      let updated: PracticeSession | undefined;
       setSessions(prev => {
-        const next = prev.map(s =>
-          s.id === id ? { ...s, ...data, updatedAt: new Date().toISOString() } : s
-        );
+        const next = prev.map(s => {
+          if (s.id !== id) return s;
+          updated = { ...s, ...data, updatedAt: new Date().toISOString() };
+          return updated;
+        });
         persistSessions(next);
         return next;
       });
+      if (updated) syncToSupabase(updated);
     },
-    []
+    [syncToSupabase]
   );
 
-  const deleteSession = useCallback((id: string): void => {
-    setSessions(prev => {
-      const next = prev.filter(s => s.id !== id);
-      persistSessions(next);
-      return next;
-    });
-  }, []);
+  const deleteSession = useCallback(
+    (id: string): void => {
+      setSessions(prev => {
+        const next = prev.filter(s => s.id !== id);
+        persistSessions(next);
+        return next;
+      });
+      removeFromSupabase(id);
+    },
+    [removeFromSupabase]
+  );
 
-  const duplicateSession = useCallback((source: PracticeSession): PracticeSession => {
-    const copy: PracticeSession = {
-      name: `${source.name} (copy)`,
-      blocks: source.blocks.map(b => ({ ...b, id: crypto.randomUUID() })),
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    setSessions(prev => {
-      const next = [...prev, copy];
-      persistSessions(next);
-      return next;
-    });
-    return copy;
-  }, []);
+  const duplicateSession = useCallback(
+    (source: PracticeSession): PracticeSession => {
+      const copy: PracticeSession = {
+        name: `${source.name} (copy)`,
+        blocks: source.blocks.map(b => ({ ...b, id: crypto.randomUUID() })),
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      setSessions(prev => {
+        const next = [...prev, copy];
+        persistSessions(next);
+        return next;
+      });
+      syncToSupabase(copy);
+      return copy;
+    },
+    [syncToSupabase]
+  );
+
+  // --- Session runner ---
 
   const startSession = useCallback(
     (session: PracticeSession) => {
