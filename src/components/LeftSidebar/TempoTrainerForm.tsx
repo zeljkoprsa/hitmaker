@@ -3,7 +3,12 @@ import React, { useMemo, useState } from 'react';
 
 import { useSession } from '../../context/SessionContext';
 import { SubdivisionType } from '../../core/types/MetronomeTypes';
-import { PracticeSession } from '../../core/types/SessionTypes';
+import {
+  TEMPO_TRAINER_PRESETS,
+  TempoTrainerPreset,
+  generateTrainerSession,
+} from '../../features/Sessions/tempoTrainerPresets';
+import { SectionHeader } from '../Sidebar/styles';
 
 interface TempoTrainerFormProps {
   onStart: () => void;
@@ -11,6 +16,64 @@ interface TempoTrainerFormProps {
 }
 
 // --- Styled components ---
+
+const PresetList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+`;
+
+const PresetCard = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: ${({ theme }) => theme.borders.radius.sm};
+  padding: 10px 12px;
+  gap: 10px;
+`;
+
+const PresetInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+`;
+
+const PresetName = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+  color: ${({ theme }) => theme.colors.metronome.primary};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const PresetMeta = styled.span`
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+`;
+
+const PresetStartBtn = styled.button`
+  background: ${({ theme }) => theme.colors.metronome.accent};
+  border: none;
+  border-radius: ${({ theme }) => theme.borders.radius.sm};
+  color: white;
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+  cursor: pointer;
+  padding: 6px 10px;
+  min-height: 30px;
+  flex-shrink: 0;
+  transition: opacity 150ms ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
+`;
 
 const FieldGrid = styled.div`
   display: grid;
@@ -162,6 +225,12 @@ const SUB_OPTIONS: { value: SubdivisionType; label: string }[] = [
 
 const clamp = (val: number, min: number, max: number) => Math.min(max, Math.max(min, val));
 
+const presetMeta = (p: TempoTrainerPreset): string => {
+  const blockCount = Math.floor((p.endBpm - p.startBpm) / p.increment) + 1;
+  const totalMin = blockCount * p.minutesPerBlock;
+  return `${blockCount} blocks · ${totalMin} min`;
+};
+
 // --- Component ---
 
 const TempoTrainerForm: React.FC<TempoTrainerFormProps> = ({ onStart, onCancel }) => {
@@ -188,34 +257,47 @@ const TempoTrainerForm: React.FC<TempoTrainerFormProps> = ({ onStart, onCancel }
     return { blockCount: count, totalMin: count * minutesPerBlock, error: null };
   }, [startBpm, endBpm, increment, minutesPerBlock]);
 
+  const handlePresetStart = (preset: TempoTrainerPreset) => {
+    startSession(generateTrainerSession(preset));
+    onStart();
+  };
+
   const handleStart = () => {
     if (error) return;
-
-    const blocks = [];
-    for (let tempo = startBpm; tempo <= endBpm; tempo += increment) {
-      blocks.push({
-        id: crypto.randomUUID(),
-        tempo,
-        timeSignature: { beats: 4, noteValue: 4 },
+    startSession(
+      generateTrainerSession({
+        id: '',
+        name: `${startBpm}→${endBpm} BPM`,
+        description: '',
+        startBpm,
+        endBpm,
+        increment,
+        minutesPerBlock,
         subdivision,
-        durationMinutes: minutesPerBlock,
-      });
-    }
-
-    const session: PracticeSession = {
-      id: crypto.randomUUID(),
-      name: `${startBpm}→${endBpm} BPM`,
-      blocks,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    startSession(session);
+      })
+    );
     onStart();
   };
 
   return (
     <>
+      <SectionHeader>Presets</SectionHeader>
+      <PresetList>
+        {TEMPO_TRAINER_PRESETS.map(preset => (
+          <PresetCard key={preset.id}>
+            <PresetInfo>
+              <PresetName>{preset.name}</PresetName>
+              <PresetMeta>
+                {preset.description} · {presetMeta(preset)}
+              </PresetMeta>
+            </PresetInfo>
+            <PresetStartBtn onClick={() => handlePresetStart(preset)}>Start</PresetStartBtn>
+          </PresetCard>
+        ))}
+      </PresetList>
+
+      <SectionHeader style={{ marginTop: 4 }}>Custom</SectionHeader>
+
       <FieldGrid>
         <div>
           <FieldLabel htmlFor="tt-start">Start BPM</FieldLabel>
