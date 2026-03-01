@@ -270,6 +270,19 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const nextIndex = currentBlockIndex + 1;
     if (nextIndex >= activeSession.blocks.length) {
       if (isPlaying) togglePlay().catch(() => {});
+      if (user) {
+        const totalDuration = activeSession.blocks.reduce((s, b) => s + b.durationMinutes, 0);
+        supabase.from('session_history').insert({
+          user_id: user.id,
+          session_id: activeSession.isStarter ? null : activeSession.id,
+          session_name: activeSession.name,
+          completed_at: new Date().toISOString(),
+          blocks_completed: activeSession.blocks.length,
+          total_duration_minutes: totalDuration,
+        }).then(({ error }) => {
+          if (error) console.error('Failed to log session history:', error);
+        });
+      }
       setActiveSession(null);
       setCurrentBlockIndex(0);
       setBlockStartedAt(null);
