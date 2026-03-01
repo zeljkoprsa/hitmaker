@@ -24,7 +24,8 @@
       "Bash(curl -s -X POST http://127.0.0.1:29979/mcp \\\\\n  -H \"Content-Type: application/json\" \\\\\n  -H \"Accept: application/json, text/event-stream\" \\\\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"get_basic_info\",\"arguments\":{}}}' 2>/dev/null | grep '^data:' | head -5 | sed 's/^data: //' | python3 -m json.tool 2>/dev/null || true)",
       "Bash(grep ^data::*)",
       "Bash(python3:*)",
-      "Bash(claude:*)"
+      "Bash(claude:*)",
+      "Bash(cd \"/Users/zeljkoprsa/Library/Mobile Documents/com~apple~CloudDocs/Development/Apps/useless\" && vercel --prod 2>&1)"
     ]
   }
 }
