@@ -118,8 +118,7 @@ const SubdivisionRow = styled.div`
 
 const SubBtn = styled.button<{ active: boolean }>`
   flex: 1;
-  background: ${({ active }) =>
-    active ? 'rgba(246, 65, 5, 0.15)' : 'rgba(255, 255, 255, 0.03)'};
+  background: ${({ active }) => (active ? 'rgba(246, 65, 5, 0.15)' : 'rgba(255, 255, 255, 0.03)')};
   border: 1px solid
     ${({ active }) => (active ? 'rgba(246, 65, 5, 0.5)' : 'rgba(255, 255, 255, 0.08)')};
   border-radius: ${({ theme }) => theme.borders.radius.sm};

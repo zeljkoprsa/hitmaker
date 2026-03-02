@@ -25,7 +25,13 @@
       "Bash(grep ^data::*)",
       "Bash(python3:*)",
       "Bash(claude:*)",
-      "Bash(cd \"/Users/zeljkoprsa/Library/Mobile Documents/com~apple~CloudDocs/Development/Apps/useless\" && vercel --prod 2>&1)"
+      "Bash(cd \"/Users/zeljkoprsa/Library/Mobile Documents/com~apple~CloudDocs/Development/Apps/useless\" && vercel --prod 2>&1)",
+      "Bash(gh pr:*)",
+      "Bash(cd \"/Users/zeljkoprsa/Library/Mobile Documents/com~apple~CloudDocs/Development/Apps/useless\" && git checkout -b feat/free-pro-stripe 2>&1)",
+      "Bash(cd \"/Users/zeljkoprsa/Library/Mobile Documents/com~apple~CloudDocs/Development/Apps/useless\" && git checkout main 2>&1)"
     ]
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true
   }
 }
