@@ -24,9 +24,18 @@ export function useAppUpdate() {
   const applyUpdate = useCallback(() => {
     const waiting = registrationRef.current?.waiting;
     if (waiting) {
+      // Wait for the new SW to take control before reloading — reloading
+      // immediately after SKIP_WAITING causes a blank screen because the
+      // new SW hasn't finished activating yet.
+      navigator.serviceWorker.addEventListener(
+        'controllerchange',
+        () => window.location.reload(),
+        { once: true }
+      );
       waiting.postMessage({ type: 'SKIP_WAITING' });
+    } else {
+      window.location.reload();
     }
-    window.location.reload();
   }, []);
 
   // Pull-to-refresh gesture (touch devices only)
