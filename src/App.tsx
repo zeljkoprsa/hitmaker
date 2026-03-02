@@ -8,7 +8,6 @@ import Metronome from '@features/Metronome/Metronome';
 import { Header } from './components/Header';
 import { LeftSidebar } from './components/LeftSidebar';
 import { SessionRunner } from './components/SessionRunner';
-import { Sidebar } from './components/Sidebar';
 import { AuthProvider } from './context/AuthContext';
 import { SessionProvider, useSession } from './context/SessionContext';
 import { ToastProvider } from './context/ToastContext';
@@ -22,7 +21,6 @@ import './styles/variables.css';
 import { initViewportHeight } from './utils/viewportHeight';
 
 const AppInner: React.FC = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
   const { streak, loadHistory } = useSessionHistory();
   const { sessionPhase } = useSession();
@@ -36,16 +34,13 @@ const AppInner: React.FC = () => {
   }, [sessionPhase, loadHistory]);
 
   return (
-    <div className="metronome-app">
-      <Header
-        onOpenSidebar={() => setIsSidebarOpen(true)}
-        onOpenLeftSidebar={() => setIsLeftSidebarOpen(true)}
-        streak={streak}
-      />
-      <Metronome />
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+    <div className="app-shell">
       <LeftSidebar isOpen={isLeftSidebarOpen} onClose={() => setIsLeftSidebarOpen(false)} />
-      <SessionRunner />
+      <div className={`metronome-app${isLeftSidebarOpen ? ' sidebar-open' : ''}`}>
+        <Header onOpenLeftSidebar={() => setIsLeftSidebarOpen(true)} streak={streak} />
+        <Metronome />
+        <SessionRunner />
+      </div>
     </div>
   );
 };

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
+import { useAuth } from '../../context/AuthContext';
 import { PracticeSession } from '../../core/types/SessionTypes';
 import PlaylistsSection from '../Sidebar/sections/PlaylistsSection';
+import PreferencesSection from '../Sidebar/sections/PreferencesSection';
+import ProfileSection from '../Sidebar/sections/ProfileSection';
+import SignInView from '../Sidebar/SignInView';
 import {
   CloseButton,
   Overlay,
@@ -10,8 +14,11 @@ import {
   PanelHeader,
   PanelTitle,
   SectionDivider,
+  SignOutArea,
+  SignOutButton,
 } from '../Sidebar/styles';
 
+import AccountFooter from './AccountFooter';
 import SessionEditor from './SessionEditor';
 import SessionHistory from './SessionHistory';
 import SessionList from './SessionList';
@@ -22,17 +29,18 @@ interface LeftSidebarProps {
   onClose: () => void;
 }
 
-type View = 'list' | 'edit' | 'trainer' | 'history';
+type View = 'list' | 'edit' | 'trainer' | 'history' | 'account';
 
 export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => {
   const [view, setView] = useState<View>('list');
   const [editingSession, setEditingSession] = useState<PracticeSession | null>(null);
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (view === 'edit' || view === 'trainer' || view === 'history') {
+        if (view === 'edit' || view === 'trainer' || view === 'history' || view === 'account') {
           setView('list');
         } else {
           onClose();
@@ -76,6 +84,10 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
     setView('history');
   };
 
+  const handleAccount = () => {
+    setView('account');
+  };
+
   const handleSaved = () => {
     setView('list');
     setEditingSession(null);
@@ -86,15 +98,22 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
     setEditingSession(null);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    handleBack();
+    onClose();
+  };
+
   const getTitle = () => {
     if (view === 'edit') return editingSession ? 'Edit Session' : 'New Session';
     if (view === 'trainer') return 'Tempo Trainer';
     if (view === 'history') return 'Practice History';
+    if (view === 'account') return user ? 'Account' : 'Sign In';
     return 'Practice';
   };
 
   const handleClose = () => {
-    if (view === 'edit' || view === 'trainer' || view === 'history') {
+    if (view === 'edit' || view === 'trainer' || view === 'history' || view === 'account') {
       handleBack();
     } else {
       onClose();
@@ -110,6 +129,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
         isOpen={isOpen}
         onClick={view === 'list' ? onClose : handleBack}
         aria-hidden="true"
+        style={{ background: 'transparent', backdropFilter: 'none' }}
       />
 
       <Panel isOpen={isOpen} side="left" role="dialog" aria-modal="true" aria-label={getTitle()}>
@@ -137,11 +157,30 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
           {view === 'edit' && (
             <SessionEditor session={editingSession} onSave={handleSaved} onCancel={handleBack} />
           )}
-          {view === 'trainer' && (
-            <TempoTrainerForm onStart={onClose} onCancel={handleBack} />
-          )}
+          {view === 'trainer' && <TempoTrainerForm onStart={onClose} onCancel={handleBack} />}
           {view === 'history' && <SessionHistory onBack={handleBack} />}
+          {view === 'account' && (
+            <>
+              {user ? (
+                <>
+                  <ProfileSection />
+                  <SectionDivider />
+                  <PreferencesSection />
+                </>
+              ) : (
+                <SignInView onClose={handleBack} />
+              )}
+            </>
+          )}
         </PanelContent>
+
+        {view === 'account' && user && (
+          <SignOutArea>
+            <SignOutButton onClick={handleSignOut}>Sign Out</SignOutButton>
+          </SignOutArea>
+        )}
+
+        {view !== 'account' && <AccountFooter onClick={handleAccount} />}
       </Panel>
     </>
   );

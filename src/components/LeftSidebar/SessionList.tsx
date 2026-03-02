@@ -230,7 +230,13 @@ const SessionCard: React.FC<{
   </Card>
 );
 
-const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose, onTrainer, onHistory }) => {
+const SessionList: React.FC<SessionListProps> = ({
+  onEdit,
+  onNew,
+  onClose,
+  onTrainer,
+  onHistory,
+}) => {
   const { sessions, deleteSession, duplicateSession, startSession } = useSession();
 
   const handleStart = (s: PracticeSession) => {

@@ -1,11 +1,8 @@
 import React from 'react';
 
-import UserAvatar from '../Auth/UserAvatar';
-
 import {
   HeaderContainer,
   HeaderLeft,
-  HeaderRight,
   Logo,
   MenuButton,
   MenuButtonWrapper,
@@ -13,12 +10,11 @@ import {
 } from './styles';
 
 interface HeaderProps {
-  onOpenSidebar: () => void;
   onOpenLeftSidebar: () => void;
   streak: number;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenSidebar, onOpenLeftSidebar, streak }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenLeftSidebar, streak }) => {
   return (
     <HeaderContainer>
       <HeaderLeft>
@@ -34,9 +30,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSidebar, onOpenLeftSidebar
         </MenuButtonWrapper>
         <Logo src="/hitmaker-logo.svg" alt="Hitmaker" />
       </HeaderLeft>
-      <HeaderRight>
-        <UserAvatar onOpen={onOpenSidebar} />
-      </HeaderRight>
     </HeaderContainer>
   );
 };

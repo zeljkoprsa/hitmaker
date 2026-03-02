@@ -21,51 +21,77 @@
 - Offline sync queue for preferences
 
 ## Architecture Notes
-- Sessions stored in localStorage only (not synced to Supabase)
+- Sessions synced to Supabase `user_sessions` table (done 2026-03-01)
+- Practice history logged to `session_history` table (done 2026-03-01)
 - Playlists section exists as "Coming soon" placeholder in right sidebar
 - Left sidebar = session list + editor; Right sidebar = auth + preferences + playlists placeholder
 - MetronomeProvider is the central brain: engine state, sound management, preference sync
 - `isStarter` flag on sessions distinguishes built-in from user-created
 
-## Key Gaps Identified
-- Sessions are localStorage-only (data loss risk, no cross-device)
-- No practice history/progress tracking
+## Key Gaps (Updated 2026-03-02)
 - Tempo Trainer shipped but ephemeral (sessions not saveable)
 - Playlists feature stubbed but not built (PlaylistsSection.tsx is placeholder)
 - No sharing/export of sessions
 - No keyboard shortcuts documented or comprehensive
 - No audio cue at session block transitions
 - PostHog integrated but session lifecycle events likely under-instrumented
+- No paywall/gating infrastructure for Free vs Pro
 
-## Product Roadmap (Agreed 2026-03-01)
+## Monetization Strategy (Updated 2026-03-02)
+### Agreed Direction: Web-funnel + paid iOS (two-phase)
+- **Phase 1 (Months 1-3):** Ship web Free/Pro split to validate willingness to pay
+  - Web Free: Full metronome, all sounds/time sigs, starter sessions, 3 saved sessions, 7-day history, Tempo Trainer (generate only)
+  - Web Pro: Unlimited sessions, full history, cloud sync, playlists, audio cues, sharing
+  - Goal: >2% conversion rate before greenlighting iOS
+- **Phase 2 (Months 4-9):** Build paid iOS app ($9.99 one-time purchase)
+  - iOS includes all Pro features + native advantages (haptics, widgets, Watch potential)
+  - Evaluate whether to keep web Pro or simplify to free web + paid iOS only
+- Core metronome is NEVER gated (firm constraint)
+- Apple 30% cut factored into pricing; $9.99 one-time preferred over subscription for tool apps
+- Do not monetize until 500+ WAU and validated retention
+
+### Web Free/Pro Feature Split
+| Feature | Free | Pro |
+|---------|------|-----|
+| Core metronome, sounds, time sigs | Full | Full |
+| Starter sessions | All | All |
+| Saved sessions | 3 max | Unlimited |
+| Blocks per session | 4 max | Unlimited |
+| Tempo Trainer | Generate only | Generate + save + presets |
+| Practice history | 7-day rolling | Full history + analytics |
+| Streaks | Current only | Full + weekly summary |
+| Cloud sync | No | Yes |
+| Playlists | No | Yes |
+| Audio cue at block transitions | No | Yes |
+| Session sharing | No | Yes |
+
+## Product Roadmap (Updated 2026-03-02)
+### Completed
+- Session cloud sync (Supabase) -- done
+- Practice history / session log + streaks -- done
+
 ### Tier 1 (Next 4-6 weeks)
-1. Session cloud sync (Supabase) -- critical path dependency
-2. Practice history / session log
-3. Auto-advance audio cue at block transitions
-4. Keyboard shortcuts (space=play, arrows=tempo, ?=help)
+1. Web Free/Pro split + Stripe integration (revenue validation)
+2. Auto-advance audio cue at block transitions
+3. Keyboard shortcuts (space=play, arrows=tempo, ?=help)
+4. Save Tempo Trainer generated sessions
 
 ### Tier 2 (Weeks 6-12)
 1. Session sharing via URL
-2. Save Tempo Trainer generated sessions
-3. Playlists (session queue)
-4. Practice streak / weekly summary
-5. More starter sessions by instrument/genre
+2. Playlists (session queue)
+3. More starter sessions by instrument/genre
+4. Practice analytics dashboard (Pro)
 
-### Tier 3 (Months 3-6)
-1. Pro tier monetization ($3.99/mo or $29.99/yr)
+### Tier 3 (Months 3-9)
+1. iOS app development (if web Pro conversion >2%)
 2. Import/export sessions (JSON)
-3. Practice analytics dashboard
-4. Polyrhythm mode
-5. MIDI clock output
+3. Polyrhythm mode
+4. MIDI clock output
 
 ### Explicitly Deferred
-- Social features, custom sound upload, onboarding modal, native app, light theme
-
-## Monetization Strategy
-- Free: Full metronome, all sounds/time sigs, tempo trainer, 3 saved sessions, 7-day history
-- Pro: Unlimited sessions, full history, playlists, cloud sync, sharing
-- Do not monetize until 500+ WAU and validated retention
-- Price: $3.99/mo or $29.99/yr
+- Social features, custom sound upload, onboarding modal, light theme
+- Subscription pricing (one-time purchase preferred for tools)
+- Native app development until web monetization validated
 
 ## Business Goals (Assumed)
 - G1: Grow MAU to 1K+

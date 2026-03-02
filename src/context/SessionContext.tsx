@@ -89,10 +89,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase
-        .from('user_sessions')
-        .select('*')
-        .eq('user_id', user.id);
+      const { data } = await supabase.from('user_sessions').select('*').eq('user_id', user.id);
 
       const remote: PracticeSession[] = (data ?? []).map(r => ({
         id: r.id,
@@ -272,16 +269,19 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (isPlaying) togglePlay().catch(() => {});
       if (user) {
         const totalDuration = activeSession.blocks.reduce((s, b) => s + b.durationMinutes, 0);
-        supabase.from('session_history').insert({
-          user_id: user.id,
-          session_id: activeSession.isStarter ? null : activeSession.id,
-          session_name: activeSession.name,
-          completed_at: new Date().toISOString(),
-          blocks_completed: activeSession.blocks.length,
-          total_duration_minutes: totalDuration,
-        }).then(({ error }) => {
-          if (error) console.error('Failed to log session history:', error);
-        });
+        supabase
+          .from('session_history')
+          .insert({
+            user_id: user.id,
+            session_id: activeSession.isStarter ? null : activeSession.id,
+            session_name: activeSession.name,
+            completed_at: new Date().toISOString(),
+            blocks_completed: activeSession.blocks.length,
+            total_duration_minutes: totalDuration,
+          })
+          .then(({ error }) => {
+            if (error) console.error('Failed to log session history:', error);
+          });
       }
       setActiveSession(null);
       setCurrentBlockIndex(0);
