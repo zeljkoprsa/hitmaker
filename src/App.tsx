@@ -34,11 +34,13 @@ const AppInner: React.FC = () => {
   }, [sessionPhase, loadHistory]);
 
   return (
-    <div className="metronome-app">
-      <Header onOpenLeftSidebar={() => setIsLeftSidebarOpen(true)} streak={streak} />
-      <Metronome />
+    <div className="app-shell">
       <LeftSidebar isOpen={isLeftSidebarOpen} onClose={() => setIsLeftSidebarOpen(false)} />
-      <SessionRunner />
+      <div className={`metronome-app${isLeftSidebarOpen ? ' sidebar-open' : ''}`}>
+        <Header onOpenLeftSidebar={() => setIsLeftSidebarOpen(true)} streak={streak} />
+        <Metronome />
+        <SessionRunner />
+      </div>
     </div>
   );
 };

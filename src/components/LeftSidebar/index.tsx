@@ -129,6 +129,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
         isOpen={isOpen}
         onClick={view === 'list' ? onClose : handleBack}
         aria-hidden="true"
+        style={{ background: 'transparent', backdropFilter: 'none' }}
       />
 
       <Panel isOpen={isOpen} side="left" role="dialog" aria-modal="true" aria-label={getTitle()}>
