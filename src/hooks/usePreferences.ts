@@ -1,86 +1,93 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 import { useAuth } from '../context/AuthContext';
 import { MetronomeConfig } from '../core/types/MetronomeTypes';
 import { supabase } from '../lib/supabase';
 import { UserPreferences, isUserPreferences, configToPreferences } from '../types/UserPreferences';
-// We need to import the Metronome Context or similar if we want to sync automaticall
 
 export const usePreferences = () => {
   const { user } = useAuth();
-  // const supabase = useSupabaseClient(); // Use global client instance
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
+  // Mirror preferences in a ref so savePreferences can read the latest value
+  // without needing a functional setState (which caused an infinite save loop).
+  const preferencesRef = useRef<UserPreferences | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    preferencesRef.current = preferences;
+  }, [preferences]);
 
   const loadPreferences = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('user_preferences')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
 
       if (data && isUserPreferences(data)) {
         setPreferences(data);
       } else {
-        // If data is null (no row found) or doesn't match schema, set preferences to null
         setPreferences(null);
-        if (data) {
-          console.warn('Loaded preferences do not match expected schema:', data);
-        }
+        if (data) console.warn('Loaded preferences do not match expected schema:', data);
       }
     } catch (err: unknown) {
       console.error('Error loading preferences:', err);
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      setError(errorMessage);
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
-
-  const [saving, setSaving] = useState(false);
+  }, [user]);
 
   const savePreferences = useCallback(
     async (config: MetronomeConfig, soundId: string) => {
       if (!user) return;
       setSaving(true);
 
-      // Create new preferences using current state via functional update
-      let newPrefs: UserPreferences | null = null;
-      setPreferences(prev => {
-        newPrefs = configToPreferences(config, soundId, prev || {});
-        newPrefs.user_id = user.id;
-        // Optimistic update locally
-        return { ...prev, ...newPrefs } as UserPreferences;
-      });
-
-      // TypeScript: newPrefs is assigned synchronously in setPreferences callback
-      if (!newPrefs) return;
+      // Derive the new prefs from the ref (not from a functional setState) so we
+      // don't update the preferences state here and avoid re-triggering the
+      // MetronomeProvider effect that applies preferences back to the engine.
+      const newPrefs = configToPreferences(config, soundId, preferencesRef.current ?? {});
+      newPrefs.user_id = user.id;
 
       if (!navigator.onLine) {
-        // Offline? Add to queue
-        import('../utils/syncQueue').then(({ addToQueue }) => {
-          addToQueue(newPrefs!);
-          console.log('Offline: Preferences queued for sync.');
-          setSaving(false);
-        });
+        import('../utils/syncQueue')
+          .then(({ addToQueue }) => {
+            addToQueue(newPrefs);
+            console.log('Offline: Preferences queued for sync.');
+          })
+          .catch(console.error)
+          .finally(() => setSaving(false));
         return;
       }
 
-      try {
-        const { error } = await supabase.from('user_preferences').upsert(newPrefs);
+      // Abort after 8 seconds so the indicator never gets stuck forever
+      // (e.g. Supabase free-tier cold start or transient network hang).
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-        if (error) throw error;
+      try {
+        const { error: upsertError } = await supabase
+          .from('user_preferences')
+          .upsert(newPrefs, { onConflict: 'user_id' })
+          .abortSignal(controller.signal);
+        clearTimeout(timeoutId);
+        if (upsertError) throw upsertError;
       } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-        console.error('Error saving preferences:', err);
-        setError(errorMessage);
+        clearTimeout(timeoutId);
+        if (err instanceof Error && err.name === 'AbortError') {
+          console.warn('Preferences save timed out — will retry on next change');
+        } else {
+          console.error('Error saving preferences:', err);
+          setError(err instanceof Error ? err.message : 'An error occurred');
+        }
       } finally {
         setSaving(false);
       }
@@ -88,7 +95,6 @@ export const usePreferences = () => {
     [user]
   );
 
-  // Create a default entry if needed
   const createDefaultPreferences = useCallback(
     async (initialConfig: MetronomeConfig) => {
       if (!user) return;
