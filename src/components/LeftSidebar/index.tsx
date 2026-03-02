@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { PracticeSession } from '../../core/types/SessionTypes';
+import { useSubscription } from '../../hooks/useSubscription';
 import PlaylistsSection from '../Sidebar/sections/PlaylistsSection';
 import {
   CloseButton,
@@ -11,6 +12,7 @@ import {
   PanelTitle,
   SectionDivider,
 } from '../Sidebar/styles';
+import UpgradePrompt from '../UpgradePrompt';
 
 import SessionEditor from './SessionEditor';
 import SessionHistory from './SessionHistory';
@@ -22,17 +24,19 @@ interface LeftSidebarProps {
   onClose: () => void;
 }
 
-type View = 'list' | 'edit' | 'trainer' | 'history';
+type View = 'list' | 'edit' | 'trainer' | 'history' | 'upgrade';
 
 export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => {
   const [view, setView] = useState<View>('list');
   const [editingSession, setEditingSession] = useState<PracticeSession | null>(null);
+  const [upgradeFeature, setUpgradeFeature] = useState('');
+  const { isPro } = useSubscription();
 
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (view === 'edit' || view === 'trainer' || view === 'history') {
+        if (view === 'edit' || view === 'trainer' || view === 'history' || view === 'upgrade') {
           setView('list');
         } else {
           onClose();
@@ -64,15 +68,30 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
   };
 
   const handleNew = () => {
+    if (!isPro) {
+      setUpgradeFeature('Custom Sessions');
+      setView('upgrade');
+      return;
+    }
     setEditingSession(null);
     setView('edit');
   };
 
   const handleTrainer = () => {
+    if (!isPro) {
+      setUpgradeFeature('Tempo Trainer');
+      setView('upgrade');
+      return;
+    }
     setView('trainer');
   };
 
   const handleHistory = () => {
+    if (!isPro) {
+      setUpgradeFeature('Practice History');
+      setView('upgrade');
+      return;
+    }
     setView('history');
   };
 
@@ -90,11 +109,12 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
     if (view === 'edit') return editingSession ? 'Edit Session' : 'New Session';
     if (view === 'trainer') return 'Tempo Trainer';
     if (view === 'history') return 'Practice History';
+    if (view === 'upgrade') return 'Go Pro';
     return 'Practice';
   };
 
   const handleClose = () => {
-    if (view === 'edit' || view === 'trainer' || view === 'history') {
+    if (view === 'edit' || view === 'trainer' || view === 'history' || view === 'upgrade') {
       handleBack();
     } else {
       onClose();
@@ -141,6 +161,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen, onClose }) => 
             <TempoTrainerForm onStart={onClose} onCancel={handleBack} />
           )}
           {view === 'history' && <SessionHistory onBack={handleBack} />}
+          {view === 'upgrade' && (
+            <UpgradePrompt featureName={upgradeFeature} onBack={handleBack} />
+          )}
         </PanelContent>
       </Panel>
     </>
