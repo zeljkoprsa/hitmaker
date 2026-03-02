@@ -11,6 +11,7 @@ import { SessionRunner } from './components/SessionRunner';
 import { AuthProvider } from './context/AuthContext';
 import { SessionProvider, useSession } from './context/SessionContext';
 import { ToastProvider } from './context/ToastContext';
+import { useAppUpdate } from './hooks/useAppUpdate';
 import { useSessionHistory } from './hooks/useSessionHistory';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
@@ -25,6 +26,11 @@ const AppInner: React.FC = () => {
   const { streak, loadHistory } = useSessionHistory();
   const { sessionPhase } = useSession();
   const prevPhaseRef = useRef(sessionPhase);
+  const { updateAvailable, applyUpdate, pullProgress } = useAppUpdate();
+
+  useEffect(() => {
+    document.body.style.overscrollBehaviorY = 'contain';
+  }, []);
 
   useEffect(() => {
     if (prevPhaseRef.current === 'running' && sessionPhase === 'idle') {
@@ -35,6 +41,76 @@ const AppInner: React.FC = () => {
 
   return (
     <div className="app-shell">
+      {/* Update banner */}
+      {updateAvailable && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px',
+          padding: '10px 16px',
+          background: '#1a1a1a',
+          borderBottom: '1px solid #333',
+          fontSize: '14px',
+          color: '#ccc',
+        }}>
+          <span>New version available</span>
+          <button
+            onClick={applyUpdate}
+            style={{
+              background: '#F64105',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '4px 14px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              minHeight: '28px',
+            }}
+          >
+            Update
+          </button>
+        </div>
+      )}
+
+      {/* Pull-to-refresh indicator */}
+      {pullProgress > 0 && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9998,
+          display: 'flex',
+          justifyContent: 'center',
+          paddingTop: '8px',
+          pointerEvents: 'none',
+          opacity: pullProgress,
+          transform: `translateY(${pullProgress * 8}px)`,
+          transition: 'opacity 0.1s, transform 0.1s',
+        }}>
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 22 22"
+            fill="none"
+            style={{
+              transform: `rotate(${pullProgress * 180}deg)`,
+              transition: 'transform 0.1s',
+            }}
+          >
+            <circle cx="11" cy="11" r="9" stroke="#555" strokeWidth="2" />
+            <path d="M11 6v5l3 3" stroke="#F64105" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
+      )}
+
       <LeftSidebar isOpen={isLeftSidebarOpen} onClose={() => setIsLeftSidebarOpen(false)} />
       <div className={`metronome-app${isLeftSidebarOpen ? ' sidebar-open' : ''}`}>
         <Header onOpenLeftSidebar={() => setIsLeftSidebarOpen(true)} streak={streak} />
