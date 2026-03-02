@@ -5,7 +5,7 @@ import { flex } from '../../shared/styles/mixins';
 export const HeaderContainer = styled.header`
   ${flex({ direction: 'row', align: 'center', justify: 'space-between' })}
   position: absolute;
-  top: ${({ theme }) => theme.spacing.lg};
+  top: calc(${({ theme }) => theme.spacing.lg} + env(safe-area-inset-top));
   left: ${({ theme }) => theme.spacing.lg};
   right: ${({ theme }) => theme.spacing.lg};
   z-index: ${({ theme }) => theme.zIndices.sticky};
