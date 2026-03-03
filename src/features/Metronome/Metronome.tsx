@@ -8,7 +8,6 @@ import { useResponsive } from '../../hooks/useResponsive';
 import { useWakeLock } from '../../hooks/useWakeLock';
 
 import { Controls, Displays } from './components';
-import { SoundSelector } from './components/Controls/SoundSelector';
 import { useMetronome } from './context/MetronomeProvider';
 import styles from './styles.module.css';
 
@@ -26,9 +25,6 @@ const Metronome: React.FC = () => {
     setTimeSignature,
     subdivision,
     setSubdivision,
-    soundId,
-    isLoadingSound,
-    setSound,
     onTick,
     accents,
     toggleAccent,
@@ -113,14 +109,6 @@ const Metronome: React.FC = () => {
             <Controls.TempoControl tempo={tempo} setTempo={setTempo} />
           </div>
 
-          {/* Sound selector */}
-          <div className={styles.soundSelector}>
-            <SoundSelector
-              currentSoundId={soundId}
-              onSoundChange={setSound}
-              isLoading={isLoadingSound}
-            />
-          </div>
         </div>
       </div>
     </div>

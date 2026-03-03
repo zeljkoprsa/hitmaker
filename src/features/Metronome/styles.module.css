@@ -185,17 +185,6 @@
   align-items: center;
   justify-content: center;
   background-color: var(--color-neutral-800);
-  border-radius: var(--radius-xs);
-  overflow: hidden;
-}
-
-.soundSelector {
-  width: 100%;
-  height: clamp(70px, 15vw, 82px); /* Match grid height */
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-neutral-800);
   border-radius: var(--radius-xs) var(--radius-xs) var(--radius-curved) var(--radius-curved);
+  overflow: hidden;
 }
