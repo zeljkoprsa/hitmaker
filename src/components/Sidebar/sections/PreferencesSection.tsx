@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import React from 'react';
 
 import { useMetronome } from '../../../features/Metronome/context/MetronomeProvider';
+import { SOUNDS } from '../../../core/types/SoundTypes';
 import { usePreferences } from '../../../hooks/usePreferences';
 import { SectionHeader } from '../styles';
 
@@ -59,14 +60,44 @@ const ExportButton = styled.button`
   }
 `;
 
-const SOUND_NAMES: Record<string, string> = {
-  'metronome-quartz': 'Quartz',
-  'metronome-wood': 'Wood',
-  'metronome-digital': 'Digital',
-};
+const SoundLabel = styled.span`
+  display: block;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
+  margin-bottom: 8px;
+`;
+
+const SoundGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 14px;
+`;
+
+const SoundChip = styled.button<{ $active: boolean }>`
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.metronome.accent : 'rgba(255, 255, 255, 0.05)'};
+  border: none;
+  border-radius: ${({ theme }) => theme.borders.radius.sm};
+  color: ${({ $active }) => ($active ? '#fff' : 'rgba(255,255,255,0.55)')};
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
+  font-family: ${({ theme }) => theme.typography.fontFamily.base};
+  cursor: pointer;
+  padding: 8px 4px;
+  min-height: 44px;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+
+  &:active {
+    opacity: 0.8;
+  }
+`;
 
 const PreferencesSection: React.FC = () => {
-  const { tempo, timeSignature, soundId } = useMetronome();
+  const { tempo, timeSignature, soundId, setSound } = useMetronome();
   const { preferences } = usePreferences();
 
   const handleExport = () => {
@@ -92,11 +123,19 @@ const PreferencesSection: React.FC = () => {
             {timeSignature.beats}/{timeSignature.noteValue}
           </PrefValue>
         </PrefItem>
-        <PrefItem>
-          <PrefLabel>Sound</PrefLabel>
-          <PrefValue>{SOUND_NAMES[soundId] ?? soundId}</PrefValue>
-        </PrefItem>
       </PrefList>
+      <SoundLabel>Sound</SoundLabel>
+      <SoundGrid>
+        {SOUNDS.map((sound) => (
+          <SoundChip
+            key={sound.id}
+            $active={soundId === sound.id}
+            onClick={() => setSound(sound.id)}
+          >
+            {sound.name}
+          </SoundChip>
+        ))}
+      </SoundGrid>
       <ExportButton onClick={handleExport}>Export Preferences</ExportButton>
     </>
   );
