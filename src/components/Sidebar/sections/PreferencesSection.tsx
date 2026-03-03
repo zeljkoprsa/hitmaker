@@ -60,13 +60,89 @@ const ExportButton = styled.button`
   }
 `;
 
-const SoundLabel = styled.span`
+const RowLabel = styled.span`
   display: block;
   color: rgba(255, 255, 255, 0.4);
   font-size: ${({ theme }) => theme.typography.fontSizes.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
   margin-bottom: 8px;
 `;
+
+/* ── Volume ── */
+
+const VolumeRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+`;
+
+const MuteButton = styled.button<{ $muted: boolean }>`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${({ $muted, theme }) =>
+    $muted ? theme.colors.metronome.accent : 'rgba(255,255,255,0.45)'};
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  transition: color 150ms ease;
+
+  &:active {
+    opacity: 0.7;
+  }
+`;
+
+const VolumeSlider = styled.input<{ $pct: number; $muted: boolean }>`
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: ${({ $muted }) => ($muted ? 'not-allowed' : 'pointer')};
+  opacity: ${({ $muted }) => ($muted ? 0.35 : 1)};
+  background: linear-gradient(
+    to right,
+    #f64105 ${({ $pct }) => $pct}%,
+    rgba(255, 255, 255, 0.12) ${({ $pct }) => $pct}%
+  );
+  transition: opacity 150ms ease;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: ${({ $muted }) => ($muted ? 'not-allowed' : 'pointer')};
+  }
+
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    cursor: ${({ $muted }) => ($muted ? 'not-allowed' : 'pointer')};
+  }
+`;
+
+const VolumeValue = styled.span`
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 11px;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  min-width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+`;
+
+/* ── Sound ── */
 
 const SoundGrid = styled.div`
   display: grid;
@@ -96,9 +172,42 @@ const SoundChip = styled.button<{ $active: boolean }>`
   }
 `;
 
+/* ── Icons ── */
+
+const SpeakerOnIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M2 5.5h2.5L8 3v10L4.5 10.5H2V5.5z" />
+    <path
+      d="M10 5.5a3 3 0 010 5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      fill="none"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const SpeakerOffIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M2 5.5h2.5L8 3v10L4.5 10.5H2V5.5z" />
+    <path
+      d="M10.5 5.5l3 3M13.5 5.5l-3 3"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      fill="none"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+/* ── Component ── */
+
 const PreferencesSection: React.FC = () => {
-  const { tempo, timeSignature, soundId, setSound } = useMetronome();
+  const { tempo, timeSignature, soundId, setSound, volume, muted, setVolume, setMuted } =
+    useMetronome();
   const { preferences } = usePreferences();
+
+  const pct = Math.round(volume * 100);
 
   const handleExport = () => {
     const dataStr = JSON.stringify(preferences, null, 2);
@@ -124,7 +233,31 @@ const PreferencesSection: React.FC = () => {
           </PrefValue>
         </PrefItem>
       </PrefList>
-      <SoundLabel>Sound</SoundLabel>
+
+      <RowLabel>Volume</RowLabel>
+      <VolumeRow>
+        <MuteButton
+          $muted={muted}
+          onClick={() => setMuted(!muted)}
+          aria-label={muted ? 'Unmute' : 'Mute'}
+        >
+          {muted ? <SpeakerOffIcon /> : <SpeakerOnIcon />}
+        </MuteButton>
+        <VolumeSlider
+          type="range"
+          min={0}
+          max={100}
+          value={pct}
+          $pct={pct}
+          $muted={muted}
+          disabled={muted}
+          onChange={(e) => setVolume(Number(e.target.value) / 100)}
+          aria-label="Volume"
+        />
+        <VolumeValue>{muted ? 'Off' : `${pct}%`}</VolumeValue>
+      </VolumeRow>
+
+      <RowLabel>Sound</RowLabel>
       <SoundGrid>
         {SOUNDS.map((sound) => (
           <SoundChip
@@ -136,6 +269,7 @@ const PreferencesSection: React.FC = () => {
           </SoundChip>
         ))}
       </SoundGrid>
+
       <ExportButton onClick={handleExport}>Export Preferences</ExportButton>
     </>
   );
