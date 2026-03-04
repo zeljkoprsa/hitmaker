@@ -21,8 +21,10 @@ import './styles/fonts.css';
 import './styles/variables.css';
 import { initViewportHeight } from './utils/viewportHeight';
 
+type SectionType = 'practice' | 'history' | 'account';
+
 const AppInner: React.FC = () => {
-  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<SectionType | null>(null);
   const { streak, loadHistory } = useSessionHistory();
   const { sessionPhase } = useSession();
   const prevPhaseRef = useRef(sessionPhase);
@@ -111,9 +113,21 @@ const AppInner: React.FC = () => {
         </div>
       )}
 
-      <LeftSidebar isOpen={isLeftSidebarOpen} onClose={() => setIsLeftSidebarOpen(false)} />
-      <div className={`metronome-app${isLeftSidebarOpen ? ' sidebar-open' : ''}`}>
-        <Header onOpenLeftSidebar={() => setIsLeftSidebarOpen(true)} streak={streak} />
+      <LeftSidebar
+        activeSection={activeSection}
+        onSetSection={setActiveSection}
+        onClose={() => setActiveSection(null)}
+      />
+      <div
+        className={`metronome-app${activeSection !== null ? ' panel-open' : ''}`}
+        onClick={() => {
+          // Desktop click-outside: collapse panel (rail stays)
+          if (window.matchMedia('(min-width: 1024px)').matches && activeSection !== null) {
+            setActiveSection(null);
+          }
+        }}
+      >
+        <Header onOpenLeftSidebar={() => setActiveSection('practice')} streak={streak} />
         <Metronome />
         <SessionRunner />
       </div>

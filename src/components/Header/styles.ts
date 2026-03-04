@@ -27,6 +27,10 @@ export const Logo = styled.img`
 export const MenuButtonWrapper = styled.div`
   position: relative;
   display: flex;
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
 `;
 
 export const StreakBadge = styled.span`
