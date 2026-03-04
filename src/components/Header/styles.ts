@@ -9,6 +9,10 @@ export const HeaderContainer = styled.header`
   left: ${({ theme }) => theme.spacing.lg};
   right: ${({ theme }) => theme.spacing.lg};
   z-index: ${({ theme }) => theme.zIndices.sticky};
+
+  @media (min-width: 1024px) {
+    left: calc(56px + ${({ theme }) => theme.spacing.lg});
+  }
 `;
 
 export const HeaderLeft = styled.div`
