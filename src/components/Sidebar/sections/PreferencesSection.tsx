@@ -251,7 +251,7 @@ const PreferencesSection: React.FC = () => {
           $pct={pct}
           $muted={muted}
           disabled={muted}
-          onChange={(e) => setVolume(Number(e.target.value) / 100)}
+          onChange={e => setVolume(Number(e.target.value) / 100)}
           aria-label="Volume"
         />
         <VolumeValue>{muted ? 'Off' : `${pct}%`}</VolumeValue>
@@ -259,7 +259,7 @@ const PreferencesSection: React.FC = () => {
 
       <RowLabel>Sound</RowLabel>
       <SoundGrid>
-        {SOUNDS.map((sound) => (
+        {SOUNDS.map(sound => (
           <SoundChip
             key={sound.id}
             $active={soundId === sound.id}

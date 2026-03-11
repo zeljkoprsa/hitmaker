@@ -112,7 +112,6 @@ const Metronome: React.FC = () => {
           <div className={styles.tempoSlider}>
             <Controls.TempoControl tempo={tempo} setTempo={setTempo} />
           </div>
-
         </div>
       </div>
     </div>

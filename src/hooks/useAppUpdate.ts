@@ -27,11 +27,9 @@ export function useAppUpdate() {
       // Wait for the new SW to take control before reloading — reloading
       // immediately after SKIP_WAITING causes a blank screen because the
       // new SW hasn't finished activating yet.
-      navigator.serviceWorker.addEventListener(
-        'controllerchange',
-        () => window.location.reload(),
-        { once: true }
-      );
+      navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload(), {
+        once: true,
+      });
       waiting.postMessage({ type: 'SKIP_WAITING' });
     } else {
       window.location.reload();

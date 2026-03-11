@@ -9,6 +9,7 @@ import { Header } from './components/Header';
 import { LeftSidebar } from './components/LeftSidebar';
 import { SessionRunner } from './components/SessionRunner';
 import { AuthProvider } from './context/AuthContext';
+import { LessonProvider } from './context/LessonContext';
 import { SessionProvider, useSession } from './context/SessionContext';
 import { ToastProvider } from './context/ToastContext';
 import { useAppUpdate } from './hooks/useAppUpdate';
@@ -45,22 +46,24 @@ const AppInner: React.FC = () => {
     <div className="app-shell">
       {/* Update banner */}
       {updateAvailable && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px',
-          padding: '10px 16px',
-          background: '#1a1a1a',
-          borderBottom: '1px solid #333',
-          fontSize: '14px',
-          color: '#ccc',
-        }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            padding: '10px 16px',
+            background: '#1a1a1a',
+            borderBottom: '1px solid #333',
+            fontSize: '14px',
+            color: '#ccc',
+          }}
+        >
           <span>New version available</span>
           <button
             onClick={applyUpdate}
@@ -83,20 +86,22 @@ const AppInner: React.FC = () => {
 
       {/* Pull-to-refresh indicator */}
       {pullProgress > 0 && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 9998,
-          display: 'flex',
-          justifyContent: 'center',
-          paddingTop: '8px',
-          pointerEvents: 'none',
-          opacity: pullProgress,
-          transform: `translateY(${pullProgress * 8}px)`,
-          transition: 'opacity 0.1s, transform 0.1s',
-        }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 9998,
+            display: 'flex',
+            justifyContent: 'center',
+            paddingTop: '8px',
+            pointerEvents: 'none',
+            opacity: pullProgress,
+            transform: `translateY(${pullProgress * 8}px)`,
+            transition: 'opacity 0.1s, transform 0.1s',
+          }}
+        >
           <svg
             width="22"
             height="22"
@@ -152,7 +157,9 @@ const App: React.FC = () => {
               <ToastProvider>
                 <MetronomeProvider>
                   <SessionProvider>
-                    <AppInner />
+                    <LessonProvider>
+                      <AppInner />
+                    </LessonProvider>
                   </SessionProvider>
                 </MetronomeProvider>
               </ToastProvider>

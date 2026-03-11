@@ -155,7 +155,10 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     if (!activeSection) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (activeSection === 'practice' && (practiceView === 'edit' || practiceView === 'trainer')) {
+        if (
+          activeSection === 'practice' &&
+          (practiceView === 'edit' || practiceView === 'trainer')
+        ) {
           setPracticeView('list');
           setEditingSession(null);
         } else {
