@@ -27,13 +27,13 @@ const computeStreak = (entries: SessionHistoryEntry[]): number => {
 };
 
 export const useSessionHistory = () => {
-  const { user } = useAuth();
+  const { user, cloudSyncEnabled } = useAuth();
   const [history, setHistory] = useState<SessionHistoryEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [streak, setStreak] = useState(0);
 
   const loadHistory = useCallback(async () => {
-    if (!user) {
+    if (!user || !cloudSyncEnabled) {
       setHistory([]);
       setStreak(0);
       return;
@@ -65,7 +65,7 @@ export const useSessionHistory = () => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, cloudSyncEnabled]);
 
   useEffect(() => {
     loadHistory();

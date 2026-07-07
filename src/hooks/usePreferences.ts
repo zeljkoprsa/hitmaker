@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import { UserPreferences, isUserPreferences, configToPreferences } from '../types/UserPreferences';
 
 export const usePreferences = () => {
-  const { user } = useAuth();
+  const { user, cloudSyncEnabled } = useAuth();
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   // Mirror preferences in a ref so savePreferences can read the latest value
   // without needing a functional setState (which caused an infinite save loop).
@@ -20,7 +20,7 @@ export const usePreferences = () => {
   }, [preferences]);
 
   const loadPreferences = useCallback(async () => {
-    if (!user) return;
+    if (!user || !cloudSyncEnabled) return;
     setLoading(true);
     setError(null);
     try {
@@ -44,11 +44,11 @@ export const usePreferences = () => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, cloudSyncEnabled]);
 
   const savePreferences = useCallback(
     async (config: MetronomeConfig, soundId: string) => {
-      if (!user) return;
+      if (!user || !cloudSyncEnabled) return;
       setSaving(true);
 
       // Derive the new prefs from the ref (not from a functional setState) so we
@@ -92,7 +92,7 @@ export const usePreferences = () => {
         setSaving(false);
       }
     },
-    [user]
+    [user, cloudSyncEnabled]
   );
 
   const createDefaultPreferences = useCallback(

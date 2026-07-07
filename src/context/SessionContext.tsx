@@ -58,13 +58,13 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const { isPlaying, togglePlay, setTempo, setTimeSignature, setSubdivision } = useMetronome();
   const { showToast } = useToast();
-  const { user } = useAuth();
+  const { user, cloudSyncEnabled } = useAuth();
 
   // --- Supabase sync helpers ---
 
   const syncToSupabase = useCallback(
     async (session: PracticeSession) => {
-      if (!user) return;
+      if (!user || !cloudSyncEnabled) return;
       await supabase.from('user_sessions').upsert({
         id: session.id,
         user_id: user.id,
@@ -74,20 +74,20 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         updated_at: session.updatedAt,
       });
     },
-    [user]
+    [user, cloudSyncEnabled]
   );
 
   const removeFromSupabase = useCallback(
     async (id: string) => {
-      if (!user) return;
+      if (!user || !cloudSyncEnabled) return;
       await supabase.from('user_sessions').delete().eq('id', id);
     },
-    [user]
+    [user, cloudSyncEnabled]
   );
 
   // On login: fetch remote sessions, merge (remote wins), migrate local-only sessions up
   useEffect(() => {
-    if (!user) return;
+    if (!user || !cloudSyncEnabled) return;
     (async () => {
       const { data } = await supabase.from('user_sessions').select('*').eq('user_id', user.id);
 
@@ -108,7 +108,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return merged;
       });
     })();
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, cloudSyncEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Metronome block application ---
 
@@ -267,7 +267,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const nextIndex = currentBlockIndex + 1;
     if (nextIndex >= activeSession.blocks.length) {
       if (isPlaying) togglePlay().catch(() => {});
-      if (user) {
+      if (user && cloudSyncEnabled) {
         const totalDuration = activeSession.blocks.reduce((s, b) => s + b.durationMinutes, 0);
         supabase
           .from('session_history')
@@ -295,7 +295,16 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setPausedAt(null);
     setSessionPhase('running');
     applyBlock(activeSession.blocks[nextIndex]);
-  }, [activeSession, currentBlockIndex, applyBlock, isPlaying, togglePlay, showToast]);
+  }, [
+    activeSession,
+    currentBlockIndex,
+    applyBlock,
+    isPlaying,
+    togglePlay,
+    showToast,
+    user,
+    cloudSyncEnabled,
+  ]);
 
   const endSession = useCallback(() => {
     if (isPlaying) togglePlay().catch(() => {});

@@ -7,6 +7,9 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
+  /** False when auth is bypassed (local dev): the mock user has no real
+   *  Supabase identity, so cloud sync must stay disabled. */
+  cloudSyncEnabled: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -60,6 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session,
     user,
     loading,
+    cloudSyncEnabled: !BYPASS_AUTH,
     signOut,
   };
 
