@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import React from 'react';
 
-import { useMetronome } from '../../../features/Metronome/context/MetronomeProvider';
 import { SOUNDS } from '../../../core/types/SoundTypes';
+import { useMetronome } from '../../../features/Metronome/context/MetronomeProvider';
 import { usePreferences } from '../../../hooks/usePreferences';
 import { SectionHeader } from '../styles';
 

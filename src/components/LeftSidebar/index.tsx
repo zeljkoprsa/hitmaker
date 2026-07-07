@@ -3,17 +3,21 @@ import styled from '@emotion/styled';
 import React, { useEffect, useState } from 'react';
 
 import { useAuth } from '../../context/AuthContext';
-import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
 import { PracticeSession } from '../../core/types/SessionTypes';
+import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
+import { ChevronLeftIcon, XIcon } from '../Sidebar/icons';
 import PlaylistsSection from '../Sidebar/sections/PlaylistsSection';
 import PreferencesSection from '../Sidebar/sections/PreferencesSection';
 import ProfileSection from '../Sidebar/sections/ProfileSection';
 import SignInView from '../Sidebar/SignInView';
 import {
   CloseButton,
+  DesktopPanelTitle,
   Overlay,
   PanelContent,
   PanelHeader,
+  PanelTab,
+  PanelTabs,
   PanelTitle,
   Rail,
   RailButton,
@@ -83,43 +87,6 @@ const GuestIcon = styled.div`
   align-items: center;
   justify-content: center;
   color: rgba(255, 255, 255, 0.4);
-`;
-
-const RailAccountBtn = styled.button<{ isActive?: boolean }>`
-  position: relative;
-  width: 44px;
-  height: 44px;
-  border-radius: ${({ theme }) => theme.borders.radius.md};
-  border: none;
-  background: ${({ isActive }) => (isActive ? 'rgba(246, 65, 5, 0.15)' : 'transparent')};
-  color: ${({ isActive, theme }) =>
-    isActive ? theme.colors.metronome.accent : 'rgba(255,255,255,0.45)'};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    background-color 150ms ease,
-    color 150ms ease;
-  flex-shrink: 0;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  &:active {
-    background: rgba(255, 255, 255, 0.12);
-  }
-
-  @media (hover: none) and (pointer: coarse) {
-    &:hover {
-      background: ${({ isActive }) => (isActive ? 'rgba(246, 65, 5, 0.15)' : 'transparent')};
-    }
-
-    &:active {
-      background: rgba(255, 255, 255, 0.12);
-    }
-  }
 `;
 
 const RailSpacer = styled.div`
@@ -233,12 +200,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
   return (
     <>
-      <Overlay
-        isOpen={activeSection !== null}
-        onClick={onClose}
-        aria-hidden="true"
-        style={{ background: 'transparent', backdropFilter: 'none' }}
-      />
+      <Overlay isOpen={activeSection !== null} onClick={onClose} aria-hidden="true" />
 
       <SidebarContainer isOpen={activeSection !== null}>
         {/* Icon rail */}
@@ -247,6 +209,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
             isActive={activeSection === 'practice'}
             onClick={() => handleRailClick('practice')}
             aria-label="Practice sessions"
+            data-tip="Practice"
           >
             {/* Music note */}
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -266,6 +229,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
             isActive={activeSection === 'history'}
             onClick={() => handleRailClick('history')}
             aria-label="Practice history"
+            data-tip="History"
           >
             {/* Clock */}
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -282,10 +246,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
           <RailSpacer />
 
-          <RailAccountBtn
+          <RailButton
             isActive={activeSection === 'account'}
             onClick={() => handleRailClick('account')}
             aria-label="Account"
+            data-tip="Account"
           >
             {user ? (
               <>
@@ -305,7 +270,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 </svg>
               </GuestIcon>
             )}
-          </RailAccountBtn>
+          </RailButton>
         </Rail>
 
         {/* Content panel */}
@@ -316,9 +281,35 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           aria-label={getPanelTitle()}
         >
           <PanelHeader>
-            <PanelTitle>{getPanelTitle()}</PanelTitle>
+            {showBack ? (
+              <PanelTitle>{getPanelTitle()}</PanelTitle>
+            ) : (
+              <>
+                <DesktopPanelTitle>{getPanelTitle()}</DesktopPanelTitle>
+                <PanelTabs>
+                  <PanelTab
+                    isActive={activeSection === 'practice'}
+                    onClick={() => onSetSection('practice')}
+                  >
+                    Practice
+                  </PanelTab>
+                  <PanelTab
+                    isActive={activeSection === 'history'}
+                    onClick={() => onSetSection('history')}
+                  >
+                    History
+                  </PanelTab>
+                  <PanelTab
+                    isActive={activeSection === 'account'}
+                    onClick={() => onSetSection('account')}
+                  >
+                    Account
+                  </PanelTab>
+                </PanelTabs>
+              </>
+            )}
             <CloseButton onClick={handleCloseOrBack} aria-label={showBack ? 'Back' : 'Close'}>
-              {showBack ? '←' : '✕'}
+              {showBack ? <ChevronLeftIcon /> : <XIcon />}
             </CloseButton>
           </PanelHeader>
 

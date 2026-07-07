@@ -5,6 +5,7 @@ import { useSession } from '../../context/SessionContext';
 import { SubdivisionType, TimeSignature } from '../../core/types/MetronomeTypes';
 import { PracticeSession, SessionBlock } from '../../core/types/SessionTypes';
 import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
+import { ChevronDownIcon, ChevronUpIcon, XIcon } from '../Sidebar/icons';
 
 interface SessionEditorProps {
   session: PracticeSession | null;
@@ -348,17 +349,17 @@ const SessionEditor: React.FC<SessionEditorProps> = ({ session, onSave, onCancel
                 placeholder="Label (optional)"
               />
               <MoveBtn onClick={() => moveBlock(i, -1)} disabled={i === 0} title="Move up">
-                ↑
+                <ChevronUpIcon size={14} />
               </MoveBtn>
               <MoveBtn
                 onClick={() => moveBlock(i, 1)}
                 disabled={i === blocks.length - 1}
                 title="Move down"
               >
-                ↓
+                <ChevronDownIcon size={14} />
               </MoveBtn>
               <DeleteBlockBtn onClick={() => removeBlock(i)} title="Remove">
-                ✕
+                <XIcon size={14} />
               </DeleteBlockBtn>
             </BlockHeader>
 

@@ -4,6 +4,7 @@ import React from 'react';
 import { useSession } from '../../context/SessionContext';
 import { PracticeSession } from '../../core/types/SessionTypes';
 import { STARTER_SESSIONS } from '../../features/Sessions/starterSessions';
+import { BoltIcon, ChevronRightIcon, PlayIcon, PlusIcon } from '../Sidebar/icons';
 import { SectionHeader } from '../Sidebar/styles';
 
 interface SessionListProps {
@@ -24,24 +25,29 @@ const Card = styled.div`
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: ${({ theme }) => theme.borders.radius.md};
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const CardTop = styled.div`
+  padding: 10px 12px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+`;
+
+const CardInfo = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 `;
 
 const SessionName = styled.span`
   font-size: ${({ theme }) => theme.typography.fontSizes.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
   color: ${({ theme }) => theme.colors.metronome.primary};
-  flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -49,29 +55,49 @@ const SessionName = styled.span`
 `;
 
 const StartButton = styled.button`
-  background: ${({ theme }) => theme.colors.metronome.accent};
-  border: none;
-  border-radius: ${({ theme }) => theme.borders.radius.sm};
-  color: white;
-  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
-  padding: 6px 10px;
-  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  transition: opacity 150ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
 
   &:hover {
-    opacity: 0.85;
+    background: ${({ theme }) => theme.colors.metronome.accent};
+    border-color: ${({ theme }) => theme.colors.metronome.accent};
+    color: white;
   }
 
   &:active {
-    opacity: 0.7;
+    opacity: 0.8;
   }
 
   &:disabled {
     opacity: 0.3;
     cursor: not-allowed;
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    &:hover {
+      background: transparent;
+      border-color: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    &:active {
+      background: ${({ theme }) => theme.colors.metronome.accent};
+      border-color: ${({ theme }) => theme.colors.metronome.accent};
+      color: white;
+    }
   }
 `;
 
@@ -79,6 +105,7 @@ const CardBottom = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 `;
 
 const Meta = styled.span`
@@ -133,6 +160,10 @@ const NewButton = styled.button`
   padding: 12px;
   min-height: 44px;
   margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   transition:
     color 150ms ease,
     border-color 150ms ease,
@@ -147,28 +178,66 @@ const NewButton = styled.button`
 
 const TrainerButton = styled.button`
   width: 100%;
-  background: rgba(246, 65, 5, 0.05);
-  border: 1px solid rgba(246, 65, 5, 0.25);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: ${({ theme }) => theme.borders.radius.md};
-  color: ${({ theme }) => theme.colors.metronome.accent};
-  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+  color: ${({ theme }) => theme.colors.metronome.primary};
   cursor: pointer;
-  padding: 12px;
+  padding: 10px 12px;
   min-height: 44px;
   text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   transition:
     background-color 150ms ease,
     border-color 150ms ease;
 
   &:hover {
-    background: rgba(246, 65, 5, 0.1);
-    border-color: rgba(246, 65, 5, 0.45);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
   &:active {
-    background: rgba(246, 65, 5, 0.14);
+    background: rgba(255, 255, 255, 0.07);
   }
+`;
+
+const TrainerIconTile = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: ${({ theme }) => theme.borders.radius.sm};
+  background: rgba(246, 65, 5, 0.12);
+  color: ${({ theme }) => theme.colors.metronome.accent};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+`;
+
+const TrainerInfo = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const TrainerTitle = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+`;
+
+const TrainerSubtitle = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  color: rgba(255, 255, 255, 0.4);
+`;
+
+const TrainerChevron = styled.span`
+  color: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
 `;
 
 const HistoryButton = styled.button`
@@ -184,6 +253,9 @@ const HistoryButton = styled.button`
   min-height: 40px;
   margin-top: 4px;
   text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   transition:
     color 150ms ease,
     background-color 150ms ease;
@@ -213,20 +285,24 @@ const SessionCard: React.FC<{
   onStart: () => void;
 }> = ({ session, isStarter, onEdit, onDelete, onDuplicate, onStart }) => (
   <Card>
-    <CardTop>
+    <CardInfo>
       <SessionName>{session.name}</SessionName>
-      <StartButton onClick={onStart} disabled={session.blocks.length === 0}>
-        Start
-      </StartButton>
-    </CardTop>
-    <CardBottom>
-      <Meta>{formatMeta(session)}</Meta>
-      <Actions>
-        {!isStarter && onEdit && <IconButton onClick={onEdit}>Edit</IconButton>}
-        <IconButton onClick={onDuplicate}>Copy</IconButton>
-        {!isStarter && onDelete && <DeleteButton onClick={onDelete}>Delete</DeleteButton>}
-      </Actions>
-    </CardBottom>
+      <CardBottom>
+        <Meta>{formatMeta(session)}</Meta>
+        <Actions>
+          {!isStarter && onEdit && <IconButton onClick={onEdit}>Edit</IconButton>}
+          <IconButton onClick={onDuplicate}>Copy</IconButton>
+          {!isStarter && onDelete && <DeleteButton onClick={onDelete}>Delete</DeleteButton>}
+        </Actions>
+      </CardBottom>
+    </CardInfo>
+    <StartButton
+      onClick={onStart}
+      disabled={session.blocks.length === 0}
+      aria-label={`Start ${session.name}`}
+    >
+      <PlayIcon size={14} />
+    </StartButton>
   </Card>
 );
 
@@ -246,8 +322,19 @@ const SessionList: React.FC<SessionListProps> = ({
 
   return (
     <>
-      <SectionHeader>Tempo Trainer</SectionHeader>
-      <TrainerButton onClick={onTrainer}>⚡ Build speed from Start to End BPM →</TrainerButton>
+      <SectionHeader>Tools</SectionHeader>
+      <TrainerButton onClick={onTrainer}>
+        <TrainerIconTile>
+          <BoltIcon size={15} />
+        </TrainerIconTile>
+        <TrainerInfo>
+          <TrainerTitle>Tempo Trainer</TrainerTitle>
+          <TrainerSubtitle>Build speed from start to end BPM</TrainerSubtitle>
+        </TrainerInfo>
+        <TrainerChevron>
+          <ChevronRightIcon />
+        </TrainerChevron>
+      </TrainerButton>
 
       <SectionHeader style={{ marginTop: 20 }}>Starters</SectionHeader>
       <List>
@@ -280,8 +367,14 @@ const SessionList: React.FC<SessionListProps> = ({
         </>
       )}
 
-      <NewButton onClick={onNew}>+ New Session</NewButton>
-      <HistoryButton onClick={onHistory}>Practice History →</HistoryButton>
+      <NewButton onClick={onNew}>
+        <PlusIcon size={14} />
+        New Session
+      </NewButton>
+      <HistoryButton onClick={onHistory}>
+        Practice History
+        <ChevronRightIcon size={14} />
+      </HistoryButton>
     </>
   );
 };

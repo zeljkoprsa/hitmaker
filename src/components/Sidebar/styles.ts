@@ -38,16 +38,13 @@ export const SidebarContainer = styled.div<{ isOpen: boolean }>`
     top: 0;
     left: 0;
     height: 100dvh;
-    width: 280px;
+    width: 320px;
     display: flex;
     z-index: ${({ theme }) => theme.zIndices.modal};
     transform: ${({ isOpen }) => (isOpen ? 'translateX(0)' : 'translateX(-100%)')};
     transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
-  }
-
-  @media (min-width: 428px) and (max-width: 1023px) {
-    width: 320px;
+    box-shadow: ${({ isOpen }) => (isOpen ? '8px 0 32px rgba(0, 0, 0, 0.5)' : 'none')};
   }
 
   @media (max-width: 374px) {
@@ -59,7 +56,8 @@ export const SidebarContainer = styled.div<{ isOpen: boolean }>`
   }
 `;
 
-/** 56px icon strip. Fixed on desktop (always visible); flex-item on mobile. */
+/** 56px icon strip. Fixed and always visible on desktop; hidden on mobile,
+ *  where PanelTabs takes over section switching inside the drawer. */
 export const Rail = styled.nav`
   background: ${({ theme }) => theme.colors.metronome.darkBackground};
   border-right: 1px solid rgba(255, 255, 255, 0.06);
@@ -69,11 +67,7 @@ export const Rail = styled.nav`
   gap: 4px;
 
   @media (max-width: 1023px) {
-    width: 56px;
-    flex-shrink: 0;
-    height: 100%;
-    padding: calc(8px + env(safe-area-inset-top, 0)) 6px
-      calc(8px + env(safe-area-inset-bottom, 0));
+    display: none;
   }
 
   @media (min-width: 1024px) {
@@ -83,20 +77,20 @@ export const Rail = styled.nav`
     bottom: 0;
     width: 56px;
     z-index: ${({ theme }) => theme.zIndices.modal + 1};
-    padding: calc(8px + env(safe-area-inset-top, 0)) 6px
-      calc(8px + env(safe-area-inset-bottom, 0));
+    padding: calc(8px + env(safe-area-inset-top, 0)) 6px calc(8px + env(safe-area-inset-bottom, 0));
   }
 `;
 
-/** Individual rail icon button. */
+/** Individual rail icon button. Pass \`data-tip\` for a hover tooltip. */
 export const RailButton = styled.button<{ isActive?: boolean }>`
+  position: relative;
   width: 44px;
   height: 44px;
   border-radius: ${({ theme }) => theme.borders.radius.md};
   border: none;
   background: ${({ isActive }) => (isActive ? 'rgba(246, 65, 5, 0.15)' : 'transparent')};
   color: ${({ isActive, theme }) =>
-    isActive ? theme.colors.metronome.accent : 'rgba(255,255,255,0.45)'};
+    isActive ? theme.colors.metronome.accent : 'rgba(255,255,255,0.65)'};
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -105,6 +99,20 @@ export const RailButton = styled.button<{ isActive?: boolean }>`
     background-color 150ms ease,
     color 150ms ease;
   flex-shrink: 0;
+
+  /* Active-section indicator: accent bar on the rail's left edge */
+  &::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%) scaleY(${({ isActive }) => (isActive ? 1 : 0)});
+    width: 3px;
+    height: 22px;
+    border-radius: 0 2px 2px 0;
+    background: ${({ theme }) => theme.colors.metronome.accent};
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
 
   &:hover {
     background: rgba(255, 255, 255, 0.08);
@@ -115,11 +123,43 @@ export const RailButton = styled.button<{ isActive?: boolean }>`
     background: rgba(255, 255, 255, 0.12);
   }
 
+  /* Hover tooltip (hover-capable devices only) */
+  @media (hover: hover) {
+    &::after {
+      content: attr(data-tip);
+      position: absolute;
+      left: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: #333;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+      font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
+      white-space: nowrap;
+      padding: 5px 9px;
+      border-radius: ${({ theme }) => theme.borders.radius.sm};
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 120ms ease;
+    }
+
+    &:hover::after {
+      opacity: 1;
+      transition-delay: 400ms;
+    }
+
+    &[data-tip='']::after,
+    &:not([data-tip])::after {
+      display: none;
+    }
+  }
+
   @media (hover: none) and (pointer: coarse) {
     &:hover {
       background: ${({ isActive }) => (isActive ? 'rgba(246, 65, 5, 0.15)' : 'transparent')};
       color: ${({ isActive, theme }) =>
-        isActive ? theme.colors.metronome.accent : 'rgba(255,255,255,0.45)'};
+        isActive ? theme.colors.metronome.accent : 'rgba(255,255,255,0.65)'};
     }
 
     &:active {
@@ -128,9 +168,11 @@ export const RailButton = styled.button<{ isActive?: boolean }>`
   }
 `;
 
-/** The 224px panel that slides beside the rail. Fixed on desktop; flex-item on mobile. */
+/** The content panel that slides beside the rail. Fixed on desktop; flex-item
+ *  on mobile. One elevation step lighter than the rail/body so it reads as a
+ *  layer above the app surface. */
 export const SidebarPanel = styled.aside<{ isOpen: boolean }>`
-  background: ${({ theme }) => theme.colors.metronome.darkBackground};
+  background: ${({ theme }) => theme.colors.metronome.background};
   border-right: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
@@ -146,11 +188,12 @@ export const SidebarPanel = styled.aside<{ isOpen: boolean }>`
     left: 56px;
     top: 0;
     bottom: 0;
-    width: 224px;
+    width: 300px;
     z-index: ${({ theme }) => theme.zIndices.modal};
     transform: ${({ isOpen }) => (isOpen ? 'translateX(0)' : 'translateX(-100%)')};
     transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
+    box-shadow: ${({ isOpen }) => (isOpen ? '8px 0 24px rgba(0, 0, 0, 0.45)' : 'none')};
   }
 `;
 
@@ -203,6 +246,55 @@ export const PanelTitle = styled.h2`
   font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
   color: ${({ theme }) => theme.colors.metronome.primary};
   letter-spacing: -0.01em;
+`;
+
+/** Panel title shown only on desktop, where the rail conveys the active
+ *  section; on mobile PanelTabs replaces it in the header. */
+export const DesktopPanelTitle = styled(PanelTitle)`
+  @media (max-width: 1023px) {
+    display: none;
+  }
+`;
+
+/** Mobile-only segmented tabs for switching sections inside the drawer. */
+export const PanelTabs = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+`;
+
+export const PanelTab = styled.button<{ isActive?: boolean }>`
+  position: relative;
+  background: none;
+  border: none;
+  color: ${({ isActive, theme }) =>
+    isActive ? theme.colors.metronome.primary : 'rgba(255, 255, 255, 0.45)'};
+  font-size: ${({ theme }) => theme.typography.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.base};
+  cursor: pointer;
+  padding: 10px 8px;
+  min-height: 44px;
+  transition: color 150ms ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 4px;
+    height: 2px;
+    border-radius: 1px;
+    background: ${({ theme }) => theme.colors.metronome.accent};
+    transform: scaleX(${({ isActive }) => (isActive ? 1 : 0)});
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
 `;
 
 export const CloseButton = styled.button`

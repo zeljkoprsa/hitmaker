@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import React from 'react';
 
 import { useLessons } from '../../../context/LessonContext';
+import { DrumIcon } from '../icons';
 import { SectionHeader } from '../styles';
 
 const LessonCard = styled.button`
@@ -46,11 +47,11 @@ const LessonIcon = styled.div`
   height: 36px;
   border-radius: 6px;
   background: linear-gradient(135deg, #e8ff47 0%, #b8cc38 100%);
+  color: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 16px;
 `;
 
 const LessonInfo = styled.div`
@@ -88,19 +89,15 @@ const PlaylistsSection: React.FC = () => {
         onClick={() => openLesson('groove-is-in-the-heart')}
         aria-label="Open Groove Is In The Heart lesson"
       >
-        <LessonIcon>🥁</LessonIcon>
+        <LessonIcon>
+          <DrumIcon size={18} />
+        </LessonIcon>
         <LessonInfo>
           <LessonTitle>Groove Is In The Heart</LessonTitle>
           <LessonMeta>Lesson 01 · Warm-up & Technique</LessonMeta>
         </LessonInfo>
         <ChevronIcon>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path
               d="M6 4l4 4-4 4"
               stroke="currentColor"

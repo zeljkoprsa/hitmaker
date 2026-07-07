@@ -8,6 +8,7 @@ import {
   TempoTrainerPreset,
   generateTrainerSession,
 } from '../../features/Sessions/tempoTrainerPresets';
+import { PlayIcon } from '../Sidebar/icons';
 import { SectionHeader } from '../Sidebar/styles';
 
 interface TempoTrainerFormProps {
@@ -58,20 +59,40 @@ const PresetMeta = styled.span`
 `;
 
 const PresetStartBtn = styled.button`
-  background: ${({ theme }) => theme.colors.metronome.accent};
-  border: none;
-  border-radius: ${({ theme }) => theme.borders.radius.sm};
-  color: white;
-  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
-  padding: 6px 10px;
-  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  transition: opacity 150ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
 
   &:hover {
-    opacity: 0.85;
+    background: ${({ theme }) => theme.colors.metronome.accent};
+    border-color: ${({ theme }) => theme.colors.metronome.accent};
+    color: white;
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    &:hover {
+      background: transparent;
+      border-color: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    &:active {
+      background: ${({ theme }) => theme.colors.metronome.accent};
+      border-color: ${({ theme }) => theme.colors.metronome.accent};
+      color: white;
+    }
   }
 `;
 
@@ -290,7 +311,12 @@ const TempoTrainerForm: React.FC<TempoTrainerFormProps> = ({ onStart, onCancel }
                 {preset.description} · {presetMeta(preset)}
               </PresetMeta>
             </PresetInfo>
-            <PresetStartBtn onClick={() => handlePresetStart(preset)}>Start</PresetStartBtn>
+            <PresetStartBtn
+              onClick={() => handlePresetStart(preset)}
+              aria-label={`Start ${preset.name}`}
+            >
+              <PlayIcon size={13} />
+            </PresetStartBtn>
           </PresetCard>
         ))}
       </PresetList>
