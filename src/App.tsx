@@ -6,10 +6,11 @@ import { MetronomeProvider } from '@features/Metronome/context/MetronomeProvider
 import Metronome from '@features/Metronome/Metronome';
 
 import { Header } from './components/Header';
-import { LeftSidebar } from './components/LeftSidebar';
+import { LeftSidebar, SectionType } from './components/LeftSidebar';
 import { SessionRunner } from './components/SessionRunner';
 import { AuthProvider } from './context/AuthContext';
 import { LessonProvider } from './context/LessonContext';
+import { QueueProvider } from './context/QueueContext';
 import { SessionProvider, useSession } from './context/SessionContext';
 import { ToastProvider } from './context/ToastContext';
 import { useAppUpdate } from './hooks/useAppUpdate';
@@ -21,8 +22,6 @@ import { theme } from './styles/theme';
 import './styles/fonts.css';
 import './styles/variables.css';
 import { initViewportHeight } from './utils/viewportHeight';
-
-type SectionType = 'practice' | 'history' | 'account';
 
 const AppInner: React.FC = () => {
   const [activeSection, setActiveSection] = useState<SectionType | null>(null);
@@ -132,7 +131,7 @@ const AppInner: React.FC = () => {
           }
         }}
       >
-        <Header onOpenLeftSidebar={() => setActiveSection('practice')} streak={streak} />
+        <Header onOpenLeftSidebar={() => setActiveSection('catalog')} streak={streak} />
         <Metronome />
         <SessionRunner />
       </div>
@@ -158,7 +157,9 @@ const App: React.FC = () => {
                 <MetronomeProvider>
                   <SessionProvider>
                     <LessonProvider>
-                      <AppInner />
+                      <QueueProvider>
+                        <AppInner />
+                      </QueueProvider>
                     </LessonProvider>
                   </SessionProvider>
                 </MetronomeProvider>

@@ -5,8 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { PracticeSession } from '../../core/types/SessionTypes';
 import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
-import { ChevronLeftIcon, XIcon } from '../Sidebar/icons';
-import PlaylistsSection from '../Sidebar/sections/PlaylistsSection';
+import { BookIcon, ChevronLeftIcon, QueueIcon, XIcon } from '../Sidebar/icons';
 import PreferencesSection from '../Sidebar/sections/PreferencesSection';
 import ProfileSection from '../Sidebar/sections/ProfileSection';
 import SignInView from '../Sidebar/SignInView';
@@ -28,13 +27,14 @@ import {
   SignOutButton,
 } from '../Sidebar/styles';
 
+import CatalogPanel from './CatalogPanel';
+import QueuePanel from './QueuePanel';
 import SessionEditor from './SessionEditor';
 import SessionHistory from './SessionHistory';
 import SessionList from './SessionList';
-import TempoTrainerForm from './TempoTrainerForm';
 
-export type SectionType = 'practice' | 'history' | 'account';
-type PracticeView = 'list' | 'edit' | 'trainer';
+export type SectionType = 'catalog' | 'sessions' | 'queue' | 'account';
+type SessionsView = 'list' | 'edit' | 'history';
 
 export interface LeftSidebarProps {
   activeSection: SectionType | null;
@@ -93,6 +93,39 @@ const RailSpacer = styled.div`
   flex: 1;
 `;
 
+/** Mobile-only account entry in the panel header (the rail is hidden on
+ *  mobile, so the avatar moves up next to the tabs). */
+const MobileAccountBtn = styled.button<{ isActive?: boolean }>`
+  display: none;
+
+  @media (max-width: 1023px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: ${({ isActive }) => (isActive ? 'rgba(246, 65, 5, 0.15)' : 'transparent')};
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-right: 4px;
+  }
+`;
+
+const GuestGlyph: React.FC = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <circle cx="8" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.4" />
+    <path
+      d="M2 14c0-2.485 2.686-4.5 6-4.5s6 2.015 6 4.5"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
 /* ── Component ────────────────────────────────────────────────────────── */
 
 export const LeftSidebar: React.FC<LeftSidebarProps> = ({
@@ -100,7 +133,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   onSetSection,
   onClose,
 }) => {
-  const [practiceView, setPracticeView] = useState<PracticeView>('list');
+  const [sessionsView, setSessionsView] = useState<SessionsView>('list');
   const [editingSession, setEditingSession] = useState<PracticeSession | null>(null);
   const { user, signOut } = useAuth();
   const { isSaving } = useMetronome();
@@ -122,11 +155,8 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     if (!activeSection) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (
-          activeSection === 'practice' &&
-          (practiceView === 'edit' || practiceView === 'trainer')
-        ) {
-          setPracticeView('list');
+        if (activeSection === 'sessions' && sessionsView !== 'list') {
+          setSessionsView('list');
           setEditingSession(null);
         } else {
           onClose();
@@ -135,7 +165,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [activeSection, practiceView, onClose]);
+  }, [activeSection, sessionsView, onClose]);
 
   // Lock body scroll on mobile only
   useEffect(() => {
@@ -146,10 +176,10 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     };
   }, [activeSection]);
 
-  // Reset practice sub-view when leaving practice section
+  // Reset sub-view when leaving the sessions section
   useEffect(() => {
-    if (activeSection !== 'practice') {
-      setPracticeView('list');
+    if (activeSection !== 'sessions') {
+      setSessionsView('list');
       setEditingSession(null);
     }
   }, [activeSection]);
@@ -163,22 +193,22 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   };
 
   const getPanelTitle = () => {
-    if (activeSection === 'practice') {
-      if (practiceView === 'edit') return editingSession ? 'Edit Session' : 'New Session';
-      if (practiceView === 'trainer') return 'Tempo Trainer';
-      return 'Practice';
+    if (activeSection === 'catalog') return 'Catalog';
+    if (activeSection === 'sessions') {
+      if (sessionsView === 'edit') return editingSession ? 'Edit Session' : 'New Session';
+      if (sessionsView === 'history') return 'Practice History';
+      return 'My Sessions';
     }
-    if (activeSection === 'history') return 'Practice History';
+    if (activeSection === 'queue') return 'Queue';
     if (activeSection === 'account') return user ? 'Account' : 'Sign In';
     return '';
   };
 
-  const showBack =
-    activeSection === 'practice' && (practiceView === 'edit' || practiceView === 'trainer');
+  const showBack = activeSection === 'sessions' && sessionsView !== 'list';
 
   const handleCloseOrBack = () => {
     if (showBack) {
-      setPracticeView('list');
+      setSessionsView('list');
       setEditingSession(null);
     } else {
       onClose();
@@ -198,18 +228,38 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
   const initial = user?.email ? user.email[0].toUpperCase() : '';
 
+  const accountGlyph = user ? (
+    <>
+      <AvatarCircle>{initial}</AvatarCircle>
+      <SyncDot dotColor={getSyncColor()} doPulse={isSaving} />
+    </>
+  ) : (
+    <GuestIcon>
+      <GuestGlyph />
+    </GuestIcon>
+  );
+
   return (
     <>
       <Overlay isOpen={activeSection !== null} onClick={onClose} aria-hidden="true" />
 
       <SidebarContainer isOpen={activeSection !== null}>
-        {/* Icon rail */}
+        {/* Icon rail (desktop only) */}
         <Rail>
           <RailButton
-            isActive={activeSection === 'practice'}
-            onClick={() => handleRailClick('practice')}
-            aria-label="Practice sessions"
-            data-tip="Practice"
+            isActive={activeSection === 'catalog'}
+            onClick={() => handleRailClick('catalog')}
+            aria-label="Catalog"
+            data-tip="Catalog"
+          >
+            <BookIcon size={20} />
+          </RailButton>
+
+          <RailButton
+            isActive={activeSection === 'sessions'}
+            onClick={() => handleRailClick('sessions')}
+            aria-label="My sessions"
+            data-tip="My Sessions"
           >
             {/* Music note */}
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -226,22 +276,12 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           </RailButton>
 
           <RailButton
-            isActive={activeSection === 'history'}
-            onClick={() => handleRailClick('history')}
-            aria-label="Practice history"
-            data-tip="History"
+            isActive={activeSection === 'queue'}
+            onClick={() => handleRailClick('queue')}
+            aria-label="Practice queue"
+            data-tip="Queue"
           >
-            {/* Clock */}
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="1.5" />
-              <path
-                d="M10 6.5V10l2.5 2.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <QueueIcon size={20} />
           </RailButton>
 
           <RailSpacer />
@@ -252,24 +292,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
             aria-label="Account"
             data-tip="Account"
           >
-            {user ? (
-              <>
-                <AvatarCircle>{initial}</AvatarCircle>
-                <SyncDot dotColor={getSyncColor()} doPulse={isSaving} />
-              </>
-            ) : (
-              <GuestIcon>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <circle cx="8" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.4" />
-                  <path
-                    d="M2 14c0-2.485 2.686-4.5 6-4.5s6 2.015 6 4.5"
-                    stroke="currentColor"
-                    strokeWidth="1.4"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </GuestIcon>
-            )}
+            {accountGlyph}
           </RailButton>
         </Rail>
 
@@ -288,24 +311,31 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 <DesktopPanelTitle>{getPanelTitle()}</DesktopPanelTitle>
                 <PanelTabs>
                   <PanelTab
-                    isActive={activeSection === 'practice'}
-                    onClick={() => onSetSection('practice')}
+                    isActive={activeSection === 'catalog'}
+                    onClick={() => onSetSection('catalog')}
                   >
-                    Practice
+                    Catalog
                   </PanelTab>
                   <PanelTab
-                    isActive={activeSection === 'history'}
-                    onClick={() => onSetSection('history')}
+                    isActive={activeSection === 'sessions'}
+                    onClick={() => onSetSection('sessions')}
                   >
-                    History
+                    Sessions
                   </PanelTab>
                   <PanelTab
-                    isActive={activeSection === 'account'}
-                    onClick={() => onSetSection('account')}
+                    isActive={activeSection === 'queue'}
+                    onClick={() => onSetSection('queue')}
                   >
-                    Account
+                    Queue
                   </PanelTab>
                 </PanelTabs>
+                <MobileAccountBtn
+                  isActive={activeSection === 'account'}
+                  onClick={() => onSetSection('account')}
+                  aria-label="Account"
+                >
+                  {accountGlyph}
+                </MobileAccountBtn>
               </>
             )}
             <CloseButton onClick={handleCloseOrBack} aria-label={showBack ? 'Back' : 'Close'}>
@@ -314,49 +344,44 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           </PanelHeader>
 
           <PanelContent>
-            {activeSection === 'practice' && (
+            {activeSection === 'catalog' && <CatalogPanel onClose={onClose} />}
+
+            {activeSection === 'sessions' && (
               <>
-                {practiceView === 'list' && (
-                  <>
-                    <SessionList
-                      onEdit={s => {
-                        setEditingSession(s);
-                        setPracticeView('edit');
-                      }}
-                      onNew={() => {
-                        setEditingSession(null);
-                        setPracticeView('edit');
-                      }}
-                      onClose={onClose}
-                      onTrainer={() => setPracticeView('trainer')}
-                      onHistory={() => onSetSection('history')}
-                    />
-                    <SectionDivider />
-                    <PlaylistsSection />
-                  </>
+                {sessionsView === 'list' && (
+                  <SessionList
+                    onEdit={s => {
+                      setEditingSession(s);
+                      setSessionsView('edit');
+                    }}
+                    onNew={() => {
+                      setEditingSession(null);
+                      setSessionsView('edit');
+                    }}
+                    onClose={onClose}
+                    onHistory={() => setSessionsView('history')}
+                  />
                 )}
-                {practiceView === 'edit' && (
+                {sessionsView === 'edit' && (
                   <SessionEditor
                     session={editingSession}
                     onSave={() => {
-                      setPracticeView('list');
+                      setSessionsView('list');
                       setEditingSession(null);
                     }}
                     onCancel={() => {
-                      setPracticeView('list');
+                      setSessionsView('list');
                       setEditingSession(null);
                     }}
                   />
                 )}
-                {practiceView === 'trainer' && (
-                  <TempoTrainerForm onStart={onClose} onCancel={() => setPracticeView('list')} />
+                {sessionsView === 'history' && (
+                  <SessionHistory onBack={() => setSessionsView('list')} />
                 )}
               </>
             )}
 
-            {activeSection === 'history' && (
-              <SessionHistory onBack={() => onSetSection('practice')} />
-            )}
+            {activeSection === 'queue' && <QueuePanel onClose={onClose} />}
 
             {activeSection === 'account' && (
               <>

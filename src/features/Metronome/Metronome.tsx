@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import { TempoTrainerMode } from '../../components/TempoTrainer';
 import { ITickEvent } from '../../core/interfaces/ITickEvent';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { useMediaSession } from '../../hooks/useMediaSession';
@@ -112,6 +113,9 @@ const Metronome: React.FC = () => {
           <div className={styles.tempoSlider}>
             <Controls.TempoControl tempo={tempo} setTempo={setTempo} />
           </div>
+
+          {/* Tempo Trainer mode launcher */}
+          <TempoTrainerMode />
         </div>
       </div>
     </div>

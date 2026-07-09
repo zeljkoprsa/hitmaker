@@ -91,6 +91,48 @@ export const BoltIcon: React.FC<IconProps> = ({ size = 16 }) => (
   </svg>
 );
 
+export const BookIcon: React.FC<IconProps> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path
+      d="M8 4.2C6.6 3.2 4.7 3 3 3.4v9.2c1.7-.4 3.6-.2 5 .8 1.4-1 3.3-1.2 5-.8V3.4C11.3 3 9.4 3.2 8 4.2z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <path d="M8 4.2v9.2" stroke="currentColor" strokeWidth="1.5" />
+  </svg>
+);
+
+export const QueueIcon: React.FC<IconProps> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path
+      d="M3 4.25h10M3 8h10M3 11.75h4.5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+    <path
+      d="M10.5 10.25v3.5l3-1.75-3-1.75z"
+      fill="currentColor"
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CheckIcon: React.FC<IconProps> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path
+      d="M3.5 8.5l3 3 6-7"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export const DrumIcon: React.FC<IconProps> = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
     <ellipse cx="8" cy="4.75" rx="5" ry="2.25" stroke="currentColor" strokeWidth="1.4" />

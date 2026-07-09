@@ -36,6 +36,10 @@ interface SessionContextType {
   blockStartedAt: Date | null;
   sessionPhase: SessionPhase;
   countdown: number | null;
+  /** Increments each time a session runs to natural completion (all blocks
+   *  finished). Manual endSession does NOT count. Lets consumers (Queue)
+   *  distinguish completion from abandonment. */
+  completionCount: number;
   startSession: (session: PracticeSession) => void;
   beginSession: () => void;
   pauseSession: () => void;
@@ -55,6 +59,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [sessionPhase, setSessionPhase] = useState<SessionPhase>('idle');
   const [countdown, setCountdown] = useState<number | null>(null);
   const [pausedAt, setPausedAt] = useState<number | null>(null);
+  const [completionCount, setCompletionCount] = useState(0);
 
   const { isPlaying, togglePlay, setTempo, setTimeSignature, setSubdivision } = useMetronome();
   const { showToast } = useToast();
@@ -288,6 +293,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setBlockStartedAt(null);
       setPausedAt(null);
       setSessionPhase('idle');
+      setCompletionCount(c => c + 1);
       showToast('Session complete!', 'success');
       return;
     }
@@ -329,6 +335,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         blockStartedAt,
         sessionPhase,
         countdown,
+        completionCount,
         startSession,
         beginSession,
         pauseSession,
