@@ -93,25 +93,47 @@ const RailSpacer = styled.div`
   flex: 1;
 `;
 
-/** Mobile-only account entry in the panel header (the rail is hidden on
- *  mobile, so the avatar moves up next to the tabs). */
-const MobileAccountBtn = styled.button<{ isActive?: boolean }>`
+/** Mobile-only account entry pinned to the bottom of the drawer — mirrors
+ *  the desktop rail, where the avatar anchors at the bottom. */
+const MobileAccountBar = styled.button<{ isActive?: boolean }>`
   display: none;
 
   @media (max-width: 1023px) {
     display: flex;
     align-items: center;
-    justify-content: center;
-    position: relative;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: ${({ isActive }) => (isActive ? 'rgba(246, 65, 5, 0.15)' : 'transparent')};
-    border: none;
-    cursor: pointer;
+    gap: 10px;
+    width: 100%;
     flex-shrink: 0;
-    margin-right: 4px;
+    background: ${({ isActive }) => (isActive ? 'rgba(246, 65, 5, 0.08)' : 'transparent')};
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    padding: 10px 20px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0));
+    min-height: 56px;
+    text-align: left;
+    transition: background-color 150ms ease;
+
+    &:active {
+      background: rgba(255, 255, 255, 0.06);
+    }
   }
+`;
+
+const MobileAccountGlyph = styled.span`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+`;
+
+const MobileAccountLabel = styled.span<{ isActive?: boolean }>`
+  font-size: ${({ theme }) => theme.typography.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
+  font-family: ${({ theme }) => theme.typography.fontFamily.base};
+  color: ${({ isActive, theme }) =>
+    isActive ? theme.colors.metronome.accent : 'rgba(255, 255, 255, 0.55)'};
 `;
 
 const GuestGlyph: React.FC = () => (
@@ -329,13 +351,6 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                     Queue
                   </PanelTab>
                 </PanelTabs>
-                <MobileAccountBtn
-                  isActive={activeSection === 'account'}
-                  onClick={() => onSetSection('account')}
-                  aria-label="Account"
-                >
-                  {accountGlyph}
-                </MobileAccountBtn>
               </>
             )}
             <CloseButton onClick={handleCloseOrBack} aria-label={showBack ? 'Back' : 'Close'}>
@@ -403,6 +418,17 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               <SignOutButton onClick={handleSignOut}>Sign Out</SignOutButton>
             </SignOutArea>
           )}
+
+          <MobileAccountBar
+            isActive={activeSection === 'account'}
+            onClick={() => onSetSection('account')}
+            aria-label="Account"
+          >
+            <MobileAccountGlyph>{accountGlyph}</MobileAccountGlyph>
+            <MobileAccountLabel isActive={activeSection === 'account'}>
+              {user ? 'Account' : 'Sign In'}
+            </MobileAccountLabel>
+          </MobileAccountBar>
         </SidebarPanel>
       </SidebarContainer>
     </>
