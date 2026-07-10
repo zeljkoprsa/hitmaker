@@ -2,26 +2,15 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 
 import { PracticeSession, SessionBlock } from '../core/types/SessionTypes';
 import { useMetronome } from '../features/Metronome/context/MetronomeProvider';
+import { useSyncedDoc } from '../hooks/useSyncedDoc';
 import { supabase } from '../lib/supabase';
+import { mergeSessionSets } from '../utils/sessionMerge';
 
 import { useAuth } from './AuthContext';
 import { useToast } from './ToastContext';
 
 const STORAGE_KEY = 'hitmaker_sessions';
 const COUNTDOWN_START = 5;
-
-const loadSessions = (): PracticeSession[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as PracticeSession[]) : [];
-  } catch {
-    return [];
-  }
-};
-
-const persistSessions = (sessions: PracticeSession[]): void => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
-};
 
 export type SessionPhase = 'idle' | 'preview' | 'countdown' | 'running' | 'paused';
 
@@ -40,6 +29,9 @@ interface SessionContextType {
    *  finished). Manual endSession does NOT count. Lets consumers (Queue)
    *  distinguish completion from abandonment. */
   completionCount: number;
+  /** True while signed in but the first sessions pull since sign-in hasn't
+   *  completed — sessions from another device may not be visible yet. */
+  sessionsSyncPending: boolean;
   startSession: (session: PracticeSession) => void;
   beginSession: () => void;
   pauseSession: () => void;
@@ -52,7 +44,11 @@ interface SessionContextType {
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [sessions, setSessions] = useState<PracticeSession[]>(loadSessions);
+  const {
+    data: sessions,
+    setData: setSessions,
+    initialSyncPending: sessionsSyncPending,
+  } = useSyncedDoc<PracticeSession>('sessions', STORAGE_KEY, mergeSessionSets);
   const [activeSession, setActiveSession] = useState<PracticeSession | null>(null);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [blockStartedAt, setBlockStartedAt] = useState<Date | null>(null);
@@ -64,56 +60,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const { isPlaying, togglePlay, setTempo, setTimeSignature, setSubdivision } = useMetronome();
   const { showToast } = useToast();
   const { user, cloudSyncEnabled } = useAuth();
-
-  // --- Supabase sync helpers ---
-
-  const syncToSupabase = useCallback(
-    async (session: PracticeSession) => {
-      if (!user || !cloudSyncEnabled) return;
-      await supabase.from('user_sessions').upsert({
-        id: session.id,
-        user_id: user.id,
-        name: session.name,
-        blocks: session.blocks,
-        created_at: session.createdAt,
-        updated_at: session.updatedAt,
-      });
-    },
-    [user, cloudSyncEnabled]
-  );
-
-  const removeFromSupabase = useCallback(
-    async (id: string) => {
-      if (!user || !cloudSyncEnabled) return;
-      await supabase.from('user_sessions').delete().eq('id', id);
-    },
-    [user, cloudSyncEnabled]
-  );
-
-  // On login: fetch remote sessions, merge (remote wins), migrate local-only sessions up
-  useEffect(() => {
-    if (!user || !cloudSyncEnabled) return;
-    (async () => {
-      const { data } = await supabase.from('user_sessions').select('*').eq('user_id', user.id);
-
-      const remote: PracticeSession[] = (data ?? []).map(r => ({
-        id: r.id,
-        name: r.name,
-        blocks: r.blocks,
-        createdAt: r.created_at,
-        updatedAt: r.updated_at,
-      }));
-
-      setSessions(local => {
-        const remoteIds = new Set(remote.map(s => s.id));
-        const localOnly = local.filter(s => !remoteIds.has(s.id));
-        localOnly.forEach(s => syncToSupabase(s)); // migrate local-only up to cloud
-        const merged = [...remote, ...localOnly];
-        persistSessions(merged);
-        return merged;
-      });
-    })();
-  }, [user, cloudSyncEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Metronome block application ---
 
@@ -159,44 +105,26 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      setSessions(prev => {
-        const next = [...prev, session];
-        persistSessions(next);
-        return next;
-      });
-      syncToSupabase(session);
+      setSessions(prev => [...prev, session]);
       return session;
     },
-    [syncToSupabase]
+    [setSessions]
   );
 
   const updateSession = useCallback(
     (id: string, data: Pick<PracticeSession, 'name' | 'blocks'>): void => {
-      let updated: PracticeSession | undefined;
-      setSessions(prev => {
-        const next = prev.map(s => {
-          if (s.id !== id) return s;
-          updated = { ...s, ...data, updatedAt: new Date().toISOString() };
-          return updated;
-        });
-        persistSessions(next);
-        return next;
-      });
-      if (updated) syncToSupabase(updated);
+      setSessions(prev =>
+        prev.map(s => (s.id === id ? { ...s, ...data, updatedAt: new Date().toISOString() } : s))
+      );
     },
-    [syncToSupabase]
+    [setSessions]
   );
 
   const deleteSession = useCallback(
     (id: string): void => {
-      setSessions(prev => {
-        const next = prev.filter(s => s.id !== id);
-        persistSessions(next);
-        return next;
-      });
-      removeFromSupabase(id);
+      setSessions(prev => prev.filter(s => s.id !== id));
     },
-    [removeFromSupabase]
+    [setSessions]
   );
 
   const duplicateSession = useCallback(
@@ -208,15 +136,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      setSessions(prev => {
-        const next = [...prev, copy];
-        persistSessions(next);
-        return next;
-      });
-      syncToSupabase(copy);
+      setSessions(prev => [...prev, copy]);
       return copy;
     },
-    [syncToSupabase]
+    [setSessions]
   );
 
   // --- Session runner ---
@@ -336,6 +259,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         sessionPhase,
         countdown,
         completionCount,
+        sessionsSyncPending,
         startSession,
         beginSession,
         pauseSession,

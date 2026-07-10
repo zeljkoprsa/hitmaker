@@ -75,6 +75,24 @@ const TypeBadge = styled.span`
   flex-shrink: 0;
 `;
 
+/** Non-blocking placeholder for a queued My Session that hasn't finished
+ *  syncing to this device yet. */
+const SyncingBadge = styled(TypeBadge)`
+  color: ${({ theme }) => theme.colors.metronome.accent};
+  background: rgba(246, 65, 5, 0.1);
+  animation: queue-syncing-pulse 1.4s ease-in-out infinite;
+
+  @keyframes queue-syncing-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
+`;
+
 const IconBtn = styled.button`
   width: 28px;
   height: 28px;
@@ -177,7 +195,15 @@ const typeLabel = (item: QueueItem): string => {
 };
 
 const QueuePanel: React.FC<QueuePanelProps> = ({ onClose }) => {
-  const { queue, removeFromQueue, moveItem, startCurrent, completeCurrent } = useQueue();
+  const {
+    queue,
+    removeFromQueue,
+    moveItem,
+    startCurrent,
+    completeCurrent,
+    isItemPending,
+    currentItemId,
+  } = useQueue();
 
   if (queue.length === 0) {
     return (
@@ -197,7 +223,8 @@ const QueuePanel: React.FC<QueuePanelProps> = ({ onClose }) => {
   return (
     <List>
       {queue.map((item, index) => {
-        const isCurrent = index === 0;
+        const pending = isItemPending(item);
+        const isCurrent = item.id === currentItemId;
         return (
           <Card key={item.id} isCurrent={isCurrent}>
             <Row>
@@ -206,7 +233,11 @@ const QueuePanel: React.FC<QueuePanelProps> = ({ onClose }) => {
                 <Title>{item.title}</Title>
                 {item.meta && <Meta>{item.meta}</Meta>}
               </Info>
-              <TypeBadge>{typeLabel(item)}</TypeBadge>
+              {pending ? (
+                <SyncingBadge>Syncing…</SyncingBadge>
+              ) : (
+                <TypeBadge>{typeLabel(item)}</TypeBadge>
+              )}
               <IconBtn
                 onClick={() => moveItem(item.id, -1)}
                 disabled={index === 0}

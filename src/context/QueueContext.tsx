@@ -1,6 +1,7 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
 import { CATALOG_ITEMS } from '../features/Catalog/catalogItems';
+import { useSyncedDoc } from '../hooks/useSyncedDoc';
 
 import { useLessons } from './LessonContext';
 import { useSession } from './SessionContext';
@@ -21,38 +22,31 @@ export interface QueueItem {
   meta?: string;
 }
 
-const loadQueue = (): QueueItem[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as QueueItem[]) : [];
-  } catch {
-    return [];
-  }
-};
-
-const persistQueue = (queue: QueueItem[]): void => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
-};
-
 interface QueueContextType {
   queue: QueueItem[];
   addToQueue: (item: Omit<QueueItem, 'id'>) => void;
   removeFromQueue: (id: string) => void;
   /** Move an item up (-1) or down (+1) one position. */
   moveItem: (id: string, direction: -1 | 1) => void;
-  /** Start the head item: lessons open the lesson, starters/sessions start
-   *  the session runner. Starters/sessions auto-complete when the runner
-   *  finishes; lessons complete only via completeCurrent (Mark done). */
+  /** A queued My Session whose session hasn't arrived on this device yet
+   *  (sessions sync still pending). Shown as a placeholder and skipped by
+   *  start/auto-advance until it resolves; never silently dropped. */
+  isItemPending: (item: QueueItem) => boolean;
+  /** Id of the first startable (non-pending) item, or null. */
+  currentItemId: string | null;
+  /** Start the current item: lessons open the lesson, starters/sessions
+   *  start the session runner. Starters/sessions auto-complete when the
+   *  runner finishes; lessons complete only via completeCurrent (Mark done). */
   startCurrent: () => void;
-  /** Manually complete the head item and advance. */
+  /** Manually complete the current item and advance. */
   completeCurrent: () => void;
 }
 
 const QueueContext = createContext<QueueContextType | undefined>(undefined);
 
 export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [queue, setQueue] = useState<QueueItem[]>(loadQueue);
-  const { sessions, startSession, completionCount } = useSession();
+  const { data: queue, setData: setQueue } = useSyncedDoc<QueueItem>('queue', STORAGE_KEY);
+  const { sessions, startSession, completionCount, sessionsSyncPending } = useSession();
   const { openLesson } = useLessons();
   const { showToast } = useToast();
 
@@ -60,54 +54,64 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const startedItemIdRef = useRef<string | null>(null);
   const prevCompletionRef = useRef(completionCount);
 
-  // Persist as an effect so setQueue updaters stay pure (React may invoke
-  // them during render, twice in StrictMode).
-  useEffect(() => {
-    persistQueue(queue);
-  }, [queue]);
+  const isItemPending = useCallback(
+    (item: QueueItem): boolean =>
+      item.refType === 'session' && sessionsSyncPending && !sessions.some(s => s.id === item.refId),
+    [sessions, sessionsSyncPending]
+  );
+
+  const currentItem = useMemo(
+    () => queue.find(q => !isItemPending(q)) ?? null,
+    [queue, isItemPending]
+  );
 
   const addToQueue = useCallback(
     (item: Omit<QueueItem, 'id'>) => {
       setQueue(prev => [...prev, { ...item, id: crypto.randomUUID() }]);
       showToast(`Added to Queue: ${item.title}`, 'success');
     },
-    [showToast]
+    [setQueue, showToast]
   );
 
-  const removeFromQueue = useCallback((id: string) => {
-    if (startedItemIdRef.current === id) startedItemIdRef.current = null;
-    setQueue(prev => prev.filter(q => q.id !== id));
-  }, []);
+  const removeFromQueue = useCallback(
+    (id: string) => {
+      if (startedItemIdRef.current === id) startedItemIdRef.current = null;
+      setQueue(prev => prev.filter(q => q.id !== id));
+    },
+    [setQueue]
+  );
 
-  const moveItem = useCallback((id: string, direction: -1 | 1) => {
-    setQueue(prev => {
-      const index = prev.findIndex(q => q.id === id);
-      const target = index + direction;
-      if (index === -1 || target < 0 || target >= prev.length) return prev;
-      const next = [...prev];
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
-  }, []);
+  const moveItem = useCallback(
+    (id: string, direction: -1 | 1) => {
+      setQueue(prev => {
+        const index = prev.findIndex(q => q.id === id);
+        const target = index + direction;
+        if (index === -1 || target < 0 || target >= prev.length) return prev;
+        const next = [...prev];
+        [next[index], next[target]] = [next[target], next[index]];
+        return next;
+      });
+    },
+    [setQueue]
+  );
 
   const completeCurrent = useCallback(() => {
-    const head = queue[0];
-    if (!head) return;
-    if (startedItemIdRef.current === head.id) startedItemIdRef.current = null;
-    setQueue(prev => (prev[0]?.id === head.id ? prev.slice(1) : prev));
-    const next = queue[1];
+    if (!currentItem) return;
+    if (startedItemIdRef.current === currentItem.id) startedItemIdRef.current = null;
+    const remaining = queue.filter(q => q.id !== currentItem.id);
+    setQueue(prev => prev.filter(q => q.id !== currentItem.id));
+    const next = remaining.find(q => !isItemPending(q));
     showToast(next ? `Done. Next up: ${next.title}` : 'Queue complete!', 'success');
-  }, [queue, showToast]);
+  }, [currentItem, queue, isItemPending, setQueue, showToast]);
 
   const startCurrent = useCallback(() => {
-    const head = queue[0];
-    if (!head) return;
+    if (!currentItem) return;
 
-    if (head.refType === 'lesson') {
-      const item = CATALOG_ITEMS.find(c => c.id === head.refId);
+    if (currentItem.refType === 'lesson') {
+      const item = CATALOG_ITEMS.find(c => c.id === currentItem.refId);
       if (!item?.lessonId) {
         showToast('Lesson no longer exists — removed from Queue', 'error');
-        removeFromQueue(head.id);
+        removeFromQueue(currentItem.id);
         return;
       }
       openLesson(item.lessonId);
@@ -115,24 +119,27 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     const session =
-      head.refType === 'starter'
-        ? CATALOG_ITEMS.find(c => c.id === head.refId)?.session
-        : sessions.find(s => s.id === head.refId);
+      currentItem.refType === 'starter'
+        ? CATALOG_ITEMS.find(c => c.id === currentItem.refId)?.session
+        : sessions.find(s => s.id === currentItem.refId);
 
     if (!session) {
+      // Not a pending sync case (currentItem skips those) — genuinely gone,
+      // e.g. deleted on another device.
       showToast('Session no longer exists — removed from Queue', 'error');
-      removeFromQueue(head.id);
+      removeFromQueue(currentItem.id);
       return;
     }
 
-    startedItemIdRef.current = head.id;
+    startedItemIdRef.current = currentItem.id;
     startSession(session);
-  }, [queue, sessions, startSession, openLesson, removeFromQueue, showToast]);
+  }, [currentItem, sessions, startSession, openLesson, removeFromQueue, showToast]);
 
   // Auto-advance: when a queue-started session runs to natural completion,
-  // pop it off the queue. Manual endSession never increments completionCount,
-  // so abandoned runs stay queued. The nonce guard makes re-runs from the
-  // queue dependency no-ops.
+  // remove that entry (wherever it sits — pending placeholders above it stay
+  // put and are skipped, not dropped). Manual endSession never increments
+  // completionCount, so abandoned runs stay queued. The nonce guard makes
+  // re-runs from the queue dependency no-ops.
   useEffect(() => {
     if (completionCount === prevCompletionRef.current) return;
     prevCompletionRef.current = completionCount;
@@ -141,15 +148,25 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!startedId) return;
     startedItemIdRef.current = null;
 
-    if (queue[0]?.id !== startedId) return;
-    const next = queue.slice(1);
-    setQueue(next);
-    if (next[0]) showToast(`Next up: ${next[0].title}`, 'info');
-  }, [completionCount, queue, showToast]);
+    if (!queue.some(q => q.id === startedId)) return;
+    const remaining = queue.filter(q => q.id !== startedId);
+    setQueue(prev => prev.filter(q => q.id !== startedId));
+    const next = remaining.find(q => !isItemPending(q));
+    if (next) showToast(`Next up: ${next.title}`, 'info');
+  }, [completionCount, queue, isItemPending, setQueue, showToast]);
 
   return (
     <QueueContext.Provider
-      value={{ queue, addToQueue, removeFromQueue, moveItem, startCurrent, completeCurrent }}
+      value={{
+        queue,
+        addToQueue,
+        removeFromQueue,
+        moveItem,
+        isItemPending,
+        currentItemId: currentItem?.id ?? null,
+        startCurrent,
+        completeCurrent,
+      }}
     >
       {children}
     </QueueContext.Provider>
