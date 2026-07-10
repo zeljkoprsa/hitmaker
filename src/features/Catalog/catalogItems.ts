@@ -1,4 +1,5 @@
 import { PracticeSession } from '../../core/types/SessionTypes';
+import { GROOVE_IS_IN_THE_HEART } from '../Sessions/lessons/grooveIsInTheHeart';
 import { STARTER_SESSIONS } from '../Sessions/starterSessions';
 
 export type CatalogItemType = 'lesson' | 'starter';
@@ -15,7 +16,8 @@ export interface CatalogItem {
   lessonId?: string;
   /** Lessons: internal sequence number, display-only ("01") */
   lessonNumber?: string;
-  /** Starters: the underlying block-based session */
+  /** Starters: the underlying block-based session.
+   *  Lessons: the guided run (session.guided = true). */
   session?: PracticeSession;
 }
 
@@ -33,6 +35,7 @@ const LESSON_ITEMS: CatalogItem[] = [
     meta: 'Lesson 01 · Warm-up & Technique',
     lessonNumber: '01',
     lessonId: 'groove-is-in-the-heart',
+    session: GROOVE_IS_IN_THE_HEART,
   },
 ];
 

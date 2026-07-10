@@ -5,6 +5,7 @@ import { Route, Routes } from 'react-router-dom';
 import { MetronomeProvider } from '@features/Metronome/context/MetronomeProvider';
 import Metronome from '@features/Metronome/Metronome';
 
+import { CoachStage } from './components/CoachStage';
 import { Header } from './components/Header';
 import { LeftSidebar, SectionType } from './components/LeftSidebar';
 import { SessionRunner } from './components/SessionRunner';
@@ -26,7 +27,11 @@ import { initViewportHeight } from './utils/viewportHeight';
 const AppInner: React.FC = () => {
   const [activeSection, setActiveSection] = useState<SectionType | null>(null);
   const { streak, loadHistory } = useSessionHistory();
-  const { sessionPhase } = useSession();
+  const { sessionPhase, activeSession } = useSession();
+  // Guided lesson run: the current block takes center stage and the
+  // metronome demotes to the bottom runner bar (engine unaffected — it
+  // lives in MetronomeProvider above this swap)
+  const isGuidedRun = Boolean(activeSession?.guided) && sessionPhase !== 'idle';
   const prevPhaseRef = useRef(sessionPhase);
   const { updateAvailable, applyUpdate, pullProgress } = useAppUpdate();
 
@@ -132,7 +137,7 @@ const AppInner: React.FC = () => {
         }}
       >
         <Header onOpenLeftSidebar={() => setActiveSection('catalog')} streak={streak} />
-        <Metronome />
+        {isGuidedRun ? <CoachStage /> : <Metronome />}
         <SessionRunner />
       </div>
     </div>

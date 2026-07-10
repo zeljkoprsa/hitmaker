@@ -377,7 +377,7 @@ const SessionEditor: React.FC<SessionEditorProps> = ({ session, onSave, onCancel
               <div>
                 <FieldLabel>Time Sig</FieldLabel>
                 <Select
-                  value={tsKey(block.timeSignature)}
+                  value={tsKey(block.timeSignature ?? { beats: 4, noteValue: 4 })}
                   onChange={e => updateBlock(i, { timeSignature: parseTs(e.target.value) })}
                 >
                   {TIME_SIG_OPTIONS.map(ts => (

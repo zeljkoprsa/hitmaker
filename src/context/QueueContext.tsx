@@ -34,9 +34,10 @@ interface QueueContextType {
   isItemPending: (item: QueueItem) => boolean;
   /** Id of the first startable (non-pending) item, or null. */
   currentItemId: string | null;
-  /** Start the current item: lessons open the lesson, starters/sessions
-   *  start the session runner. Starters/sessions auto-complete when the
-   *  runner finishes; lessons complete only via completeCurrent (Mark done). */
+  /** Start the current item. Lessons with a guided run and starters/sessions
+   *  start the session runner and auto-complete when it finishes naturally;
+   *  legacy lessons without run data open read-only and complete only via
+   *  completeCurrent (Mark done), which stays as a manual override for all. */
   startCurrent: () => void;
   /** Manually complete the current item and advance. */
   completeCurrent: () => void;
@@ -109,12 +110,18 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     if (currentItem.refType === 'lesson') {
       const item = CATALOG_ITEMS.find(c => c.id === currentItem.refId);
-      if (!item?.lessonId) {
+      if (!item?.lessonId && !item?.session) {
         showToast('Lesson no longer exists — removed from Queue', 'error');
         removeFromQueue(currentItem.id);
         return;
       }
-      openLesson(item.lessonId);
+      if (item.session) {
+        // Guided run: flows through the same completion semantics as starters
+        startedItemIdRef.current = currentItem.id;
+        startSession(item.session);
+      } else if (item.lessonId) {
+        openLesson(item.lessonId);
+      }
       return;
     }
 

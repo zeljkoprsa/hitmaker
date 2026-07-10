@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 import { PracticeSession, SessionBlock } from '../core/types/SessionTypes';
+import { blockAutoAdvances, blockDrivesMetronome } from '../core/utils/sessionBlocks';
 import { useMetronome } from '../features/Metronome/context/MetronomeProvider';
 import { useSyncedDoc } from '../hooks/useSyncedDoc';
 import { supabase } from '../lib/supabase';
@@ -63,37 +64,37 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // --- Metronome block application ---
 
+  // Applies a block's metronome settings AND owns the play state: blocks
+  // with a tempo start the click, silent blocks (teach/break/free play)
+  // stop it — the coach controls the room.
   const applyBlock = useCallback(
     (block: SessionBlock) => {
-      setTempo(block.tempo);
-      setTimeSignature(block.timeSignature);
-      setSubdivision(block.subdivision);
+      if (blockDrivesMetronome(block)) {
+        setTempo(block.tempo as number);
+        if (block.timeSignature) setTimeSignature(block.timeSignature);
+        if (block.subdivision) setSubdivision(block.subdivision);
+        if (!isPlaying) togglePlay().catch(() => {});
+      } else if (isPlaying) {
+        togglePlay().catch(() => {});
+      }
       setBlockStartedAt(new Date());
     },
-    [setTempo, setTimeSignature, setSubdivision]
+    [setTempo, setTimeSignature, setSubdivision, isPlaying, togglePlay]
   );
 
-  // Countdown tick — fires every second until 0, then starts the block and the metronome
+  // Countdown tick — fires every second until 0, then starts the block
+  // (applyBlock also starts/stops the metronome as the block requires)
   useEffect(() => {
     if (sessionPhase !== 'countdown' || countdown === null) return;
     if (countdown === 0) {
       if (activeSession) applyBlock(activeSession.blocks[currentBlockIndex]);
-      if (!isPlaying) togglePlay().catch(() => {});
       setSessionPhase('running');
       setCountdown(null);
       return;
     }
     const id = setTimeout(() => setCountdown(c => (c ?? 1) - 1), 1000);
     return () => clearTimeout(id);
-  }, [
-    sessionPhase,
-    countdown,
-    activeSession,
-    currentBlockIndex,
-    applyBlock,
-    isPlaying,
-    togglePlay,
-  ]);
+  }, [sessionPhase, countdown, activeSession, currentBlockIndex, applyBlock]);
 
   // --- CRUD ---
 
@@ -149,9 +150,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (session.blocks.length === 0) return;
       // Apply metronome settings immediately so the drummer can feel the tempo before starting
       const block = session.blocks[0];
-      setTempo(block.tempo);
-      setTimeSignature(block.timeSignature);
-      setSubdivision(block.subdivision);
+      if (block.tempo != null) {
+        setTempo(block.tempo);
+        if (block.timeSignature) setTimeSignature(block.timeSignature);
+        if (block.subdivision) setSubdivision(block.subdivision);
+      }
       setActiveSession(session);
       setCurrentBlockIndex(0);
       setBlockStartedAt(null);
@@ -162,9 +165,17 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const beginSession = useCallback(() => {
+    // A count-off before a silent block (stretching, rest) would be noise —
+    // only count in when the first block actually runs the click
+    const first = activeSession?.blocks[0];
+    if (first && !blockDrivesMetronome(first)) {
+      applyBlock(first);
+      setSessionPhase('running');
+      return;
+    }
     setSessionPhase('countdown');
     setCountdown(COUNTDOWN_START);
-  }, []);
+  }, [activeSession, applyBlock]);
 
   const pauseSession = useCallback(() => {
     if (sessionPhase !== 'running') return;
@@ -179,16 +190,24 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setBlockStartedAt(new Date(blockStartedAt.getTime() + pauseDuration));
     setPausedAt(null);
     setSessionPhase('running');
-    if (!isPlaying) togglePlay().catch(() => {});
-  }, [sessionPhase, pausedAt, blockStartedAt, isPlaying, togglePlay]);
+    const block = activeSession?.blocks[currentBlockIndex];
+    if (!isPlaying && block && blockDrivesMetronome(block)) togglePlay().catch(() => {});
+  }, [
+    sessionPhase,
+    pausedAt,
+    blockStartedAt,
+    activeSession,
+    currentBlockIndex,
+    isPlaying,
+    togglePlay,
+  ]);
 
   const restartBlock = useCallback(() => {
     if (!activeSession) return;
     applyBlock(activeSession.blocks[currentBlockIndex]);
     setPausedAt(null);
     setSessionPhase('running');
-    if (!isPlaying) togglePlay().catch(() => {});
-  }, [activeSession, currentBlockIndex, applyBlock, isPlaying, togglePlay]);
+  }, [activeSession, currentBlockIndex, applyBlock]);
 
   const advanceBlock = useCallback(() => {
     if (!activeSession) return;
@@ -201,7 +220,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
           .from('session_history')
           .insert({
             user_id: user.id,
-            session_id: activeSession.isStarter ? null : activeSession.id,
+            // Starter/lesson ids aren't UUIDs; the column is UUID-typed
+            session_id: activeSession.isStarter || activeSession.guided ? null : activeSession.id,
             session_name: activeSession.name,
             completed_at: new Date().toISOString(),
             blocks_completed: activeSession.blocks.length,
@@ -234,6 +254,19 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     user,
     cloudSyncEnabled,
   ]);
+
+  // Coach auto-advance: typed do/break blocks call time when their clock
+  // hits zero. Classic (untyped) blocks keep the overtime display and manual
+  // Next — Starters are untouched. Pausing clears the timer; resuming shifts
+  // blockStartedAt, so the effect re-arms with the remaining time.
+  useEffect(() => {
+    if (sessionPhase !== 'running' || !activeSession || !blockStartedAt) return;
+    const block = activeSession.blocks[currentBlockIndex];
+    if (!blockAutoAdvances(block)) return;
+    const endMs = blockStartedAt.getTime() + block.durationMinutes * 60_000;
+    const id = setTimeout(() => advanceBlock(), Math.max(0, endMs - Date.now()));
+    return () => clearTimeout(id);
+  }, [sessionPhase, activeSession, currentBlockIndex, blockStartedAt, advanceBlock]);
 
   const endSession = useCallback(() => {
     if (isPlaying) togglePlay().catch(() => {});

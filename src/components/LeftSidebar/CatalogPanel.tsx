@@ -221,7 +221,9 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose }) => {
     });
   };
 
-  const handleStartStarter = (item: CatalogItem) => {
+  // Starters and lessons start the same way: both are block sessions run by
+  // SessionContext; a lesson's guided flag swaps center stage to CoachStage
+  const handleStartSession = (item: CatalogItem) => {
     if (!item.session) return;
     startSession(item.session);
     onClose();
@@ -266,6 +268,14 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose }) => {
                 >
                   <PlusIcon size={14} />
                 </CircleBtn>
+                {item.session && (
+                  <CircleBtn
+                    onClick={() => handleStartSession(item)}
+                    aria-label={`Start ${item.title}`}
+                  >
+                    <PlayIcon size={13} />
+                  </CircleBtn>
+                )}
               </Actions>
             </Card>
           ) : (
@@ -279,7 +289,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose }) => {
                   <PlusIcon size={14} />
                 </CircleBtn>
                 <CircleBtn
-                  onClick={() => handleStartStarter(item)}
+                  onClick={() => handleStartSession(item)}
                   aria-label={`Start ${item.title}`}
                 >
                   <PlayIcon size={13} />

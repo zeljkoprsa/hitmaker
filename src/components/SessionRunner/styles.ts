@@ -19,6 +19,23 @@ export const RunnerBar = styled.div`
   gap: 8px;
 `;
 
+const beatPulse = keyframes`
+  from { transform: scale(1.35); opacity: 1; }
+  to { transform: scale(1); opacity: 0.55; }
+`;
+
+/** Compact live metronome presence for guided runs, where the full
+ *  visualizer has left center stage. Remounted per beat to retrigger. */
+export const BeatDot = styled.div<{ silent?: boolean }>`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: ${({ silent, theme }) =>
+    silent ? 'rgba(255, 255, 255, 0.15)' : theme.colors.metronome.accent};
+  animation: ${({ silent }) => (silent ? 'none' : beatPulse)} 200ms ease-out;
+`;
+
 export const RunnerInfo = styled.div`
   flex: 1;
   min-width: 0;
