@@ -4,7 +4,6 @@ import { useSession } from '../../context/SessionContext';
 import { SessionBlock } from '../../core/types/SessionTypes';
 import { blockDrivesMetronome, blockHasCountdown } from '../../core/utils/sessionBlocks';
 import { formatBlockTime, useBlockRemaining } from '../../hooks/useBlockRemaining';
-import { useWakeLock } from '../../hooks/useWakeLock';
 
 import {
   BlockCard,
@@ -40,10 +39,6 @@ const nextUpLabel = (next: SessionBlock | undefined): string | null => {
 export const CoachStage: React.FC = () => {
   const { activeSession, currentBlockIndex, sessionPhase, advanceBlock } = useSession();
   const remaining = useBlockRemaining();
-
-  // Keep the screen awake for the whole run, including silent teach/break
-  // blocks (the metronome's own wake lock only covers while it plays)
-  useWakeLock(true);
 
   if (!activeSession) return null;
 

@@ -4,10 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { TempoTrainerMode } from '../../components/TempoTrainer';
 import { ITickEvent } from '../../core/interfaces/ITickEvent';
-import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
-import { useMediaSession } from '../../hooks/useMediaSession';
 import { useResponsive } from '../../hooks/useResponsive';
-import { useWakeLock } from '../../hooks/useWakeLock';
 
 import { Controls, Displays } from './components';
 import { useMetronome } from './context/MetronomeProvider';
@@ -33,14 +30,9 @@ const Metronome: React.FC = () => {
     setAccents,
   } = useMetronome();
 
-  // Enable Screen Wake Lock while playing
-  useWakeLock(isPlaying);
-
-  // Keyboard shortcuts: Space = play/pause, ↑/↓ = ±1 BPM, Shift+↑/↓ = ±5 BPM
-  useKeyboardShortcuts({ togglePlay, tempo, setTempo });
-
-  // Enable Media Session controls (Lock Screen Play/Pause + Next/Prev for Tempo)
-  useMediaSession({ isPlaying, tempo, togglePlay, setTempo });
+  // Wake lock, keyboard shortcuts, and media-session controls live in
+  // GlobalPlaybackControls (AppInner) so they survive guided runs, when
+  // this component leaves center stage.
 
   // Listen to beat events
   useEffect(() => {

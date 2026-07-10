@@ -6,6 +6,7 @@ import { MetronomeProvider } from '@features/Metronome/context/MetronomeProvider
 import Metronome from '@features/Metronome/Metronome';
 
 import { CoachStage } from './components/CoachStage';
+import { GlobalPlaybackControls } from './components/GlobalPlaybackControls';
 import { Header } from './components/Header';
 import { LeftSidebar, SectionType } from './components/LeftSidebar';
 import { SessionRunner } from './components/SessionRunner';
@@ -48,6 +49,7 @@ const AppInner: React.FC = () => {
 
   return (
     <div className="app-shell">
+      <GlobalPlaybackControls />
       {/* Update banner */}
       {updateAvailable && (
         <div
