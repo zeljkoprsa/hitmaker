@@ -26,13 +26,6 @@ interface SessionContextType {
   blockStartedAt: Date | null;
   sessionPhase: SessionPhase;
   countdown: number | null;
-  /** Increments each time a session runs to natural completion (all blocks
-   *  finished). Manual endSession does NOT count. Lets consumers (Queue)
-   *  distinguish completion from abandonment. */
-  completionCount: number;
-  /** True while signed in but the first sessions pull since sign-in hasn't
-   *  completed — sessions from another device may not be visible yet. */
-  sessionsSyncPending: boolean;
   startSession: (session: PracticeSession) => void;
   beginSession: () => void;
   pauseSession: () => void;
@@ -45,18 +38,17 @@ interface SessionContextType {
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const {
-    data: sessions,
-    setData: setSessions,
-    initialSyncPending: sessionsSyncPending,
-  } = useSyncedDoc<PracticeSession>('sessions', STORAGE_KEY, mergeSessionSets);
+  const { data: sessions, setData: setSessions } = useSyncedDoc<PracticeSession>(
+    'sessions',
+    STORAGE_KEY,
+    mergeSessionSets
+  );
   const [activeSession, setActiveSession] = useState<PracticeSession | null>(null);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [blockStartedAt, setBlockStartedAt] = useState<Date | null>(null);
   const [sessionPhase, setSessionPhase] = useState<SessionPhase>('idle');
   const [countdown, setCountdown] = useState<number | null>(null);
   const [pausedAt, setPausedAt] = useState<number | null>(null);
-  const [completionCount, setCompletionCount] = useState(0);
 
   const { isPlaying, togglePlay, setTempo, setTimeSignature, setSubdivision } = useMetronome();
   const { showToast } = useToast();
@@ -220,8 +212,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
           .from('session_history')
           .insert({
             user_id: user.id,
-            // Starter/lesson ids aren't UUIDs; the column is UUID-typed
-            session_id: activeSession.isStarter || activeSession.guided ? null : activeSession.id,
+            // Workout/lesson ids aren't UUIDs; the column is UUID-typed
+            session_id: activeSession.isWorkout || activeSession.guided ? null : activeSession.id,
             session_name: activeSession.name,
             completed_at: new Date().toISOString(),
             blocks_completed: activeSession.blocks.length,
@@ -236,7 +228,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setBlockStartedAt(null);
       setPausedAt(null);
       setSessionPhase('idle');
-      setCompletionCount(c => c + 1);
       showToast('Session complete!', 'success');
       return;
     }
@@ -257,7 +248,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Coach auto-advance: typed do/break blocks call time when their clock
   // hits zero. Classic (untyped) blocks keep the overtime display and manual
-  // Next — Starters are untouched. Pausing clears the timer; resuming shifts
+  // Next — Workouts are untouched. Pausing clears the timer; resuming shifts
   // blockStartedAt, so the effect re-arms with the remaining time.
   useEffect(() => {
     if (sessionPhase !== 'running' || !activeSession || !blockStartedAt) return;
@@ -291,8 +282,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         blockStartedAt,
         sessionPhase,
         countdown,
-        completionCount,
-        sessionsSyncPending,
         startSession,
         beginSession,
         pauseSession,

@@ -1,7 +1,7 @@
 import { SubdivisionType, TimeSignature } from './MetronomeTypes';
 
 /** Guided-run block kinds. Untyped blocks are classic exercise blocks
- *  (Starters, My Sessions): tempo runs, timer shows overtime, user advances
+ *  (Workouts, My Sessions): tempo runs, timer shows overtime, user advances
  *  manually. Typed blocks (lessons) add coach semantics:
  *  - teach: content center stage, no countdown, advances on user action
  *  - do:    exercise at a tempo for a duration, auto-advances at 0
@@ -37,7 +37,9 @@ export interface PracticeSession {
   blocks: SessionBlock[];
   createdAt: string;
   updatedAt: string;
-  isStarter?: boolean;
+  /** Catalog Workout: app-provided, not user data. Ids aren't UUIDs, so
+   *  history logs null for them. */
+  isWorkout?: boolean;
   /** Guided lesson run: CoachStage takes center stage, metronome demotes to
    *  the bottom runner bar. Lesson ids aren't UUIDs, so history logs null. */
   guided?: boolean;

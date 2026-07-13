@@ -1,7 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
 /**
- * Whole-document sync for roaming user data (Queue, My Sessions).
+ * Whole-document sync for roaming user data (My Sessions).
  *
  * Each doc is an array persisted locally as an envelope { data, updatedAt,
  * dirty } and remotely as one row in `sync_documents` keyed by
@@ -10,7 +10,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
  * the other. Offline changes stay dirty locally and push on reconnect.
  */
 
-export type DocKey = 'queue' | 'sessions';
+export type DocKey = 'sessions';
 
 export interface LocalDoc<T> {
   data: T[];
@@ -80,8 +80,8 @@ export const reconcile = <T>(
       return { kind: 'apply-remote', data: remote.data, updatedAt: remote.updatedAt };
     }
     if (mergeFirstSync) return { kind: 'merge', data: mergeFirstSync(local.data, remote.data) };
-    // No merge strategy (Queue): prefer the remote doc unless it's empty,
-    // so a never-synced local queue isn't wiped by an empty cloud row.
+    // No merge strategy: prefer the remote doc unless it's empty, so
+    // never-synced local data isn't wiped by an empty cloud row.
     return remote.data.length > 0
       ? { kind: 'apply-remote', data: remote.data, updatedAt: remote.updatedAt }
       : { kind: 'push' };

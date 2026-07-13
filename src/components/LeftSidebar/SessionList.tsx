@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
 import React from 'react';
 
-import { useQueue } from '../../context/QueueContext';
 import { useSession } from '../../context/SessionContext';
 import { PracticeSession } from '../../core/types/SessionTypes';
 import { ChevronRightIcon, PlayIcon, PlusIcon } from '../Sidebar/icons';
@@ -212,20 +211,10 @@ const formatMeta = (session: PracticeSession): string => {
 
 const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose, onHistory }) => {
   const { sessions, deleteSession, duplicateSession, startSession } = useSession();
-  const { addToQueue } = useQueue();
 
   const handleStart = (s: PracticeSession) => {
     startSession(s);
     onClose();
-  };
-
-  const handleQueue = (s: PracticeSession) => {
-    addToQueue({
-      refType: 'session',
-      refId: s.id,
-      title: s.name,
-      meta: formatMeta(s),
-    });
   };
 
   return (
@@ -234,7 +223,7 @@ const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose, onHis
         <EmptyState>
           No sessions yet.
           <br />
-          Create one below, or copy a starter from the Catalog.
+          Create one below, or copy a workout from the Catalog.
         </EmptyState>
       ) : (
         <List>
@@ -242,9 +231,6 @@ const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose, onHis
             <Card key={s.id}>
               <CardTop>
                 <SessionName>{s.name}</SessionName>
-                <CircleBtn onClick={() => handleQueue(s)} aria-label={`Add ${s.name} to queue`}>
-                  <PlusIcon size={14} />
-                </CircleBtn>
                 <CircleBtn
                   onClick={() => handleStart(s)}
                   aria-label={`Start ${s.name}`}

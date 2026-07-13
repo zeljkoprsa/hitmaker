@@ -103,24 +103,6 @@ export const BookIcon: React.FC<IconProps> = ({ size = 16 }) => (
   </svg>
 );
 
-export const QueueIcon: React.FC<IconProps> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <path
-      d="M3 4.25h10M3 8h10M3 11.75h4.5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-    <path
-      d="M10.5 10.25v3.5l3-1.75-3-1.75z"
-      fill="currentColor"
-      stroke="currentColor"
-      strokeWidth="1"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
 export const CheckIcon: React.FC<IconProps> = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
     <path

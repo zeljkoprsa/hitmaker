@@ -12,7 +12,6 @@ import { LeftSidebar, SectionType } from './components/LeftSidebar';
 import { SessionRunner } from './components/SessionRunner';
 import { AuthProvider } from './context/AuthContext';
 import { LessonProvider } from './context/LessonContext';
-import { QueueProvider } from './context/QueueContext';
 import { SessionProvider, useSession } from './context/SessionContext';
 import { ToastProvider } from './context/ToastContext';
 import { useAppUpdate } from './hooks/useAppUpdate';
@@ -143,6 +142,8 @@ const AppInner: React.FC = () => {
 const App: React.FC = () => {
   useEffect(() => {
     initViewportHeight();
+    // Spec #4 removed the practice Queue; clear its persisted remnant
+    localStorage.removeItem('hitmaker_queue');
   }, []);
 
   return (
@@ -158,9 +159,7 @@ const App: React.FC = () => {
                 <MetronomeProvider>
                   <SessionProvider>
                     <LessonProvider>
-                      <QueueProvider>
-                        <AppInner />
-                      </QueueProvider>
+                      <AppInner />
                     </LessonProvider>
                   </SessionProvider>
                 </MetronomeProvider>

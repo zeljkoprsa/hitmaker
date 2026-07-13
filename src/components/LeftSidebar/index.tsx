@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { PracticeSession } from '../../core/types/SessionTypes';
 import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
-import { BookIcon, ChevronLeftIcon, QueueIcon, XIcon } from '../Sidebar/icons';
+import { BookIcon, ChevronLeftIcon, XIcon } from '../Sidebar/icons';
 import PreferencesSection from '../Sidebar/sections/PreferencesSection';
 import ProfileSection from '../Sidebar/sections/ProfileSection';
 import SignInView from '../Sidebar/SignInView';
@@ -28,12 +28,11 @@ import {
 } from '../Sidebar/styles';
 
 import CatalogPanel from './CatalogPanel';
-import QueuePanel from './QueuePanel';
 import SessionEditor from './SessionEditor';
 import SessionHistory from './SessionHistory';
 import SessionList from './SessionList';
 
-export type SectionType = 'catalog' | 'sessions' | 'queue' | 'account';
+export type SectionType = 'catalog' | 'sessions' | 'account';
 type SessionsView = 'list' | 'edit' | 'history';
 
 export interface LeftSidebarProps {
@@ -228,7 +227,6 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
       if (sessionsView === 'history') return 'Practice History';
       return 'My Sessions';
     }
-    if (activeSection === 'queue') return 'Queue';
     if (activeSection === 'account') return user ? 'Account' : 'Sign In';
     return '';
   };
@@ -304,15 +302,6 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
             </svg>
           </RailButton>
 
-          <RailButton
-            isActive={activeSection === 'queue'}
-            onClick={() => handleRailClick('queue')}
-            aria-label="Practice queue"
-            data-tip="Queue"
-          >
-            <QueueIcon size={20} />
-          </RailButton>
-
           <RailSpacer />
 
           <RailButton
@@ -350,12 +339,6 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                     onClick={() => onSetSection('sessions')}
                   >
                     Sessions
-                  </PanelTab>
-                  <PanelTab
-                    isActive={activeSection === 'queue'}
-                    onClick={() => onSetSection('queue')}
-                  >
-                    Queue
                   </PanelTab>
                 </PanelTabs>
               </>
@@ -402,8 +385,6 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 )}
               </>
             )}
-
-            {activeSection === 'queue' && <QueuePanel onClose={closeOnMobile} />}
 
             {activeSection === 'account' && (
               <>

@@ -76,7 +76,7 @@ describe('reconcile (whole-document last-write-wins)', () => {
       });
     });
 
-    it('without a merge strategy (queue) prefers a non-empty remote', () => {
+    it('without a merge strategy prefers a non-empty remote', () => {
       expect(reconcile(local(['a'], null), { data: ['b'], updatedAt: T1 })).toEqual({
         kind: 'apply-remote',
         data: ['b'],

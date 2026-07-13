@@ -1,10 +1,10 @@
 import { PracticeSession } from '../../core/types/SessionTypes';
 
-export const STARTER_SESSIONS: PracticeSession[] = [
+export const WORKOUT_SESSIONS: PracticeSession[] = [
   {
-    id: 'starter-rudiment-builder',
+    id: 'workout-rudiment-builder',
     name: 'Rudiment Builder',
-    isStarter: true,
+    isWorkout: true,
     createdAt: '',
     updatedAt: '',
     blocks: [
@@ -43,9 +43,9 @@ export const STARTER_SESSIONS: PracticeSession[] = [
     ],
   },
   {
-    id: 'starter-independence',
+    id: 'workout-independence',
     name: 'Independence Workout',
-    isStarter: true,
+    isWorkout: true,
     createdAt: '',
     updatedAt: '',
     blocks: [
@@ -84,9 +84,9 @@ export const STARTER_SESSIONS: PracticeSession[] = [
     ],
   },
   {
-    id: 'starter-groove-warmup',
+    id: 'workout-groove-warmup',
     name: 'Groove Warmup',
-    isStarter: true,
+    isWorkout: true,
     createdAt: '',
     updatedAt: '',
     blocks: [
@@ -125,9 +125,9 @@ export const STARTER_SESSIONS: PracticeSession[] = [
     ],
   },
   {
-    id: 'starter-blast-beat',
+    id: 'workout-blast-beat',
     name: 'Blast Beat Builder',
-    isStarter: true,
+    isWorkout: true,
     createdAt: '',
     updatedAt: '',
     blocks: [

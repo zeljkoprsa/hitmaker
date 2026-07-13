@@ -1,10 +1,10 @@
 import { PracticeSession } from '../../core/types/SessionTypes';
 import { GROOVE_IS_IN_THE_HEART } from '../Sessions/lessons/grooveIsInTheHeart';
-import { STARTER_SESSIONS } from '../Sessions/starterSessions';
+import { WORKOUT_SESSIONS } from '../Sessions/workoutSessions';
 
-export type CatalogItemType = 'lesson' | 'starter';
+export type CatalogItemType = 'lesson' | 'workout';
 
-/** A unified Catalog entry. Lessons and starters share one list; the type
+/** A unified Catalog entry. Lessons and workouts share one list; the type
  *  field drives filtering and which actions each row offers. */
 export interface CatalogItem {
   id: string;
@@ -16,12 +16,12 @@ export interface CatalogItem {
   lessonId?: string;
   /** Lessons: internal sequence number, display-only ("01") */
   lessonNumber?: string;
-  /** Starters: the underlying block-based session.
+  /** Workouts: the underlying block-based session.
    *  Lessons: the guided run (session.guided = true). */
   session?: PracticeSession;
 }
 
-const starterMeta = (s: PracticeSession): string => {
+const workoutMeta = (s: PracticeSession): string => {
   const total = s.blocks.reduce((sum, b) => sum + b.durationMinutes, 0);
   const blockLabel = s.blocks.length === 1 ? '1 block' : `${s.blocks.length} blocks`;
   return `${blockLabel} · ${total} min`;
@@ -39,13 +39,13 @@ const LESSON_ITEMS: CatalogItem[] = [
   },
 ];
 
-const STARTER_ITEMS: CatalogItem[] = STARTER_SESSIONS.map(s => ({
-  id: `starter-${s.id}`,
-  type: 'starter',
+const WORKOUT_ITEMS: CatalogItem[] = WORKOUT_SESSIONS.map(s => ({
+  id: s.id,
+  type: 'workout',
   title: s.name,
-  meta: starterMeta(s),
+  meta: workoutMeta(s),
   session: s,
 }));
 
-/** Lessons first (sequenced curriculum), then starters. */
-export const CATALOG_ITEMS: CatalogItem[] = [...LESSON_ITEMS, ...STARTER_ITEMS];
+/** Lessons first (sequenced curriculum), then workouts. */
+export const CATALOG_ITEMS: CatalogItem[] = [...LESSON_ITEMS, ...WORKOUT_ITEMS];

@@ -2,12 +2,11 @@ import styled from '@emotion/styled';
 import React, { useState } from 'react';
 
 import { useLessons } from '../../context/LessonContext';
-import { useQueue } from '../../context/QueueContext';
 import { useSession } from '../../context/SessionContext';
 import { CATALOG_ITEMS, CatalogItem } from '../../features/Catalog/catalogItems';
-import { DrumIcon, PlayIcon, PlusIcon } from '../Sidebar/icons';
+import { DrumIcon, PlayIcon } from '../Sidebar/icons';
 
-type CatalogFilter = 'all' | 'lessons' | 'starters';
+type CatalogFilter = 'all' | 'lessons' | 'workouts';
 
 interface CatalogPanelProps {
   onClose: () => void;
@@ -57,7 +56,7 @@ const Card = styled.div`
   gap: 10px;
 `;
 
-const StarterCard = styled.div`
+const WorkoutCard = styled.div`
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: ${({ theme }) => theme.borders.radius.md};
@@ -67,13 +66,13 @@ const StarterCard = styled.div`
   gap: 8px;
 `;
 
-const StarterTop = styled.div`
+const WorkoutTop = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
 `;
 
-const StarterBottom = styled.div`
+const WorkoutBottom = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -196,32 +195,22 @@ const OpenLessonArea = styled.button`
 const FILTERS: { value: CatalogFilter; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'lessons', label: 'Lessons' },
-  { value: 'starters', label: 'Starters' },
+  { value: 'workouts', label: 'Workouts' },
 ];
 
 const matchesFilter = (item: CatalogItem, filter: CatalogFilter): boolean =>
   filter === 'all' ||
   (filter === 'lessons' && item.type === 'lesson') ||
-  (filter === 'starters' && item.type === 'starter');
+  (filter === 'workouts' && item.type === 'workout');
 
 const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose }) => {
   const [filter, setFilter] = useState<CatalogFilter>('all');
   const { openLesson } = useLessons();
-  const { addToQueue } = useQueue();
   const { duplicateSession, startSession } = useSession();
 
   const items = CATALOG_ITEMS.filter(item => matchesFilter(item, filter));
 
-  const handleAddToQueue = (item: CatalogItem) => {
-    addToQueue({
-      refType: item.type,
-      refId: item.id,
-      title: item.title,
-      meta: item.meta,
-    });
-  };
-
-  // Starters and lessons start the same way: both are block sessions run by
+  // Workouts and lessons start the same way: both are block sessions run by
   // SessionContext; a lesson's guided flag swaps center stage to CoachStage
   const handleStartSession = (item: CatalogItem) => {
     if (!item.session) return;
@@ -262,12 +251,6 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose }) => {
                 </Info>
               </OpenLessonArea>
               <Actions>
-                <CircleBtn
-                  onClick={() => handleAddToQueue(item)}
-                  aria-label={`Add ${item.title} to queue`}
-                >
-                  <PlusIcon size={14} />
-                </CircleBtn>
                 {item.session && (
                   <CircleBtn
                     onClick={() => handleStartSession(item)}
@@ -279,23 +262,17 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose }) => {
               </Actions>
             </Card>
           ) : (
-            <StarterCard key={item.id}>
-              <StarterTop>
+            <WorkoutCard key={item.id}>
+              <WorkoutTop>
                 <Title style={{ flex: 1, minWidth: 0 }}>{item.title}</Title>
-                <CircleBtn
-                  onClick={() => handleAddToQueue(item)}
-                  aria-label={`Add ${item.title} to queue`}
-                >
-                  <PlusIcon size={14} />
-                </CircleBtn>
                 <CircleBtn
                   onClick={() => handleStartSession(item)}
                   aria-label={`Start ${item.title}`}
                 >
                   <PlayIcon size={13} />
                 </CircleBtn>
-              </StarterTop>
-              <StarterBottom>
+              </WorkoutTop>
+              <WorkoutBottom>
                 <Meta>{item.meta}</Meta>
                 {item.session && (
                   <CopyBtn
@@ -305,8 +282,8 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose }) => {
                     Copy
                   </CopyBtn>
                 )}
-              </StarterBottom>
-            </StarterCard>
+              </WorkoutBottom>
+            </WorkoutCard>
           )
         )}
       </List>

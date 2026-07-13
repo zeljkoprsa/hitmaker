@@ -8,7 +8,7 @@ const block = (overrides: Partial<SessionBlock>): SessionBlock => ({
 });
 
 describe('guided block semantics', () => {
-  it('classic (untyped) blocks never auto-advance — Starters keep manual Next', () => {
+  it('classic (untyped) blocks never auto-advance — Workouts keep manual Next', () => {
     expect(blockAutoAdvances(block({ tempo: 80 }))).toBe(false);
   });
 

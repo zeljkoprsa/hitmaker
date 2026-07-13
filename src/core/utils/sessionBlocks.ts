@@ -5,7 +5,7 @@ export const blockDrivesMetronome = (block: SessionBlock): boolean => block.temp
 
 /** Whether this block's timer advances the run by itself when it elapses.
  *  Only typed lesson blocks auto-advance; classic (untyped) blocks keep the
- *  overtime-and-manual-Next behavior Starters rely on. */
+ *  overtime-and-manual-Next behavior Workouts rely on. */
 export const blockAutoAdvances = (block: SessionBlock): boolean =>
   block.type === 'do' || block.type === 'break';
 

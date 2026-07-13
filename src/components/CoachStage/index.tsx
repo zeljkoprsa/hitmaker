@@ -34,7 +34,7 @@ const nextUpLabel = (next: SessionBlock | undefined): string | null => {
 /**
  * Center stage during a guided lesson run: renders the current block by type
  * while the metronome lives in the bottom runner bar. Purely a display over
- * SessionContext — the same state machine that drives Starter runs.
+ * SessionContext — the same state machine that drives Workout runs.
  */
 export const CoachStage: React.FC = () => {
   const { activeSession, currentBlockIndex, sessionPhase, advanceBlock } = useSession();
