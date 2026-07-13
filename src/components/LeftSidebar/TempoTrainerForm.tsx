@@ -9,6 +9,7 @@ import {
   generateTrainerSession,
 } from '../../features/Sessions/tempoTrainerPresets';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { NumberField } from '../NumberField';
 import { PlayIcon } from '../Sidebar/icons';
 import { SectionHeader } from '../Sidebar/styles';
 
@@ -114,7 +115,7 @@ const FieldLabel = styled.label`
   margin-bottom: 4px;
 `;
 
-const NumberInput = styled.input`
+const NumberInput = styled(NumberField)`
   width: 100%;
   box-sizing: border-box;
   background: rgba(0, 0, 0, 0.25);
@@ -244,8 +245,6 @@ const SUB_OPTIONS: { value: SubdivisionType; label: string }[] = [
   { value: 'sixteenth', label: '16th' },
 ];
 
-const clamp = (val: number, min: number, max: number) => Math.min(max, Math.max(min, val));
-
 const presetMeta = (p: TempoTrainerPreset): string => {
   const blockCount = Math.floor((p.endBpm - p.startBpm) / p.increment) + 1;
   const totalMin = blockCount * p.minutesPerBlock;
@@ -350,47 +349,26 @@ const TempoTrainerForm: React.FC<TempoTrainerFormProps> = ({ onStart, onCancel }
       <FieldGrid>
         <div>
           <FieldLabel htmlFor="tt-start">Start BPM</FieldLabel>
-          <NumberInput
-            id="tt-start"
-            type="number"
-            min={30}
-            max={300}
-            value={startBpm}
-            onChange={e => setStartBpm(clamp(Number(e.target.value), 30, 300))}
-          />
+          <NumberInput id="tt-start" min={30} max={300} value={startBpm} onCommit={setStartBpm} />
         </div>
         <div>
           <FieldLabel htmlFor="tt-end">End BPM</FieldLabel>
-          <NumberInput
-            id="tt-end"
-            type="number"
-            min={30}
-            max={300}
-            value={endBpm}
-            onChange={e => setEndBpm(clamp(Number(e.target.value), 30, 300))}
-          />
+          <NumberInput id="tt-end" min={30} max={300} value={endBpm} onCommit={setEndBpm} />
         </div>
         <div>
           <FieldLabel htmlFor="tt-inc">Increment (BPM)</FieldLabel>
-          <NumberInput
-            id="tt-inc"
-            type="number"
-            min={1}
-            max={50}
-            value={increment}
-            onChange={e => setIncrement(clamp(Number(e.target.value), 1, 50))}
-          />
+          <NumberInput id="tt-inc" min={1} max={50} value={increment} onCommit={setIncrement} />
         </div>
         <div>
           <FieldLabel htmlFor="tt-dur">Minutes / block</FieldLabel>
           <NumberInput
             id="tt-dur"
-            type="number"
             min={0.5}
             max={60}
             step={0.5}
+            allowDecimal
             value={minutesPerBlock}
-            onChange={e => setMinutesPerBlock(clamp(Number(e.target.value), 0.5, 60))}
+            onCommit={setMinutesPerBlock}
           />
         </div>
       </FieldGrid>

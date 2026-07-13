@@ -5,6 +5,7 @@ import { useSession } from '../../context/SessionContext';
 import { SubdivisionType, TimeSignature } from '../../core/types/MetronomeTypes';
 import { PracticeSession, SessionBlock } from '../../core/types/SessionTypes';
 import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
+import { NumberField } from '../NumberField';
 import { ChevronDownIcon, ChevronUpIcon, XIcon } from '../Sidebar/icons';
 
 interface SessionEditorProps {
@@ -159,7 +160,7 @@ const FieldLabel = styled.label`
   margin-bottom: 3px;
 `;
 
-const NumberInput = styled.input`
+const NumberInput = styled(NumberField)`
   width: 100%;
   box-sizing: border-box;
   background: rgba(0, 0, 0, 0.25);
@@ -367,11 +368,10 @@ const SessionEditor: React.FC<SessionEditorProps> = ({ session, onSave, onCancel
               <div>
                 <FieldLabel>Tempo</FieldLabel>
                 <NumberInput
-                  type="number"
                   min={30}
                   max={500}
-                  value={block.tempo}
-                  onChange={e => updateBlock(i, { tempo: Number(e.target.value) })}
+                  value={block.tempo ?? 120}
+                  onCommit={v => updateBlock(i, { tempo: v })}
                 />
               </div>
               <div>
@@ -403,12 +403,12 @@ const SessionEditor: React.FC<SessionEditorProps> = ({ session, onSave, onCancel
               <div>
                 <FieldLabel>Duration (min)</FieldLabel>
                 <NumberInput
-                  type="number"
                   min={0.5}
                   max={120}
                   step={0.5}
+                  allowDecimal
                   value={block.durationMinutes}
-                  onChange={e => updateBlock(i, { durationMinutes: Number(e.target.value) })}
+                  onCommit={v => updateBlock(i, { durationMinutes: v })}
                 />
               </div>
             </FieldGrid>
