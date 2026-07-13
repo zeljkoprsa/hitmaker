@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 
 import { useResponsive } from '../../../../hooks/useResponsive';
 import { useMetronome } from '../../context/MetronomeProvider';
@@ -49,27 +49,69 @@ const TempoButton = styled(motion.button)`
   }
 `;
 
-const TempoValue = styled.div`
+/** The value doubles as a direct-entry field (JAK-49): tap/click to type an
+ *  exact BPM, commit on blur/Enter, Escape reverts. Styled as the display it
+ *  replaces — no chrome until focused. */
+const TempoInput = styled.input`
   font-family: ${props => props.theme.typography.fontFamily.base};
   font-size: ${props => props.theme.typography.fontSizes.xxxl};
   font-weight: ${props => props.theme.typography.fontWeights.bold};
   color: ${props => props.theme.colors.metronome.primary};
-  min-width: 60px;
+  background: none;
+  border: none;
+  border-radius: ${props => props.theme.borders.radius.sm};
+  width: 84px;
+  padding: 0;
   text-align: center;
   position: relative;
   z-index: 1;
+  outline: none;
+  caret-color: ${props => props.theme.colors.metronome.accent};
+
+  /* Hide number-input spinners — the flanking -/+ buttons are the steppers */
+  appearance: textfield;
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &:focus {
+    background: rgba(255, 255, 255, 0.06);
+  }
 `;
+
+const MIN_TEMPO = 30;
+const MAX_TEMPO = 500;
+
+const clampTempo = (bpm: number): number => Math.min(Math.max(bpm, MIN_TEMPO), MAX_TEMPO);
 
 const TempoDisplay: React.FC = () => {
   const { tempo, setTempo } = useMetronome();
   const { isMobile: _isMobile } = useResponsive();
 
-  const MIN_TEMPO = 40;
-  const MAX_TEMPO = 500;
+  // Non-null while the user is typing; committed on blur/Enter. Mirrored in
+  // a ref so Escape can cancel synchronously before the blur handler runs.
+  const [draft, setDraftState] = useState<string | null>(null);
+  const draftRef = useRef<string | null>(null);
+  const setDraft = (value: string | null) => {
+    draftRef.current = value;
+    setDraftState(value);
+  };
 
   const handleTempoChange = (delta: number) => {
-    const newTempo = Math.min(Math.max(tempo + delta, MIN_TEMPO), MAX_TEMPO);
-    setTempo(newTempo);
+    setTempo(clampTempo(tempo + delta));
+  };
+
+  const commitDraft = () => {
+    const pending = draftRef.current;
+    setDraft(null);
+    if (pending !== null) {
+      const parsed = parseInt(pending, 10);
+      // Empty or non-numeric input reverts to the current tempo
+      if (!isNaN(parsed)) setTempo(clampTempo(parsed));
+    }
   };
 
   const buttonVariants = {
@@ -90,7 +132,31 @@ const TempoDisplay: React.FC = () => {
       >
         -
       </TempoButton>
-      <TempoValue>{tempo}</TempoValue>
+      <TempoInput
+        type="number"
+        inputMode="numeric"
+        min={MIN_TEMPO}
+        max={MAX_TEMPO}
+        aria-label="Tempo in BPM"
+        value={draft ?? String(tempo)}
+        onFocus={e => {
+          setDraft(String(tempo));
+          e.target.select();
+        }}
+        onChange={e => setDraft(e.target.value)}
+        onBlur={commitDraft}
+        onKeyDown={e => {
+          if (e.key === 'Enter') {
+            e.currentTarget.blur(); // commits via onBlur
+          } else if (e.key === 'Escape') {
+            setDraft(null);
+            e.currentTarget.blur();
+          }
+          // Arrow keys keep native stepping inside the field; the global
+          // tempo shortcuts are guarded by isInputFocused and stay out
+          e.stopPropagation();
+        }}
+      />
       <TempoButton
         onClick={() => handleTempoChange(1)}
         disabled={tempo >= MAX_TEMPO}

@@ -127,15 +127,9 @@ const AppInner: React.FC = () => {
         onSetSection={setActiveSection}
         onClose={() => setActiveSection(null)}
       />
-      <div
-        className={`metronome-app${activeSection !== null ? ' panel-open' : ''}`}
-        onClick={() => {
-          // Desktop click-outside: collapse panel (rail stays)
-          if (window.matchMedia('(min-width: 1024px)').matches && activeSection !== null) {
-            setActiveSection(null);
-          }
-        }}
-      >
+      {/* No desktop click-outside collapse (JAK-51): the panel stays open
+          until explicitly closed (X, Escape, or rail toggle) */}
+      <div className={`metronome-app${activeSection !== null ? ' panel-open' : ''}`}>
         <Header onOpenLeftSidebar={() => setActiveSection('catalog')} streak={streak} />
         {isGuidedRun ? <CoachStage /> : <Metronome />}
         <SessionRunner />

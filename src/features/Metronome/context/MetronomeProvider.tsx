@@ -63,6 +63,43 @@ interface MetronomeContextType {
 // Create the context with default values
 const MetronomeContext = createContext<MetronomeContextType | null>(null);
 
+// Local persistence of metronome settings (JAK-48). Signed-out users used to
+// reset to defaults every session — Supabase preferences only exist behind a
+// login, and even signed in there was a flash of defaults until they loaded.
+// localStorage is now the first source of truth on boot; server preferences
+// still apply on top when they arrive.
+const CONFIG_STORAGE_KEY = 'hitmaker_metronome_config';
+
+const SUBDIVISIONS: SubdivisionType[] = ['quarter', 'eighth', 'sixteenth'];
+
+/** Field-by-field validation so one corrupt value doesn't discard the rest. */
+const loadLocalConfig = (): Partial<MetronomeConfig> => {
+  try {
+    const raw = localStorage.getItem(CONFIG_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    const config: Partial<MetronomeConfig> = {};
+    if (typeof parsed.tempo === 'number' && parsed.tempo >= 30 && parsed.tempo <= 500) {
+      config.tempo = parsed.tempo;
+    }
+    if (
+      typeof parsed.timeSignature?.beats === 'number' &&
+      typeof parsed.timeSignature?.noteValue === 'number'
+    ) {
+      config.timeSignature = parsed.timeSignature;
+    }
+    if (SUBDIVISIONS.includes(parsed.subdivision)) config.subdivision = parsed.subdivision;
+    if (Array.isArray(parsed.accents)) config.accents = parsed.accents;
+    if (typeof parsed.volume === 'number' && parsed.volume >= 0 && parsed.volume <= 1) {
+      config.volume = parsed.volume;
+    }
+    if (typeof parsed.muted === 'boolean') config.muted = parsed.muted;
+    return config;
+  } catch {
+    return {};
+  }
+};
+
 // Map UI subdivision values to engine subdivision types
 // Formerly used '1' and '2', now using direct types
 
@@ -92,8 +129,9 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const outputRegistry = OutputSourceRegistry.getInstance();
         outputRegistryRef.current = outputRegistry;
 
-        // Initialize with defaults (or could start loading saved prefs here)
-        await metronome.initialize(metronome.getSnapshot());
+        // Initialize with the last-used settings restored from localStorage
+        // over the engine defaults
+        await metronome.initialize({ ...metronome.getSnapshot(), ...loadLocalConfig() });
 
         // handle URL shortcuts (e.g., ?tempo=120&play=true)
         const params = new URLSearchParams(window.location.search);
@@ -256,10 +294,9 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     // Metronome engine setters SHOULD be no-op if value is same.
   }, [preferences, metronome]);
 
-  // 3. When engine state changes: Save to server (Debounced)
+  // 3. When engine state changes: persist locally (always) and to the server
+  // (when signed in). Debounced together.
   useEffect(() => {
-    if (!user) return;
-
     const timer = setTimeout(() => {
       const currentConfig: MetronomeConfig = {
         tempo: state.tempo,
@@ -270,7 +307,12 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         muted: state.muted,
       };
 
-      savePreferences(currentConfig, soundId);
+      try {
+        localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(currentConfig));
+      } catch {
+        // Storage unavailable — cloud sync (if signed in) still covers us
+      }
+      if (user) savePreferences(currentConfig, soundId);
     }, 2000); // 2s debounce - reduces database writes while still feeling responsive
 
     return () => clearTimeout(timer);

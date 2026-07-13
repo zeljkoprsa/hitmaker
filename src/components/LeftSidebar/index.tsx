@@ -206,6 +206,13 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     }
   }, [activeSection]);
 
+  // Panels close after starting a run only on mobile, where the drawer covers
+  // the stage. On desktop the sidebar is persistent (JAK-51) — starting a
+  // session keeps it open alongside the runner.
+  const closeOnMobile = () => {
+    if (window.matchMedia('(max-width: 1023px)').matches) onClose();
+  };
+
   const handleRailClick = (section: SectionType) => {
     if (activeSection === section) {
       onSetSection(null);
@@ -359,7 +366,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           </PanelHeader>
 
           <PanelContent>
-            {activeSection === 'catalog' && <CatalogPanel onClose={onClose} />}
+            {activeSection === 'catalog' && <CatalogPanel onClose={closeOnMobile} />}
 
             {activeSection === 'sessions' && (
               <>
@@ -373,7 +380,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                       setEditingSession(null);
                       setSessionsView('edit');
                     }}
-                    onClose={onClose}
+                    onClose={closeOnMobile}
                     onHistory={() => setSessionsView('history')}
                   />
                 )}
@@ -396,7 +403,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               </>
             )}
 
-            {activeSection === 'queue' && <QueuePanel onClose={onClose} />}
+            {activeSection === 'queue' && <QueuePanel onClose={closeOnMobile} />}
 
             {activeSection === 'account' && (
               <>

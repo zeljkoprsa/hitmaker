@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 
 import { useSession } from '../../context/SessionContext';
 import { SubdivisionType } from '../../core/types/MetronomeTypes';
@@ -8,6 +8,7 @@ import {
   TempoTrainerPreset,
   generateTrainerSession,
 } from '../../features/Sessions/tempoTrainerPresets';
+import { usePersistentState } from '../../hooks/usePersistentState';
 import { PlayIcon } from '../Sidebar/icons';
 import { SectionHeader } from '../Sidebar/styles';
 
@@ -253,14 +254,37 @@ const presetMeta = (p: TempoTrainerPreset): string => {
 
 // --- Component ---
 
+interface TrainerFormValues {
+  startBpm: number;
+  endBpm: number;
+  increment: number;
+  minutesPerBlock: number;
+  subdivision: SubdivisionType;
+}
+
+const TRAINER_FORM_DEFAULTS: TrainerFormValues = {
+  startBpm: 60,
+  endBpm: 120,
+  increment: 5,
+  minutesPerBlock: 2,
+  subdivision: 'quarter',
+};
+
 const TempoTrainerForm: React.FC<TempoTrainerFormProps> = ({ onStart, onCancel }) => {
   const { startSession } = useSession();
 
-  const [startBpm, setStartBpm] = useState(60);
-  const [endBpm, setEndBpm] = useState(120);
-  const [increment, setIncrement] = useState(5);
-  const [minutesPerBlock, setMinutesPerBlock] = useState(2);
-  const [subdivision, setSubdivision] = useState<SubdivisionType>('quarter');
+  // The form unmounts every time the dialog closes; last-used values are the
+  // right defaults for a daily tool (JAK-48)
+  const [form, setForm] = usePersistentState<TrainerFormValues>(
+    'hitmaker_trainer_form',
+    TRAINER_FORM_DEFAULTS
+  );
+  const { startBpm, endBpm, increment, minutesPerBlock, subdivision } = form;
+  const setStartBpm = (v: number) => setForm(prev => ({ ...prev, startBpm: v }));
+  const setEndBpm = (v: number) => setForm(prev => ({ ...prev, endBpm: v }));
+  const setIncrement = (v: number) => setForm(prev => ({ ...prev, increment: v }));
+  const setMinutesPerBlock = (v: number) => setForm(prev => ({ ...prev, minutesPerBlock: v }));
+  const setSubdivision = (v: SubdivisionType) => setForm(prev => ({ ...prev, subdivision: v }));
 
   const { blockCount, totalMin, error } = useMemo(() => {
     if (endBpm < startBpm) {
