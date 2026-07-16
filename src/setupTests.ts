@@ -1,4 +1,11 @@
+import { randomUUID } from 'crypto';
+
 import '@testing-library/jest-dom';
+
+// jsdom's crypto lacks randomUUID (used by session/composer code)
+if (typeof crypto !== 'undefined' && !crypto.randomUUID) {
+  (crypto as { randomUUID?: () => string }).randomUUID = randomUUID;
+}
 
 // Extend the global interface to explicitly declare webkitAudioContext
 declare global {

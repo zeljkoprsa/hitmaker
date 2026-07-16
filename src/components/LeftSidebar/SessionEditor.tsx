@@ -1,12 +1,21 @@
 import styled from '@emotion/styled';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { useSession } from '../../context/SessionContext';
 import { SubdivisionType, TimeSignature } from '../../core/types/MetronomeTypes';
 import { PracticeSession, SessionBlock } from '../../core/types/SessionTypes';
+import {
+  blocksSummary,
+  copySectionBlocks,
+  copyWorkoutBlocks,
+  moveEntry,
+  removeEntry,
+  toEditorEntries,
+} from '../../core/utils/composeSession';
+import { CATALOG_ITEMS } from '../../features/Catalog/catalogItems';
 import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
 import { NumberField } from '../NumberField';
-import { ChevronDownIcon, ChevronUpIcon, XIcon } from '../Sidebar/icons';
+import { ChevronDownIcon, ChevronUpIcon, PlusIcon, XIcon } from '../Sidebar/icons';
 
 interface SessionEditorProps {
   session: PracticeSession | null;
@@ -272,6 +281,107 @@ const CancelBtn = styled.button`
   }
 `;
 
+/** One picked component (lesson section / workout): a single card that
+ *  moves and removes as a unit. Internals aren't editable here — tuning
+ *  section content stays in the lesson data (spec #5 scope). */
+const ComponentCard = styled.div`
+  background: rgba(246, 65, 5, 0.05);
+  border: 1px solid rgba(246, 65, 5, 0.2);
+  border-left: 3px solid ${({ theme }) => theme.colors.metronome.accent};
+  border-radius: ${({ theme }) => theme.borders.radius.md};
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const ComponentInfo = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const ComponentLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.semibold};
+  color: ${({ theme }) => theme.colors.metronome.primary};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const ComponentMeta = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 2px;
+`;
+
+const PickerPanel = styled.div`
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: ${({ theme }) => theme.borders.radius.md};
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const PickerGroup = styled.div`
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  padding: 8px 2px 4px;
+`;
+
+const PickerRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+`;
+
+const PickerInfo = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const PickerName = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
+  color: ${({ theme }) => theme.colors.metronome.primary};
+`;
+
+const PickerMeta = styled.div`
+  font-size: 10px;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: rgba(255, 255, 255, 0.3);
+`;
+
+const PickerAddBtn = styled.button`
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.metronome.accent};
+    border-color: ${({ theme }) => theme.colors.metronome.accent};
+    color: white;
+  }
+`;
+
 const newBlock = (tempo: number, ts: TimeSignature, sub: SubdivisionType): SessionBlock => ({
   id: crypto.randomUUID(),
   label: '',
@@ -290,27 +400,36 @@ const SessionEditor: React.FC<SessionEditorProps> = ({ session, onSave, onCancel
     session ? session.blocks.map(b => ({ ...b })) : []
   );
   const [error, setError] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
-  const updateBlock = (index: number, changes: Partial<SessionBlock>) => {
-    setBlocks(prev => prev.map((b, i) => (i === index ? { ...b, ...changes } : b)));
+  // Editor operates on entries: a picked component (lesson section /
+  // workout) is one unit; hand-built blocks are individual as before
+  const entries = useMemo(() => toEditorEntries(blocks), [blocks]);
+
+  const updateBlock = (id: string, changes: Partial<SessionBlock>) => {
+    setBlocks(prev => prev.map(b => (b.id === id ? { ...b, ...changes } : b)));
   };
 
-  const moveBlock = (index: number, dir: -1 | 1) => {
-    setBlocks(prev => {
-      const next = [...prev];
-      const swap = index + dir;
-      [next[index], next[swap]] = [next[swap], next[index]];
-      return next;
-    });
+  const handleMoveEntry = (index: number, dir: -1 | 1) => {
+    setBlocks(moveEntry(entries, index, dir));
   };
 
-  const removeBlock = (index: number) => {
-    setBlocks(prev => prev.filter((_, i) => i !== index));
+  const handleRemoveEntry = (index: number) => {
+    setBlocks(removeEntry(entries, index));
   };
 
   const addBlock = () => {
     setBlocks(prev => [...prev, newBlock(tempo, timeSignature, subdivision)]);
   };
+
+  const addComponent = (copied: SessionBlock[]) => {
+    setBlocks(prev => [...prev, ...copied]);
+  };
+
+  // Picker contents: lessons expose their named sections; workouts go whole.
+  // Structural blocks (rests, outros) are in no section — never offered.
+  const lessonItems = CATALOG_ITEMS.filter(c => c.type === 'lesson' && c.session?.sections);
+  const workoutItems = CATALOG_ITEMS.filter(c => c.type === 'workout' && c.session);
 
   const handleSave = () => {
     const trimmed = name.trim();
@@ -340,81 +459,156 @@ const SessionEditor: React.FC<SessionEditorProps> = ({ session, onSave, onCancel
       />
 
       <BlockList>
-        {blocks.map((block, i) => (
-          <BlockCard key={block.id}>
-            <BlockHeader>
-              <BlockNumber>{i + 1}</BlockNumber>
-              <LabelInput
-                value={block.label ?? ''}
-                onChange={e => updateBlock(i, { label: e.target.value })}
-                placeholder="Label (optional)"
-              />
-              <MoveBtn onClick={() => moveBlock(i, -1)} disabled={i === 0} title="Move up">
+        {entries.map((entry, i) => {
+          const moveButtons = (
+            <>
+              <MoveBtn onClick={() => handleMoveEntry(i, -1)} disabled={i === 0} title="Move up">
                 <ChevronUpIcon size={14} />
               </MoveBtn>
               <MoveBtn
-                onClick={() => moveBlock(i, 1)}
-                disabled={i === blocks.length - 1}
+                onClick={() => handleMoveEntry(i, 1)}
+                disabled={i === entries.length - 1}
                 title="Move down"
               >
                 <ChevronDownIcon size={14} />
               </MoveBtn>
-              <DeleteBlockBtn onClick={() => removeBlock(i)} title="Remove">
+              <DeleteBlockBtn onClick={() => handleRemoveEntry(i)} title="Remove">
                 <XIcon size={14} />
               </DeleteBlockBtn>
-            </BlockHeader>
+            </>
+          );
 
-            <FieldGrid>
-              <div>
-                <FieldLabel>Tempo</FieldLabel>
-                <NumberInput
-                  min={30}
-                  max={500}
-                  value={block.tempo ?? 120}
-                  onCommit={v => updateBlock(i, { tempo: v })}
+          if (entry.kind === 'component') {
+            return (
+              <ComponentCard key={entry.componentId}>
+                <BlockNumber>{i + 1}</BlockNumber>
+                <ComponentInfo>
+                  <ComponentLabel>{entry.label}</ComponentLabel>
+                  <ComponentMeta>{blocksSummary(entry.blocks)}</ComponentMeta>
+                </ComponentInfo>
+                {moveButtons}
+              </ComponentCard>
+            );
+          }
+
+          const block = entry.block;
+          return (
+            <BlockCard key={block.id}>
+              <BlockHeader>
+                <BlockNumber>{i + 1}</BlockNumber>
+                <LabelInput
+                  value={block.label ?? ''}
+                  onChange={e => updateBlock(block.id, { label: e.target.value })}
+                  placeholder="Label (optional)"
                 />
-              </div>
-              <div>
-                <FieldLabel>Time Sig</FieldLabel>
-                <Select
-                  value={tsKey(block.timeSignature ?? { beats: 4, noteValue: 4 })}
-                  onChange={e => updateBlock(i, { timeSignature: parseTs(e.target.value) })}
-                >
-                  {TIME_SIG_OPTIONS.map(ts => (
-                    <option key={tsKey(ts)} value={tsKey(ts)}>
-                      {tsKey(ts)}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <div>
-                <FieldLabel>Subdivision</FieldLabel>
-                <Select
-                  value={block.subdivision}
-                  onChange={e => updateBlock(i, { subdivision: e.target.value as SubdivisionType })}
-                >
-                  {SUB_OPTIONS.map(o => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <div>
-                <FieldLabel>Duration (min)</FieldLabel>
-                <NumberInput
-                  min={0.5}
-                  max={120}
-                  step={0.5}
-                  allowDecimal
-                  value={block.durationMinutes}
-                  onCommit={v => updateBlock(i, { durationMinutes: v })}
-                />
-              </div>
-            </FieldGrid>
-          </BlockCard>
-        ))}
+                {moveButtons}
+              </BlockHeader>
+
+              <FieldGrid>
+                <div>
+                  <FieldLabel>Tempo</FieldLabel>
+                  <NumberInput
+                    min={30}
+                    max={500}
+                    value={block.tempo ?? 120}
+                    onCommit={v => updateBlock(block.id, { tempo: v })}
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Time Sig</FieldLabel>
+                  <Select
+                    value={tsKey(block.timeSignature ?? { beats: 4, noteValue: 4 })}
+                    onChange={e =>
+                      updateBlock(block.id, { timeSignature: parseTs(e.target.value) })
+                    }
+                  >
+                    {TIME_SIG_OPTIONS.map(ts => (
+                      <option key={tsKey(ts)} value={tsKey(ts)}>
+                        {tsKey(ts)}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                <div>
+                  <FieldLabel>Subdivision</FieldLabel>
+                  <Select
+                    value={block.subdivision}
+                    onChange={e =>
+                      updateBlock(block.id, { subdivision: e.target.value as SubdivisionType })
+                    }
+                  >
+                    {SUB_OPTIONS.map(o => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                <div>
+                  <FieldLabel>Duration (min)</FieldLabel>
+                  <NumberInput
+                    min={0.5}
+                    max={120}
+                    step={0.5}
+                    allowDecimal
+                    value={block.durationMinutes}
+                    onCommit={v => updateBlock(block.id, { durationMinutes: v })}
+                  />
+                </div>
+              </FieldGrid>
+            </BlockCard>
+          );
+        })}
       </BlockList>
+
+      <AddBlockBtn onClick={() => setPickerOpen(o => !o)}>
+        {pickerOpen ? '− Close catalog picker' : '+ Add from Catalog'}
+      </AddBlockBtn>
+
+      {pickerOpen && (
+        <PickerPanel>
+          {lessonItems.map(item => (
+            <React.Fragment key={item.id}>
+              <PickerGroup>{item.title}</PickerGroup>
+              {item.session!.sections!.map(section => {
+                const sectionBlocks = item.session!.blocks.filter(b =>
+                  section.blockIds.includes(b.id)
+                );
+                return (
+                  <PickerRow key={section.id}>
+                    <PickerInfo>
+                      <PickerName>{section.name}</PickerName>
+                      <PickerMeta>{blocksSummary(sectionBlocks)}</PickerMeta>
+                    </PickerInfo>
+                    <PickerAddBtn
+                      onClick={() => addComponent(copySectionBlocks(item.session!, section))}
+                      aria-label={`Add ${section.name} from ${item.title}`}
+                    >
+                      <PlusIcon size={12} />
+                    </PickerAddBtn>
+                  </PickerRow>
+                );
+              })}
+            </React.Fragment>
+          ))}
+
+          <PickerGroup>Workouts</PickerGroup>
+          {workoutItems.map(item => (
+            <PickerRow key={item.id}>
+              <PickerInfo>
+                <PickerName>{item.title}</PickerName>
+                <PickerMeta>{blocksSummary(item.session!.blocks)}</PickerMeta>
+              </PickerInfo>
+              <PickerAddBtn
+                onClick={() => addComponent(copyWorkoutBlocks(item.session!))}
+                aria-label={`Add ${item.title} workout`}
+              >
+                <PlusIcon size={12} />
+              </PickerAddBtn>
+            </PickerRow>
+          ))}
+        </PickerPanel>
+      )}
 
       <AddBlockBtn onClick={addBlock}>+ Add block from current settings</AddBlockBtn>
 

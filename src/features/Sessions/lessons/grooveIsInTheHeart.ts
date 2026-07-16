@@ -15,6 +15,24 @@ export const GROOVE_IS_IN_THE_HEART: PracticeSession = {
   guided: true,
   createdAt: '',
   updatedAt: '',
+  // Pickable sections for the composer (spec #5) — the five headings of the
+  // original card. The rests between sections and the Mission outro belong
+  // to no section: structural, never offered as components.
+  sections: [
+    { id: 'stretching', name: 'Stretching', blockIds: ['l1-stretching'] },
+    { id: 'free-expression', name: 'Free Expression', blockIds: ['l1-free-expression'] },
+    {
+      id: 'hand-sticking',
+      name: 'Hand Sticking',
+      blockIds: ['l1-single-strokes', 'l1-around-the-kit'],
+    },
+    {
+      id: 'leg-independence',
+      name: 'Leg Independence',
+      blockIds: ['l1-bass-drum', 'l1-hihat-kick'],
+    },
+    { id: 'hihat-riding', name: 'Hi-Hat Riding', blockIds: ['l1-hihat-riding'] },
+  ],
   blocks: [
     {
       id: 'l1-stretching',
