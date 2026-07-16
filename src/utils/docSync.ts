@@ -1,13 +1,19 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
 /**
- * Whole-document sync for roaming user data (My Sessions).
+ * Sync for roaming user data (My Sessions).
  *
  * Each doc is an array persisted locally as an envelope { data, updatedAt,
  * dirty } and remotely as one row in `sync_documents` keyed by
- * (user_id, doc_key). Conflicts resolve last-write-wins on updated_at at
- * whole-document granularity — the more recently updated side overwrites
- * the other. Offline changes stay dirty locally and push on reconnect.
+ * (user_id, doc_key). Offline changes stay dirty locally and push on
+ * reconnect.
+ *
+ * Conflict resolution: when a per-item merge function is provided (Sessions)
+ * and BOTH sides have items, the sets are UNIONED by id (newer per-item
+ * updatedAt wins) so signing in never silently replaces one device's set
+ * with the other's (JAK-57). When only one side has items — or no merge
+ * function is given — it falls back to whole-document last-write-wins on the
+ * envelope updatedAt.
  */
 
 export type DocKey = 'sessions';
@@ -59,18 +65,44 @@ export type ReconcileAction<T> =
   | { kind: 'push' }
   /** Remote side wins: overwrite local state and storage. */
   | { kind: 'apply-remote'; data: T[]; updatedAt: string }
-  /** First sync of a device with pre-sync local data: adopt merged set
-   *  locally and push it. Only used when a merge function is provided. */
+  /** Adopt a merged set locally and push it (both sides had items). */
   | { kind: 'merge'; data: T[] };
+
+// Docs are JSON by definition (persisted as JSON on both ends), so a stable
+// serialization is a valid deep-equality check here.
+const sameData = <T>(a: T[], b: T[]): boolean => JSON.stringify(a) === JSON.stringify(b);
 
 export const reconcile = <T>(
   local: LocalDoc<T>,
   remote: RemoteDoc<T> | null,
-  mergeFirstSync?: (local: T[], remote: T[]) => T[]
+  mergeItems?: (local: T[], remote: T[]) => T[]
 ): ReconcileAction<T> => {
   if (!remote) {
     // Nothing in the cloud yet: seed it from local if there's anything to seed.
     return local.data.length > 0 || local.dirty ? { kind: 'push' } : { kind: 'none' };
+  }
+
+  // Per-item union (Sessions): whenever BOTH sides have items, merge instead
+  // of letting one whole set overwrite the other. This is what stops sign-in
+  // from silently dropping a device's sessions (JAK-57). Empty-side cases
+  // fall through to whole-doc handling below, unchanged.
+  if (mergeItems && local.data.length > 0 && remote.data.length > 0) {
+    const merged = mergeItems(local.data, remote.data);
+    const sameAsLocal = sameData(merged, local.data);
+    const sameAsRemote = sameData(merged, remote.data);
+    if (sameAsLocal && sameAsRemote) return { kind: 'none' }; // already converged
+    // Remote already holds the union — adopt it locally, no push needed.
+    if (sameAsRemote) return { kind: 'apply-remote', data: merged, updatedAt: remote.updatedAt };
+    // Local is missing something remote has (or vice versa): push the union.
+    return { kind: 'merge', data: merged };
+  }
+
+  // Same principle for the empty-cloud edge: a non-empty local is never wiped
+  // by an empty cloud row when merging — push instead. (A delete-all on
+  // another device therefore won't propagate here; consistent with the
+  // accepted resurrection tradeoff.)
+  if (mergeItems && local.data.length > 0 && remote.data.length === 0) {
+    return { kind: 'push' };
   }
 
   if (local.updatedAt === null) {
@@ -79,7 +111,7 @@ export const reconcile = <T>(
     if (local.data.length === 0) {
       return { kind: 'apply-remote', data: remote.data, updatedAt: remote.updatedAt };
     }
-    if (mergeFirstSync) return { kind: 'merge', data: mergeFirstSync(local.data, remote.data) };
+    if (mergeItems) return { kind: 'merge', data: mergeItems(local.data, remote.data) };
     // No merge strategy: prefer the remote doc unless it's empty, so
     // never-synced local data isn't wiped by an empty cloud row.
     return remote.data.length > 0

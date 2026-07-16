@@ -29,14 +29,15 @@ interface SyncedDoc<T> {
 
 /**
  * Offline-first synced document. All reads and writes hit local state and
- * localStorage synchronously; Supabase sync happens in the background with
- * whole-document last-write-wins (see utils/docSync.ts). Signed-out usage
+ * localStorage synchronously; Supabase sync happens in the background.
+ * When `mergeItems` is provided the sets are unioned per item on conflict
+ * rather than whole-doc overwritten (see utils/docSync.ts). Signed-out usage
  * stays purely local.
  */
 export function useSyncedDoc<T>(
   docKey: DocKey,
   storageKey: string,
-  mergeFirstSync?: (local: T[], remote: T[]) => T[]
+  mergeItems?: (local: T[], remote: T[]) => T[]
 ): SyncedDoc<T> {
   const [doc, setDoc] = useState<LocalDoc<T>>(() => loadLocalDoc<T>(storageKey));
   const [status, setStatus] = useState<SyncStatus>('local');
@@ -49,8 +50,8 @@ export function useSyncedDoc<T>(
   // Refs so reconcile/push callbacks never act on stale state
   const docRef = useRef(doc);
   docRef.current = doc;
-  const mergeRef = useRef(mergeFirstSync);
-  mergeRef.current = mergeFirstSync;
+  const mergeRef = useRef(mergeItems);
+  mergeRef.current = mergeItems;
   const pushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Persist every doc change (local edits and applied remote docs alike)

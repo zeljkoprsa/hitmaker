@@ -28,6 +28,7 @@ import { supabase } from '../../../lib/supabase';
 import { preferencesToConfig } from '../../../types/UserPreferences';
 import { logger } from '../../../utils/logger';
 import { migratePreferences } from '../../../utils/migratePreferences';
+import { shouldApplyServerConfig } from '../../../utils/preferencesSync';
 
 // Internal type to bridge UI TimeSignature and engine TimeSignature
 // Currently unused but kept for future reference
@@ -97,6 +98,19 @@ const loadLocalConfig = (): Partial<MetronomeConfig> => {
     return config;
   } catch {
     return {};
+  }
+};
+
+/** ISO timestamp of the last local settings change, for LWW against the
+ *  server row (JAK-57). Null when unstamped (fresh device / pre-JAK-57). */
+const loadLocalConfigUpdatedAt = (): string | null => {
+  try {
+    const raw = localStorage.getItem(CONFIG_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return typeof parsed.updatedAt === 'string' ? parsed.updatedAt : null;
+  } catch {
+    return null;
   }
 };
 
@@ -266,9 +280,16 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [user, loadPreferences, showToast]);
 
-  // 2. When preferences load from server: Apply to engine
+  // 2. When preferences load from server: Apply to engine — but only when the
+  // server row is newer than this device's locally persisted settings.
+  // Otherwise signing in would revert changes made while signed out (JAK-57).
   useEffect(() => {
     if (preferences && metronome) {
+      if (!shouldApplyServerConfig(loadLocalConfigUpdatedAt(), preferences.updated_at)) {
+        // Local is fresher — keep it; effect #3 pushes it up to the server.
+        return;
+      }
+
       // Apply values to metronome engine
       // We compare to avoid unnecessary updates if possible, but setters usually handle no-op.
       const config = preferencesToConfig(preferences);
@@ -308,7 +329,11 @@ export const MetronomeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       };
 
       try {
-        localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(currentConfig));
+        // Stamp updatedAt so sign-in can LWW local vs server config (JAK-57)
+        localStorage.setItem(
+          CONFIG_STORAGE_KEY,
+          JSON.stringify({ ...currentConfig, updatedAt: new Date().toISOString() })
+        );
       } catch {
         // Storage unavailable — cloud sync (if signed in) still covers us
       }

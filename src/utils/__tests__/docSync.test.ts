@@ -90,6 +90,55 @@ describe('reconcile (whole-document last-write-wins)', () => {
   });
 });
 
+describe('reconcile — per-item union at sign-in (JAK-57)', () => {
+  // Union both sides, remote-first, deduped — mirrors mergeSessionSets order.
+  const union = (l: string[], r: string[]) => Array.from(new Set([...r, ...l]));
+
+  it('does nothing when both sides already hold the same set', () => {
+    expect(reconcile(local(['a', 'b'], T2), { data: ['a', 'b'], updatedAt: T2 }, union)).toEqual({
+      kind: 'none',
+    });
+  });
+
+  it('preserves a local-only item even when the remote is newer (the data-loss fix)', () => {
+    // Old whole-doc LWW would apply-remote ['a'] and silently drop 'b'.
+    expect(reconcile(local(['a', 'b'], T1), { data: ['a'], updatedAt: T2 }, union)).toEqual({
+      kind: 'merge',
+      data: ['a', 'b'],
+    });
+  });
+
+  it('adopts a remote superset without a push when local is a subset', () => {
+    // Local is newer but missing 'b'; union equals remote, so no push needed.
+    expect(reconcile(local(['a'], T2), { data: ['a', 'b'], updatedAt: T1 }, union)).toEqual({
+      kind: 'apply-remote',
+      data: ['a', 'b'],
+      updatedAt: T1,
+    });
+  });
+
+  it('merges and pushes when each side has unique items', () => {
+    expect(reconcile(local(['a', 'b'], T1), { data: ['a', 'c'], updatedAt: T2 }, union)).toEqual({
+      kind: 'merge',
+      data: ['a', 'c', 'b'],
+    });
+  });
+
+  it('never wipes a non-empty local with an empty (even newer) remote', () => {
+    expect(reconcile(local(['a', 'b'], T1), { data: [], updatedAt: T3 }, union)).toEqual({
+      kind: 'push',
+    });
+  });
+
+  it('an empty local still adopts the remote set', () => {
+    expect(reconcile(local([], T1), { data: ['a'], updatedAt: T2 }, union)).toEqual({
+      kind: 'apply-remote',
+      data: ['a'],
+      updatedAt: T2,
+    });
+  });
+});
+
 describe('local doc persistence', () => {
   beforeEach(() => localStorage.clear());
 

@@ -1,8 +1,10 @@
 import { PracticeSession } from '../core/types/SessionTypes';
 
-/** First-sync merge for a device whose local sessions predate sync: union
- *  by id, newer updatedAt wins per id. After this one-time merge the set
- *  syncs whole-document last-write-wins (see utils/docSync.ts). */
+/** Union two session sets by id — newer per-session updatedAt wins. Runs on
+ *  every reconcile where both sides have sessions, so signing in unions the
+ *  device's set with the cloud's rather than one silently replacing the
+ *  other (JAK-57). Accepted tradeoff: a session deleted on one device can
+ *  resurrect from another that still holds it. See utils/docSync.ts. */
 export const mergeSessionSets = (
   local: PracticeSession[],
   remote: PracticeSession[]
