@@ -25,6 +25,11 @@ export class SampleAudioSource extends BaseOutputSource {
   private isLoading: boolean = false;
   private audioConfig: SampleAudioConfig;
   private isMobile: boolean = false;
+  /** The most recently scheduled click voice. A metronome is monophonic, so
+   *  the previous click is cut at the next one's onset — overlapping sample
+   *  tails can't sum through the shared gain node into a louder transient
+   *  (JAK-58). Cleared when a voice ends naturally. */
+  private lastSource: AudioBufferSourceNode | null = null;
 
   constructor(config: OutputSourceConfig) {
     super({ ...config, type: 'sample' });
@@ -225,6 +230,7 @@ export class SampleAudioSource extends BaseOutputSource {
       this.audioContext = null;
     }
     this.gainNode = null;
+    this.lastSource = null;
     this.sampleBuffers.clear();
   }
 
@@ -319,11 +325,24 @@ export class SampleAudioSource extends BaseOutputSource {
         `Scheduling click at time=${scheduledTime} (current=${currentTime}, requested=${time})`
       );
 
-      source.start(scheduledTime);
+      // Monophonic click (JAK-58): cut the previous voice exactly at this
+      // one's onset. This truncates only when the previous click is still
+      // ringing at the new onset (e.g. the crowded beats at a tempo-change
+      // boundary); at normal spacing the previous voice has already ended
+      // and its natural decay is untouched.
+      if (this.lastSource) {
+        try {
+          this.lastSource.stop(scheduledTime);
+        } catch {
+          // Already stopped/ended — nothing to cut
+        }
+      }
 
-      // Add an event listener to confirm the sound played
+      source.start(scheduledTime);
+      this.lastSource = source;
+
       source.onended = () => {
-        logger.debug(`Sound finished playing: ${this.currentSoundId}`);
+        if (this.lastSource === source) this.lastSource = null;
       };
     } catch (error) {
       logger.error('Error playing click:', error);
