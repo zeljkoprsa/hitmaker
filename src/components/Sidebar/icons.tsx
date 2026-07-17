@@ -127,3 +127,41 @@ export const DrumIcon: React.FC<IconProps> = ({ size = 16 }) => (
     <path d="M8 7v6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
   </svg>
 );
+
+/** Metronome — trapezoid body with a pendulum. */
+export const MetronomeIcon: React.FC<IconProps> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path
+      d="M6 2.5h4l2 11H4l2-11z"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinejoin="round"
+    />
+    <path d="M8 12.5 11 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    <circle cx="11" cy="4" r="1.1" fill="currentColor" />
+  </svg>
+);
+
+/** Music note — for the Sessions nav item. */
+export const NoteIcon: React.FC<IconProps> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <path
+      d="M8 15V5.5l8-2V13"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="6" cy="15" r="2" stroke="currentColor" strokeWidth="1.5" />
+    <circle cx="14" cy="13" r="2" stroke="currentColor" strokeWidth="1.5" />
+  </svg>
+);
+
+/** Calendar — for the Journal nav item. */
+export const CalendarIcon: React.FC<IconProps> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <rect x="2.5" y="3.5" width="11" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+    <path d="M2.5 6.5h11" stroke="currentColor" strokeWidth="1.4" />
+    <path d="M5.5 2.5v2M10.5 2.5v2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+);

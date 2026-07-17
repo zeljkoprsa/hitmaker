@@ -5,7 +5,8 @@ import styled from '@emotion/styled';
 
 export const RunnerBar = styled.div`
   position: fixed;
-  bottom: 0;
+  /* Sit above the mobile bottom nav / beside the desktop rail (JAK-50) */
+  bottom: var(--app-bottom-nav, 0px);
   left: 0;
   right: 0;
   z-index: ${({ theme }) => theme.zIndices.sticky};
@@ -13,10 +14,16 @@ export const RunnerBar = styled.div`
   backdrop-filter: blur(12px);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding: 10px 16px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0));
+  /* Mobile safe area is owned by the bottom nav below us */
+  padding-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 8px;
+
+  @media (min-width: 1024px) {
+    left: var(--app-rail-width, 0px);
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0));
+  }
 `;
 
 const beatPulse = keyframes`

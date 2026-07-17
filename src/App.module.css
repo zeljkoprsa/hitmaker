@@ -29,59 +29,75 @@ textarea {
   font-family: inherit;
 }
 
-:global(.metronome-app) {
+/* View architecture (JAK-50): a persistent nav (56px left rail on desktop,
+   bottom tab bar on mobile) and a swappable center-stage region. */
+:root {
+  --app-rail-width: 56px;
+  --app-bottom-nav: 0px;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    /* Bottom tab bar height, incl. the home-indicator safe area */
+    --app-bottom-nav: calc(56px + env(safe-area-inset-bottom, 0));
+  }
+}
+
+:global(.stage) {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  /* Use dvh for mobile devices, fallback to 100vh */
   min-height: 100vh;
-  min-height: 100dvh; /* Dynamic viewport height for mobile */
+  min-height: 100dvh;
   width: 100%;
+  box-sizing: border-box;
   overflow-x: hidden;
-  /* Add safe area support for notched devices */
   padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  /* Push-drawer slide */
-  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Desktop: rail always visible; panel-open adds 224px more */
+/* Desktop: offset by the fixed left rail */
 @media (min-width: 1024px) {
-  :global(.metronome-app) {
-    margin-left: 56px;
-    width: calc(100% - 56px);
-  }
-
-  :global(.metronome-app.panel-open) {
-    transform: translateX(224px);
+  :global(.stage) {
+    margin-left: var(--app-rail-width);
+    width: calc(100% - var(--app-rail-width));
   }
 }
 
-/* Mobile: full sidebar slides in */
+/* Mobile: leave room for the fixed bottom tab bar */
 @media (max-width: 1023px) {
-  :global(.metronome-app.panel-open) {
-    transform: translateX(280px);
+  :global(.stage) {
+    padding-bottom: var(--app-bottom-nav);
   }
 }
 
-@media (min-width: 428px) and (max-width: 1023px) {
-  :global(.metronome-app.panel-open) {
-    transform: translateX(320px);
-  }
+/* The active view fills the stage; each view manages its own internal layout */
+:global(.stage__view) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-@media (max-width: 374px) {
-  :global(.metronome-app.panel-open) {
-    transform: translateX(100vw);
-  }
+/* Metronome view: slim brand header on top, metronome centered below */
+:global(.metronome-view) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Fallback for older browsers without dvh support */
+:global(.metronome-slot) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  width: 100%;
+}
+
 @supports not (height: 100dvh) {
-  :global(.metronome-app) {
-    min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  :global(.stage) {
+    min-height: calc(100vh - env(safe-area-inset-top));
   }
 }

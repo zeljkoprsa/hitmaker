@@ -5,12 +5,17 @@ import { Route, Routes } from 'react-router-dom';
 import { MetronomeProvider } from '@features/Metronome/context/MetronomeProvider';
 import Metronome from '@features/Metronome/Metronome';
 
+import { AccountPanel } from './components/AccountPanel';
+import { AppNav, ViewType } from './components/AppNav';
 import { CoachStage } from './components/CoachStage';
 import { GlobalPlaybackControls } from './components/GlobalPlaybackControls';
 import { Header } from './components/Header';
+import JournalView from './components/Journal/JournalView';
 import { ReflectionPrompt } from './components/Journal/ReflectionPrompt';
-import { LeftSidebar, SectionType } from './components/LeftSidebar';
 import { SessionRunner } from './components/SessionRunner';
+import StageView from './components/StageView';
+import CatalogView from './components/views/CatalogView';
+import SessionsView from './components/views/SessionsView';
 import { AuthProvider } from './context/AuthContext';
 import { JournalProvider } from './context/JournalContext';
 import { LessonProvider } from './context/LessonContext';
@@ -26,17 +31,49 @@ import './styles/variables.css';
 import { initViewportHeight } from './utils/viewportHeight';
 
 const AppInner: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<SectionType | null>(null);
+  // Center stage is a swappable view region; the sidebar is persistent nav
+  // (JAK-50). The metronome is one view among Catalog / Sessions / Journal.
+  const [activeView, setActiveView] = useState<ViewType>('metronome');
+  const [accountOpen, setAccountOpen] = useState(false);
   const { sessionPhase, activeSession } = useSession();
-  // Guided lesson run: the current block takes center stage and the
-  // metronome demotes to the bottom runner bar (engine unaffected — it
-  // lives in MetronomeProvider above this swap)
+  // A guided lesson run takes over center stage (CoachStage) regardless of
+  // the selected view — the immersive case of the same swap pattern. Ordinary
+  // metronome/session runs keep the RunnerBar pinned across every view.
   const isGuidedRun = Boolean(activeSession?.guided) && sessionPhase !== 'idle';
   const { updateAvailable, applyUpdate, pullProgress } = useAppUpdate();
 
   useEffect(() => {
     document.body.style.overscrollBehaviorY = 'contain';
   }, []);
+
+  // Starting any run drops you onto the metronome view as the run's backdrop
+  const goMetronome = () => setActiveView('metronome');
+
+  const renderView = () => {
+    if (isGuidedRun) return <CoachStage />;
+    switch (activeView) {
+      case 'catalog':
+        return <CatalogView onStartRun={goMetronome} />;
+      case 'sessions':
+        return <SessionsView onStartRun={goMetronome} />;
+      case 'journal':
+        return (
+          <StageView title="Journal">
+            <JournalView />
+          </StageView>
+        );
+      case 'metronome':
+      default:
+        return (
+          <div className="metronome-view">
+            <Header />
+            <div className="metronome-slot">
+              <Metronome />
+            </div>
+          </div>
+        );
+    }
+  };
 
   return (
     <div className="app-shell">
@@ -115,18 +152,18 @@ const AppInner: React.FC = () => {
         </div>
       )}
 
-      <LeftSidebar
-        activeSection={activeSection}
-        onSetSection={setActiveSection}
-        onClose={() => setActiveSection(null)}
+      <AppNav
+        activeView={activeView}
+        onSetView={setActiveView}
+        onOpenAccount={() => setAccountOpen(true)}
+        accountActive={accountOpen}
       />
-      {/* No desktop click-outside collapse (JAK-51): the panel stays open
-          until explicitly closed (X, Escape, or rail toggle) */}
-      <div className={`metronome-app${activeSection !== null ? ' panel-open' : ''}`}>
-        <Header onOpenLeftSidebar={() => setActiveSection('catalog')} />
-        {isGuidedRun ? <CoachStage /> : <Metronome />}
+      <main className="stage">
+        <div className="stage__view">{renderView()}</div>
         <SessionRunner />
-      </div>
+      </main>
+
+      <AccountPanel open={accountOpen} onClose={() => setAccountOpen(false)} />
       {/* Optional post-run reflection prompt (spec #6) */}
       <ReflectionPrompt />
     </div>

@@ -3,13 +3,13 @@ import React from 'react';
 
 import { useSession } from '../../context/SessionContext';
 import { PracticeSession } from '../../core/types/SessionTypes';
-import { ChevronRightIcon, PlayIcon, PlusIcon } from '../Sidebar/icons';
+import { PlayIcon, PlusIcon } from '../Sidebar/icons';
 
 interface SessionListProps {
   onEdit: (session: PracticeSession) => void;
   onNew: () => void;
+  /** Called when a session run starts (the view switches to the metronome). */
   onClose: () => void;
-  onHistory: () => void;
 }
 
 const List = styled.div`
@@ -164,37 +164,6 @@ const NewButton = styled.button`
   }
 `;
 
-const HistoryButton = styled.button`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  border-radius: ${({ theme }) => theme.borders.radius.md};
-  color: rgba(255, 255, 255, 0.35);
-  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
-  font-family: ${({ theme }) => theme.typography.fontFamily.base};
-  cursor: pointer;
-  padding: 10px 12px;
-  min-height: 40px;
-  margin-top: 4px;
-  text-align: left;
-  transition:
-    color 150ms ease,
-    background-color 150ms ease;
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.metronome.primary};
-    background: rgba(255, 255, 255, 0.04);
-  }
-
-  &:active {
-    background: rgba(255, 255, 255, 0.07);
-  }
-`;
-
 const EmptyState = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSizes.sm};
   color: rgba(255, 255, 255, 0.3);
@@ -209,7 +178,7 @@ const formatMeta = (session: PracticeSession): string => {
   return `${blockLabel} · ${total} min`;
 };
 
-const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose, onHistory }) => {
+const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose }) => {
   const { sessions, deleteSession, duplicateSession, startSession } = useSession();
 
   const handleStart = (s: PracticeSession) => {
@@ -256,10 +225,6 @@ const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose, onHis
         <PlusIcon size={13} />
         New Session
       </NewButton>
-      <HistoryButton onClick={onHistory}>
-        Journal
-        <ChevronRightIcon size={13} />
-      </HistoryButton>
     </>
   );
 };

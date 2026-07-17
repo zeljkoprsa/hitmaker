@@ -20,7 +20,8 @@ const slideUp = keyframes`
 const Card = styled.div`
   position: fixed;
   left: 50%;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0));
+  /* Above the mobile bottom nav (JAK-50); the nav owns the safe area */
+  bottom: calc(16px + var(--app-bottom-nav, env(safe-area-inset-bottom, 0)));
   transform: translateX(-50%);
   z-index: ${({ theme }) => theme.zIndices.popover};
   width: min(440px, calc(100vw - 24px));
