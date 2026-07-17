@@ -257,7 +257,7 @@ const SessionList: React.FC<SessionListProps> = ({ onEdit, onNew, onClose, onHis
         New Session
       </NewButton>
       <HistoryButton onClick={onHistory}>
-        Practice History
+        Journal
         <ChevronRightIcon size={13} />
       </HistoryButton>
     </>

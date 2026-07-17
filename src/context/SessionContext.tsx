@@ -1,13 +1,13 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import { PracticeSession, SessionBlock } from '../core/types/SessionTypes';
+import { buildJournalEntry } from '../core/utils/journalEntry';
 import { blockAutoAdvances, blockDrivesMetronome } from '../core/utils/sessionBlocks';
 import { useMetronome } from '../features/Metronome/context/MetronomeProvider';
 import { useSyncedDoc } from '../hooks/useSyncedDoc';
-import { supabase } from '../lib/supabase';
 import { mergeSessionSets } from '../utils/sessionMerge';
 
-import { useAuth } from './AuthContext';
+import { useJournal } from './JournalContext';
 import { useToast } from './ToastContext';
 
 const STORAGE_KEY = 'hitmaker_sessions';
@@ -52,7 +52,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const { isPlaying, togglePlay, setTempo, setTimeSignature, setSubdivision } = useMetronome();
   const { showToast } = useToast();
-  const { user, cloudSyncEnabled } = useAuth();
+  const { addEntry } = useJournal();
+
+  // Wall-clock start of the current run, for the journal's real duration
+  // (spec #6). Stamped when a run commits (beginSession).
+  const runStartedAtRef = useRef<Date | null>(null);
 
   // --- Metronome block application ---
 
@@ -157,6 +161,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const beginSession = useCallback(() => {
+    runStartedAtRef.current = new Date(); // journal duration clock (spec #6)
     // A count-off before a silent block (stretching, rest) would be noise —
     // only count in when the first block actually runs the click
     const first = activeSession?.blocks[0];
@@ -206,23 +211,17 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const nextIndex = currentBlockIndex + 1;
     if (nextIndex >= activeSession.blocks.length) {
       if (isPlaying) togglePlay().catch(() => {});
-      if (user && cloudSyncEnabled) {
-        const totalDuration = activeSession.blocks.reduce((s, b) => s + b.durationMinutes, 0);
-        supabase
-          .from('session_history')
-          .insert({
-            user_id: user.id,
-            // Workout/lesson ids aren't UUIDs; the column is UUID-typed
-            session_id: activeSession.isWorkout || activeSession.guided ? null : activeSession.id,
-            session_name: activeSession.name,
-            completed_at: new Date().toISOString(),
-            blocks_completed: activeSession.blocks.length,
-            total_duration_minutes: totalDuration,
-          })
-          .then(({ error }) => {
-            if (error) console.error('Failed to log session history:', error);
-          });
-      }
+      // Log the completed run to the practice journal (spec #6)
+      addEntry(
+        buildJournalEntry({
+          session: activeSession,
+          startedAt: (runStartedAtRef.current ?? new Date()).toISOString(),
+          endedAt: new Date().toISOString(),
+          status: 'completed',
+          ranBlocks: activeSession.blocks,
+        })
+      );
+      runStartedAtRef.current = null;
       setActiveSession(null);
       setCurrentBlockIndex(0);
       setBlockStartedAt(null);
@@ -235,16 +234,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setPausedAt(null);
     setSessionPhase('running');
     applyBlock(activeSession.blocks[nextIndex]);
-  }, [
-    activeSession,
-    currentBlockIndex,
-    applyBlock,
-    isPlaying,
-    togglePlay,
-    showToast,
-    user,
-    cloudSyncEnabled,
-  ]);
+  }, [activeSession, currentBlockIndex, applyBlock, isPlaying, togglePlay, showToast, addEntry]);
 
   // Coach auto-advance: typed do/break blocks call time when their clock
   // hits zero. Classic (untyped) blocks keep the overtime display and manual
@@ -261,13 +251,28 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const endSession = useCallback(() => {
     if (isPlaying) togglePlay().catch(() => {});
+    // Log a bailed run to the journal — but only if a run was actually
+    // underway (not a Cancel from the preview/countdown before it started).
+    // Knowing what you abandon is itself reflection data (spec #6).
+    if (activeSession && (sessionPhase === 'running' || sessionPhase === 'paused')) {
+      addEntry(
+        buildJournalEntry({
+          session: activeSession,
+          startedAt: (runStartedAtRef.current ?? new Date()).toISOString(),
+          endedAt: new Date().toISOString(),
+          status: 'abandoned',
+          ranBlocks: activeSession.blocks.slice(0, currentBlockIndex + 1),
+        })
+      );
+    }
+    runStartedAtRef.current = null;
     setActiveSession(null);
     setCurrentBlockIndex(0);
     setBlockStartedAt(null);
     setPausedAt(null);
     setSessionPhase('idle');
     setCountdown(null);
-  }, [isPlaying, togglePlay]);
+  }, [isPlaying, togglePlay, activeSession, sessionPhase, currentBlockIndex, addEntry]);
 
   return (
     <SessionContext.Provider

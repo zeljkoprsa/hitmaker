@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { PracticeSession } from '../../core/types/SessionTypes';
 import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
+import JournalView from '../Journal/JournalView';
 import { BookIcon, ChevronLeftIcon, XIcon } from '../Sidebar/icons';
 import PreferencesSection from '../Sidebar/sections/PreferencesSection';
 import ProfileSection from '../Sidebar/sections/ProfileSection';
@@ -29,11 +30,10 @@ import {
 
 import CatalogPanel from './CatalogPanel';
 import SessionEditor from './SessionEditor';
-import SessionHistory from './SessionHistory';
 import SessionList from './SessionList';
 
 export type SectionType = 'catalog' | 'sessions' | 'account';
-type SessionsView = 'list' | 'edit' | 'history';
+type SessionsView = 'list' | 'edit' | 'journal';
 
 export interface LeftSidebarProps {
   activeSection: SectionType | null;
@@ -224,7 +224,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     if (activeSection === 'catalog') return 'Catalog';
     if (activeSection === 'sessions') {
       if (sessionsView === 'edit') return editingSession ? 'Edit Session' : 'New Session';
-      if (sessionsView === 'history') return 'Practice History';
+      if (sessionsView === 'journal') return 'Journal';
       return 'My Sessions';
     }
     if (activeSection === 'account') return user ? 'Account' : 'Sign In';
@@ -364,7 +364,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                       setSessionsView('edit');
                     }}
                     onClose={closeOnMobile}
-                    onHistory={() => setSessionsView('history')}
+                    onHistory={() => setSessionsView('journal')}
                   />
                 )}
                 {sessionsView === 'edit' && (
@@ -380,9 +380,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                     }}
                   />
                 )}
-                {sessionsView === 'history' && (
-                  <SessionHistory onBack={() => setSessionsView('list')} />
-                )}
+                {sessionsView === 'journal' && <JournalView />}
               </>
             )}
 

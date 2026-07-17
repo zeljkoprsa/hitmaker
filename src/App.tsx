@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@emotion/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { MetronomeProvider } from '@features/Metronome/context/MetronomeProvider';
@@ -8,14 +8,15 @@ import Metronome from '@features/Metronome/Metronome';
 import { CoachStage } from './components/CoachStage';
 import { GlobalPlaybackControls } from './components/GlobalPlaybackControls';
 import { Header } from './components/Header';
+import { ReflectionPrompt } from './components/Journal/ReflectionPrompt';
 import { LeftSidebar, SectionType } from './components/LeftSidebar';
 import { SessionRunner } from './components/SessionRunner';
 import { AuthProvider } from './context/AuthContext';
+import { JournalProvider } from './context/JournalContext';
 import { LessonProvider } from './context/LessonContext';
 import { SessionProvider, useSession } from './context/SessionContext';
 import { ToastProvider } from './context/ToastContext';
 import { useAppUpdate } from './hooks/useAppUpdate';
-import { useSessionHistory } from './hooks/useSessionHistory';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import './App.module.css';
@@ -26,25 +27,16 @@ import { initViewportHeight } from './utils/viewportHeight';
 
 const AppInner: React.FC = () => {
   const [activeSection, setActiveSection] = useState<SectionType | null>(null);
-  const { streak, loadHistory } = useSessionHistory();
   const { sessionPhase, activeSession } = useSession();
   // Guided lesson run: the current block takes center stage and the
   // metronome demotes to the bottom runner bar (engine unaffected — it
   // lives in MetronomeProvider above this swap)
   const isGuidedRun = Boolean(activeSession?.guided) && sessionPhase !== 'idle';
-  const prevPhaseRef = useRef(sessionPhase);
   const { updateAvailable, applyUpdate, pullProgress } = useAppUpdate();
 
   useEffect(() => {
     document.body.style.overscrollBehaviorY = 'contain';
   }, []);
-
-  useEffect(() => {
-    if (prevPhaseRef.current === 'running' && sessionPhase === 'idle') {
-      loadHistory();
-    }
-    prevPhaseRef.current = sessionPhase;
-  }, [sessionPhase, loadHistory]);
 
   return (
     <div className="app-shell">
@@ -131,10 +123,12 @@ const AppInner: React.FC = () => {
       {/* No desktop click-outside collapse (JAK-51): the panel stays open
           until explicitly closed (X, Escape, or rail toggle) */}
       <div className={`metronome-app${activeSection !== null ? ' panel-open' : ''}`}>
-        <Header onOpenLeftSidebar={() => setActiveSection('catalog')} streak={streak} />
+        <Header onOpenLeftSidebar={() => setActiveSection('catalog')} />
         {isGuidedRun ? <CoachStage /> : <Metronome />}
         <SessionRunner />
       </div>
+      {/* Optional post-run reflection prompt (spec #6) */}
+      <ReflectionPrompt />
     </div>
   );
 };
@@ -157,11 +151,13 @@ const App: React.FC = () => {
             <AuthProvider>
               <ToastProvider>
                 <MetronomeProvider>
-                  <SessionProvider>
-                    <LessonProvider>
-                      <AppInner />
-                    </LessonProvider>
-                  </SessionProvider>
+                  <JournalProvider>
+                    <SessionProvider>
+                      <LessonProvider>
+                        <AppInner />
+                      </LessonProvider>
+                    </SessionProvider>
+                  </JournalProvider>
                 </MetronomeProvider>
               </ToastProvider>
             </AuthProvider>
