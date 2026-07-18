@@ -12,7 +12,7 @@ import {
   removeEntry,
   toEditorEntries,
 } from '../../core/utils/composeSession';
-import { CATALOG_ITEMS } from '../../features/Catalog/catalogItems';
+import { useCatalog } from '../../features/Catalog/useCatalog';
 import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
 import { NumberField } from '../NumberField';
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon, XIcon } from '../Sidebar/icons';
@@ -394,6 +394,7 @@ const newBlock = (tempo: number, ts: TimeSignature, sub: SubdivisionType): Sessi
 const SessionEditor: React.FC<SessionEditorProps> = ({ session, onSave, onCancel }) => {
   const { createSession, updateSession } = useSession();
   const { tempo, timeSignature, subdivision } = useMetronome();
+  const catalogItems = useCatalog();
 
   const [name, setName] = useState(session?.name ?? '');
   const [blocks, setBlocks] = useState<SessionBlock[]>(
@@ -428,8 +429,8 @@ const SessionEditor: React.FC<SessionEditorProps> = ({ session, onSave, onCancel
 
   // Picker contents: lessons expose their named sections; workouts go whole.
   // Structural blocks (rests, outros) are in no section — never offered.
-  const lessonItems = CATALOG_ITEMS.filter(c => c.type === 'lesson' && c.session?.sections);
-  const workoutItems = CATALOG_ITEMS.filter(c => c.type === 'workout' && c.session);
+  const lessonItems = catalogItems.filter(c => c.type === 'lesson' && c.session?.sections?.length);
+  const workoutItems = catalogItems.filter(c => c.type === 'workout' && c.session);
 
   const handleSave = () => {
     const trimmed = name.trim();

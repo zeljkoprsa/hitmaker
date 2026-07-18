@@ -2,8 +2,17 @@ import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
 import React, { useEffect } from 'react';
 
+import { Lesson } from '../../core/types/LessonTypes';
+import { SessionBlock, SessionSection } from '../../core/types/SessionTypes';
+
+/**
+ * Data-driven session card (spec #7): renders any stored lesson from its
+ * sections/blocks/content. Replaces the original hand-coded card, keeping
+ * its look: numbered sections, dotted items with dimmed notes, BPM tags,
+ * and a Mission-style outro for sectionless teach blocks.
+ */
 interface LessonModalProps {
-  isOpen: boolean;
+  lesson: Lesson | null;
   onClose: () => void;
 }
 
@@ -17,15 +26,13 @@ const fadeUp = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const Overlay = styled.div<{ isOpen: boolean }>`
+const Overlay = styled.div`
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
   z-index: ${({ theme }) => theme.zIndices.modal + 10};
-  opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
-  pointer-events: ${({ isOpen }) => (isOpen ? 'auto' : 'none')};
-  transition: opacity 200ms ease;
+  animation: ${fadeIn} 200ms ease-out;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -38,7 +45,7 @@ const Overlay = styled.div<{ isOpen: boolean }>`
   }
 `;
 
-const ModalContainer = styled.div<{ isOpen: boolean }>`
+const ModalContainer = styled.div`
   background: ${({ theme }) => theme.colors.metronome.darkBackground};
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: ${({ theme }) => theme.borders.radius.lg};
@@ -133,6 +140,7 @@ const Title = styled.h1`
   letter-spacing: 0.02em;
   color: ${({ theme }) => theme.colors.metronome.primary};
   margin: 0;
+  text-transform: uppercase;
 
   span {
     color: ${({ theme }) => theme.colors.metronome.accent};
@@ -250,28 +258,6 @@ const BpmTag = styled.span`
   letter-spacing: 0.05em;
 `;
 
-const HihatGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr 1fr;
-  }
-`;
-
-const HihatChip = styled.div<{ full?: boolean }>`
-  background: rgba(246, 65, 5, 0.06);
-  border: 1px solid rgba(246, 65, 5, 0.15);
-  border-radius: ${({ theme }) => theme.borders.radius.sm};
-  padding: 10px 12px;
-  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.metronome.primary};
-  letter-spacing: 0.03em;
-  text-align: center;
-  ${({ full }) => full && 'grid-column: 1 / -1;'}
-`;
-
 const Divider = styled.div`
   height: 1px;
   background: linear-gradient(
@@ -309,6 +295,7 @@ const MissionTitle = styled.div`
   letter-spacing: 0.2em;
   color: ${({ theme }) => theme.colors.metronome.accent};
   margin-bottom: 14px;
+  text-transform: uppercase;
 `;
 
 const MissionItems = styled.ul`
@@ -318,6 +305,10 @@ const MissionItems = styled.ul`
   gap: 8px;
   margin: 0 0 16px 0;
   padding: 0;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const MissionItem = styled.li`
@@ -328,7 +319,7 @@ const MissionItem = styled.li`
   line-height: 1.5;
 
   &::before {
-    content: '\u2192';
+    content: '→';
     position: absolute;
     left: 0;
     color: ${({ theme }) => theme.colors.metronome.accent};
@@ -352,7 +343,7 @@ const BonusItem = styled.div`
   gap: 8px;
 
   &::before {
-    content: '\u2726';
+    content: '✦';
     color: ${({ theme }) => theme.colors.metronome.accent};
     font-size: 8px;
   }
@@ -369,7 +360,136 @@ const Mantra = styled.div`
   animation: ${fadeUp} 0.6s ease 0.5s forwards;
 `;
 
-const LessonModal: React.FC<LessonModalProps> = ({ isOpen, onClose }) => {
+const Prose = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.4);
+  padding-top: 8px;
+`;
+
+/** Last word of the name gets the accent, like the original card art. */
+const renderTitle = (name: string): React.ReactNode => {
+  const words = name.trim().split(/\s+/);
+  if (words.length < 2) return <span>{name}</span>;
+  const last = words.pop();
+  return (
+    <>
+      {words.join(' ')} <span>{last}</span>
+    </>
+  );
+};
+
+/** Badge text: the first labelled part of the block eyebrow ("technique ·
+ *  hand sticking" → "technique"). Warm variant for untimed (warm-up-ish)
+ *  sections, tech for tempo work. */
+const sectionBadge = (
+  blocks: SessionBlock[]
+): { text: string; variant: 'warm' | 'tech' } | null => {
+  const eyebrow = blocks.find(b => b.content?.eyebrow)?.content?.eyebrow;
+  if (!eyebrow) return null;
+  const text = eyebrow.split('·')[0].trim();
+  const variant = blocks.some(b => b.tempo != null) ? 'tech' : 'warm';
+  return { text, variant };
+};
+
+const dotColor = (block: SessionBlock): 'warm' | 'dim' | 'accent' => {
+  if (block.tempo != null) return 'accent';
+  return block.type === 'teach' ? 'warm' : 'dim';
+};
+
+const RANGE_RE = /(\d+\s*[–-]\s*\d+)/;
+
+/** BPM tag for an item on a tempo'd block: a range quoted in its note
+ *  ("work the range 50–120") wins over the block's starting tempo; the
+ *  quoted phrase leaves the note. Untimed blocks never get a tag — a range
+ *  in their notes is prose ("hold 15–20s"), not BPM. */
+const splitNote = (
+  note: string | undefined,
+  block: SessionBlock
+): { tag: string | null; note: string | null } => {
+  if (block.tempo == null) return { tag: null, note: note ?? null };
+  const range = note?.match(RANGE_RE)?.[1] ?? null;
+  if (range && note) {
+    const cleaned = note
+      .replace(/\s*[·—-]?\s*work the range\s*\d+\s*[–-]\s*\d+/i, '')
+      .replace(RANGE_RE, '')
+      .replace(/\s*[·—-]\s*$/, '')
+      .trim();
+    return { tag: range, note: cleaned || null };
+  }
+  return { tag: block.tempo != null ? `${block.tempo}` : null, note: note ?? null };
+};
+
+const SectionCard: React.FC<{ section: SessionSection; blocks: SessionBlock[]; index: number }> = ({
+  section,
+  blocks,
+  index,
+}) => {
+  const badge = sectionBadge(blocks);
+  const prose = blocks.map(b => b.content?.prose).filter(Boolean);
+  return (
+    <Section delay={index + 1}>
+      <SectionHeaderRow>
+        <SectionNum>{String(index + 1).padStart(2, '0')}</SectionNum>
+        <SectionTitle>{section.name}</SectionTitle>
+        {badge && <SectionBadge variant={badge.variant}>{badge.text}</SectionBadge>}
+      </SectionHeaderRow>
+      <Card>
+        {blocks.flatMap(block =>
+          (block.content?.items ?? []).map((item, i) => {
+            const { tag, note } = splitNote(item.note, block);
+            return (
+              <Item key={`${block.id}-${i}`}>
+                <Dot color={dotColor(block)} />
+                <ItemText>
+                  {item.text}
+                  {note && <em> — {note}</em>}
+                </ItemText>
+                {tag && <BpmTag>{tag}</BpmTag>}
+              </Item>
+            );
+          })
+        )}
+        {prose.map((p, i) => (
+          <Prose key={i}>{p}</Prose>
+        ))}
+      </Card>
+    </Section>
+  );
+};
+
+/** Sectionless teach blocks with content render Mission-style after the
+ *  divider; a bonus note demotes an item to the starred footer list. */
+const OutroCard: React.FC<{ block: SessionBlock; index: number }> = ({ block, index }) => {
+  const items = block.content?.items ?? [];
+  const main = items.filter(i => i.note !== 'bonus');
+  const bonus = items.filter(i => i.note === 'bonus');
+  return (
+    <Section delay={index}>
+      <MissionCard>
+        {block.label && <MissionTitle>{block.label}</MissionTitle>}
+        {main.length > 0 && (
+          <MissionItems>
+            {main.map((item, i) => (
+              <MissionItem key={i}>{item.text}</MissionItem>
+            ))}
+          </MissionItems>
+        )}
+        {bonus.length > 0 && (
+          <BonusRow>
+            {bonus.map((item, i) => (
+              <BonusItem key={i}>{item.text}</BonusItem>
+            ))}
+          </BonusRow>
+        )}
+      </MissionCard>
+    </Section>
+  );
+};
+
+const LessonModal: React.FC<LessonModalProps> = ({ lesson, onClose }) => {
+  const isOpen = lesson !== null;
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -386,153 +506,48 @@ const LessonModal: React.FC<LessonModalProps> = ({ isOpen, onClose }) => {
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!lesson) return null;
+
+  const blockById = new Map(lesson.blocks.map(b => [b.id, b]));
+  const sections = lesson.sections ?? [];
+  const sectionedIds = new Set(sections.flatMap(s => s.blockIds));
+  const outroBlocks = lesson.blocks.filter(
+    b => !sectionedIds.has(b.id) && b.type === 'teach' && b.content
+  );
+  const mantra = outroBlocks.map(b => b.content?.prose).find(Boolean);
 
   return (
-    <Overlay isOpen={isOpen} onClick={onClose}>
-      <ModalContainer isOpen={isOpen} onClick={e => e.stopPropagation()}>
+    <Overlay onClick={onClose}>
+      <ModalContainer onClick={e => e.stopPropagation()}>
         <CloseButton onClick={onClose} aria-label="Close">
           ✕
         </CloseButton>
         <ModalContent>
           <Header>
-            <Eyebrow>Session Card · Lesson 01</Eyebrow>
-            <Title>
-              GROOVE IS
-              <br />
-              IN THE <span>HEART</span>
-            </Title>
+            <Eyebrow>
+              Session Card{lesson.lessonNumber ? ` · Lesson ${lesson.lessonNumber}` : ''}
+            </Eyebrow>
+            <Title>{renderTitle(lesson.name)}</Title>
           </Header>
 
-          {/* Stretching */}
-          <Section delay={1}>
-            <SectionHeaderRow>
-              <SectionNum>01</SectionNum>
-              <SectionTitle>Stretching</SectionTitle>
-              <SectionBadge variant="warm">warm-up</SectionBadge>
-            </SectionHeaderRow>
-            <Card>
-              <Item>
-                <Dot color="warm" />
-                <ItemText>Arms across chest — hold 15–20s each side</ItemText>
-              </Item>
-              <Item>
-                <Dot color="warm" />
-                <ItemText>Wrists: palm up + down, both directions</ItemText>
-              </Item>
-              <Item>
-                <Dot color="warm" />
-                <ItemText>Loosen shoulders & fingers</ItemText>
-              </Item>
-            </Card>
-          </Section>
+          {sections.map((section, i) => (
+            <SectionCard
+              key={section.id}
+              section={section}
+              blocks={section.blockIds
+                .map(id => blockById.get(id))
+                .filter((b): b is SessionBlock => b !== undefined)}
+              index={i}
+            />
+          ))}
 
-          {/* Free Expression */}
-          <Section delay={2}>
-            <SectionHeaderRow>
-              <SectionNum>02</SectionNum>
-              <SectionTitle>Free Expression</SectionTitle>
-              <SectionBadge variant="warm">no rules</SectionBadge>
-            </SectionHeaderRow>
-            <Card>
-              <Item>
-                <Dot color="dim" />
-                <ItemText>
-                  Arrhythmic, unarticulated, unburdened
-                  <br />
-                  <em>Just play. No judgment.</em>
-                </ItemText>
-              </Item>
-            </Card>
-          </Section>
+          {outroBlocks.length > 0 && <Divider />}
 
-          {/* Hand Sticking */}
-          <Section delay={3}>
-            <SectionHeaderRow>
-              <SectionNum>03</SectionNum>
-              <SectionTitle>Hand Sticking</SectionTitle>
-              <SectionBadge variant="tech">technique</SectionBadge>
-            </SectionHeaderRow>
-            <Card>
-              <Item>
-                <Dot />
-                <ItemText>
-                  Single strokes <em>— limb dependency</em>
-                </ItemText>
-                <BpmTag>50–120</BpmTag>
-              </Item>
-              <Item>
-                <Dot />
-                <ItemText>
-                  Around the kit <em>— spatial awareness</em>
-                </ItemText>
-                <BpmTag>50–120</BpmTag>
-              </Item>
-            </Card>
-          </Section>
+          {outroBlocks.map((block, i) => (
+            <OutroCard key={block.id} block={block} index={sections.length + 1 + i} />
+          ))}
 
-          {/* Leg Independence */}
-          <Section delay={4}>
-            <SectionHeaderRow>
-              <SectionNum>04</SectionNum>
-              <SectionTitle>Leg Independence</SectionTitle>
-              <SectionBadge variant="tech">technique</SectionBadge>
-            </SectionHeaderRow>
-            <Card>
-              <Item>
-                <Dot />
-                <ItemText>Bass drum</ItemText>
-                <BpmTag>50–120</BpmTag>
-              </Item>
-              <Item>
-                <Dot />
-                <ItemText>Hi-hat / kick alternates</ItemText>
-                <BpmTag>50–120</BpmTag>
-              </Item>
-            </Card>
-          </Section>
-
-          {/* Hi-Hat Riding */}
-          <Section delay={5}>
-            <SectionHeaderRow>
-              <SectionNum>05</SectionNum>
-              <SectionTitle>Hi-Hat Riding</SectionTitle>
-              <SectionBadge variant="tech">technique</SectionBadge>
-            </SectionHeaderRow>
-            <Card>
-              <HihatGrid>
-                <HihatChip>♩ Quarters</HihatChip>
-                <HihatChip>♪ Eighths</HihatChip>
-                <HihatChip>♬ Sixteenths</HihatChip>
-                <HihatChip>Accents</HihatChip>
-                <HihatChip>Dynamics</HihatChip>
-                <HihatChip>Ahead / Behind</HihatChip>
-                <HihatChip full>Even → Shuffle → Swing</HihatChip>
-              </HihatGrid>
-            </Card>
-          </Section>
-
-          <Divider />
-
-          {/* Mission */}
-          <Section delay={6}>
-            <MissionCard>
-              <MissionTitle>Mission</MissionTitle>
-              <MissionItems>
-                <MissionItem>Groove and flow above all</MissionItem>
-                <MissionItem>Even strokes, even kicks, controlled dynamics</MissionItem>
-                <MissionItem>Active listening & full awareness</MissionItem>
-                <MissionItem>One exercise at a time — focused, slow & steady</MissionItem>
-              </MissionItems>
-              <BonusRow>
-                <BonusItem>Sing along & audiate while you play</BonusItem>
-                <BonusItem>Record → listen back → iterate</BonusItem>
-                <BonusItem>Weekly review — repeat until you become groove</BonusItem>
-              </BonusRow>
-            </MissionCard>
-          </Section>
-
-          <Mantra>HAVE FUN ✦</Mantra>
+          {mantra && <Mantra>{mantra}</Mantra>}
         </ModalContent>
       </ModalContainer>
     </Overlay>

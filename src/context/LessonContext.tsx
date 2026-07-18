@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 
 import LessonModal from '../components/Lessons/LessonModal';
 
+import { useLessonsStore } from './LessonsContext';
+
 interface LessonContextType {
   openLesson: (lessonId: string) => void;
   closeLesson: () => void;
@@ -17,8 +19,11 @@ export const useLessons = () => {
   return context;
 };
 
+/** Session-card modal opener. Cards render data-driven from the lessons
+ *  store (spec #7), so any stored lesson can be opened by id. */
 export const LessonProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
+  const { getLesson } = useLessonsStore();
 
   const openLesson = useCallback((lessonId: string) => {
     setActiveLessonId(lessonId);
@@ -28,10 +33,12 @@ export const LessonProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setActiveLessonId(null);
   }, []);
 
+  const activeLesson = activeLessonId ? (getLesson(activeLessonId) ?? null) : null;
+
   return (
     <LessonContext.Provider value={{ openLesson, closeLesson }}>
       {children}
-      <LessonModal isOpen={activeLessonId === 'groove-is-in-the-heart'} onClose={closeLesson} />
+      <LessonModal lesson={activeLesson} onClose={closeLesson} />
     </LessonContext.Provider>
   );
 };
