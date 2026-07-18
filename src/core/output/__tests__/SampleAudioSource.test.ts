@@ -5,6 +5,7 @@
 
 import { OutputSourceConfig } from '../../interfaces/IOutputSource';
 import { ITickEvent } from '../../interfaces/ITickEvent';
+import { AccentLevel } from '../../types/MetronomeTypes';
 import { SampleAudioSource } from '../SampleAudioSource';
 
 // Mock getSoundById function
@@ -196,7 +197,7 @@ describe('SampleAudioSource', () => {
         tempo: 120,
         timeSignature: { beats: 4, noteValue: 4 },
         subdivision: 'quarter',
-        isAccented: false,
+        accentLevel: AccentLevel.Normal,
         beatDuration: 500,
         nextTickTime: mockAudioContext.currentTime + 0.5,
       };
@@ -206,7 +207,7 @@ describe('SampleAudioSource', () => {
 
       await sampleSource.processTick(tickEvent);
 
-      expect(playClickSpy).toHaveBeenCalledWith(tickEvent.timestamp, tickEvent.isAccented);
+      expect(playClickSpy).toHaveBeenCalledWith(tickEvent.timestamp, false);
     });
 
     it('should process accented beat ticks', async () => {
@@ -218,7 +219,7 @@ describe('SampleAudioSource', () => {
         tempo: 120,
         timeSignature: { beats: 4, noteValue: 4 },
         subdivision: 'quarter',
-        isAccented: true,
+        accentLevel: AccentLevel.Accent,
         beatDuration: 500,
         nextTickTime: mockAudioContext.currentTime + 0.5,
       };
@@ -243,7 +244,7 @@ describe('SampleAudioSource', () => {
         tempo: 120,
         timeSignature: { beats: 4, noteValue: 4 },
         subdivision: 'eighth',
-        isAccented: false, // Subdivisions are never accented
+        accentLevel: AccentLevel.Normal, // Subdivisions are never accented
         beatDuration: 500,
         nextTickTime: mockAudioContext.currentTime + 0.5,
       };
@@ -271,7 +272,7 @@ describe('SampleAudioSource', () => {
         tempo: 120,
         timeSignature: { beats: 4, noteValue: 4 },
         subdivision: 'quarter',
-        isAccented: false,
+        accentLevel: AccentLevel.Normal,
         beatDuration: 500,
         nextTickTime: mockAudioContext.currentTime + 0.5,
       };

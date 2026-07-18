@@ -2,8 +2,10 @@ import { randomUUID } from 'crypto';
 
 import '@testing-library/jest-dom';
 
-// jsdom's crypto lacks randomUUID (used by session/composer code)
-if (typeof crypto !== 'undefined' && !crypto.randomUUID) {
+// jsdom's crypto lacks randomUUID (used by session/composer code) — or may be absent entirely
+if (typeof crypto === 'undefined') {
+  (globalThis as { crypto?: { randomUUID: () => string } }).crypto = { randomUUID };
+} else if (!crypto.randomUUID) {
   (crypto as { randomUUID?: () => string }).randomUUID = randomUUID;
 }
 
