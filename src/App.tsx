@@ -19,6 +19,7 @@ import SessionsView from './components/views/SessionsView';
 import { AuthProvider } from './context/AuthContext';
 import { JournalProvider } from './context/JournalContext';
 import { LessonProvider } from './context/LessonContext';
+import { LessonsProvider } from './context/LessonsContext';
 import { SessionProvider, useSession } from './context/SessionContext';
 import { ToastProvider } from './context/ToastContext';
 import { useAppUpdate } from './hooks/useAppUpdate';
@@ -189,11 +190,13 @@ const App: React.FC = () => {
               <ToastProvider>
                 <MetronomeProvider>
                   <JournalProvider>
-                    <SessionProvider>
-                      <LessonProvider>
-                        <AppInner />
-                      </LessonProvider>
-                    </SessionProvider>
+                    <LessonsProvider>
+                      <SessionProvider>
+                        <LessonProvider>
+                          <AppInner />
+                        </LessonProvider>
+                      </SessionProvider>
+                    </LessonsProvider>
                   </JournalProvider>
                 </MetronomeProvider>
               </ToastProvider>

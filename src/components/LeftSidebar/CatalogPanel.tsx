@@ -2,14 +2,21 @@ import styled from '@emotion/styled';
 import React, { useState } from 'react';
 
 import { useLessons } from '../../context/LessonContext';
+import { useLessonsStore } from '../../context/LessonsContext';
 import { useSession } from '../../context/SessionContext';
-import { CATALOG_ITEMS, CatalogItem } from '../../features/Catalog/catalogItems';
-import { DrumIcon, PlayIcon } from '../Sidebar/icons';
+import { Lesson } from '../../core/types/LessonTypes';
+import { CatalogItem } from '../../features/Catalog/catalogItems';
+import { useCatalog } from '../../features/Catalog/useCatalog';
+import { DrumIcon, PencilIcon, PlayIcon, PlusIcon } from '../Sidebar/icons';
 
 type CatalogFilter = 'all' | 'lessons' | 'workouts';
 
 interface CatalogPanelProps {
   onClose: () => void;
+  /** Lesson authoring entry points (spec #7); omitted where editing
+   *  shouldn't be offered. */
+  onEditLesson?: (lesson: Lesson) => void;
+  onNewLesson?: () => void;
 }
 
 const FilterRow = styled.div`
@@ -192,6 +199,31 @@ const OpenLessonArea = styled.button`
   font-family: ${({ theme }) => theme.typography.fontFamily.base};
 `;
 
+const NewLessonBtn = styled.button`
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: ${({ theme }) => theme.borders.radius.md};
+  color: rgba(255, 255, 255, 0.35);
+  font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.base};
+  cursor: pointer;
+  padding: 10px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.6);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+`;
+
 const FILTERS: { value: CatalogFilter; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'lessons', label: 'Lessons' },
@@ -203,12 +235,18 @@ const matchesFilter = (item: CatalogItem, filter: CatalogFilter): boolean =>
   (filter === 'lessons' && item.type === 'lesson') ||
   (filter === 'workouts' && item.type === 'workout');
 
-const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose }) => {
+const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose, onEditLesson, onNewLesson }) => {
   const [filter, setFilter] = useState<CatalogFilter>('all');
   const { openLesson } = useLessons();
+  const { getLesson } = useLessonsStore();
   const { duplicateSession, startSession } = useSession();
 
-  const items = CATALOG_ITEMS.filter(item => matchesFilter(item, filter));
+  const items = useCatalog().filter(item => matchesFilter(item, filter));
+
+  const handleEditLesson = (item: CatalogItem) => {
+    const lesson = item.lessonId ? getLesson(item.lessonId) : undefined;
+    if (lesson && onEditLesson) onEditLesson(lesson);
+  };
 
   // Workouts and lessons start the same way: both are block sessions run by
   // SessionContext; a lesson's guided flag swaps center stage to CoachStage
@@ -251,6 +289,14 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose }) => {
                 </Info>
               </OpenLessonArea>
               <Actions>
+                {onEditLesson && (
+                  <CircleBtn
+                    onClick={() => handleEditLesson(item)}
+                    aria-label={`Edit ${item.title}`}
+                  >
+                    <PencilIcon size={13} />
+                  </CircleBtn>
+                )}
                 {item.session && (
                   <CircleBtn
                     onClick={() => handleStartSession(item)}
@@ -285,6 +331,12 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose }) => {
               </WorkoutBottom>
             </WorkoutCard>
           )
+        )}
+        {onNewLesson && filter !== 'workouts' && (
+          <NewLessonBtn onClick={onNewLesson}>
+            <PlusIcon size={13} />
+            New Lesson
+          </NewLessonBtn>
         )}
       </List>
     </>
