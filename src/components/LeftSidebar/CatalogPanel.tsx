@@ -17,6 +17,8 @@ interface CatalogPanelProps {
    *  shouldn't be offered. */
   onEditLesson?: (lesson: Lesson) => void;
   onNewLesson?: () => void;
+  /** Markdown import entry point (spec #8). */
+  onImportLesson?: () => void;
 }
 
 const FilterRow = styled.div`
@@ -199,6 +201,15 @@ const OpenLessonArea = styled.button`
   font-family: ${({ theme }) => theme.typography.fontFamily.base};
 `;
 
+const NewLessonRow = styled.div`
+  display: flex;
+  gap: 8px;
+
+  > button {
+    flex: 1;
+  }
+`;
+
 const NewLessonBtn = styled.button`
   width: 100%;
   background: rgba(255, 255, 255, 0.03);
@@ -235,7 +246,12 @@ const matchesFilter = (item: CatalogItem, filter: CatalogFilter): boolean =>
   (filter === 'lessons' && item.type === 'lesson') ||
   (filter === 'workouts' && item.type === 'workout');
 
-const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose, onEditLesson, onNewLesson }) => {
+const CatalogPanel: React.FC<CatalogPanelProps> = ({
+  onClose,
+  onEditLesson,
+  onNewLesson,
+  onImportLesson,
+}) => {
   const [filter, setFilter] = useState<CatalogFilter>('all');
   const { openLesson } = useLessons();
   const { getLesson } = useLessonsStore();
@@ -333,10 +349,13 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({ onClose, onEditLesson, onNe
           )
         )}
         {onNewLesson && filter !== 'workouts' && (
-          <NewLessonBtn onClick={onNewLesson}>
-            <PlusIcon size={13} />
-            New Lesson
-          </NewLessonBtn>
+          <NewLessonRow>
+            <NewLessonBtn onClick={onNewLesson}>
+              <PlusIcon size={13} />
+              New Lesson
+            </NewLessonBtn>
+            {onImportLesson && <NewLessonBtn onClick={onImportLesson}>Import .md</NewLessonBtn>}
+          </NewLessonRow>
         )}
       </List>
     </>

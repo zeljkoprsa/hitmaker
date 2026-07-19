@@ -1,24 +1,50 @@
 import React, { useState } from 'react';
 
+import { LessonDraft } from '../../context/LessonsContext';
 import { Lesson } from '../../core/types/LessonTypes';
 import CatalogPanel from '../LeftSidebar/CatalogPanel';
+import ImportLessonPanel from '../LeftSidebar/ImportLessonPanel';
 import LessonEditor from '../LeftSidebar/LessonEditor';
 import StageView from '../StageView';
 
 /** Catalog as a center-stage view (JAK-50). Starting a run from a card
  *  switches to the metronome view via onStartRun (CatalogPanel calls its
  *  onClose when a session/workout/lesson run begins). Lesson authoring
- *  (spec #7) lives here too: New Lesson + per-row edit swap in the editor. */
+ *  (spec #7) lives here too: New Lesson + per-row edit swap in the editor,
+ *  and markdown import (spec #8) parses into a draft that opens in it. */
+type Mode =
+  | { kind: 'list' }
+  | { kind: 'import' }
+  | { kind: 'edit'; lesson: Lesson | null; draft?: LessonDraft };
+
 export const CatalogView: React.FC<{ onStartRun: () => void }> = ({ onStartRun }) => {
-  // undefined = catalog list; null = new lesson; lesson = editing that lesson
-  const [editing, setEditing] = useState<Lesson | null | undefined>(undefined);
+  const [mode, setMode] = useState<Mode>({ kind: 'list' });
 
-  const backToList = () => setEditing(undefined);
+  const backToList = () => setMode({ kind: 'list' });
 
-  if (editing !== undefined) {
+  if (mode.kind === 'import') {
     return (
-      <StageView title={editing ? 'Edit Lesson' : 'New Lesson'} onBack={backToList}>
-        <LessonEditor lesson={editing} onSave={backToList} onCancel={backToList} />
+      <StageView title="Import Lesson" onBack={backToList}>
+        <ImportLessonPanel
+          onDraft={draft => setMode({ kind: 'edit', lesson: null, draft })}
+          onCancel={backToList}
+        />
+      </StageView>
+    );
+  }
+
+  if (mode.kind === 'edit') {
+    return (
+      <StageView
+        title={mode.lesson ? 'Edit Lesson' : mode.draft ? 'Review Import' : 'New Lesson'}
+        onBack={backToList}
+      >
+        <LessonEditor
+          lesson={mode.lesson}
+          draft={mode.draft}
+          onSave={backToList}
+          onCancel={backToList}
+        />
       </StageView>
     );
   }
@@ -27,8 +53,9 @@ export const CatalogView: React.FC<{ onStartRun: () => void }> = ({ onStartRun }
     <StageView title="Catalog">
       <CatalogPanel
         onClose={onStartRun}
-        onEditLesson={setEditing}
-        onNewLesson={() => setEditing(null)}
+        onEditLesson={lesson => setMode({ kind: 'edit', lesson })}
+        onNewLesson={() => setMode({ kind: 'edit', lesson: null })}
+        onImportLesson={() => setMode({ kind: 'import' })}
       />
     </StageView>
   );
