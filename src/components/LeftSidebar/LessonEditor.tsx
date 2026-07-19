@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import React, { useState } from 'react';
 
-import { useLessonsStore } from '../../context/LessonsContext';
+import { LessonDraft, useLessonsStore } from '../../context/LessonsContext';
 import { Lesson } from '../../core/types/LessonTypes';
 import { SubdivisionType, TimeSignature } from '../../core/types/MetronomeTypes';
 import {
@@ -23,6 +23,9 @@ import { ChevronDownIcon, ChevronUpIcon, XIcon } from '../Sidebar/icons';
 interface LessonEditorProps {
   /** null = new lesson */
   lesson: Lesson | null;
+  /** Prefill for a new lesson (markdown import, spec #8). Only read when
+   *  lesson is null; saving always creates, never updates. */
+  draft?: LessonDraft;
   onSave: () => void;
   onCancel: () => void;
 }
@@ -64,7 +67,10 @@ const NO_SECTION = '__none__';
  *  back into blockIds on save. */
 type EditorBlock = SessionBlock & { sectionId?: string };
 
-const toEditorBlocks = (lesson: Lesson): EditorBlock[] => {
+const toEditorBlocks = (lesson: {
+  sections?: SessionSection[];
+  blocks: SessionBlock[];
+}): EditorBlock[] => {
   const sectionByBlock = new Map<string, string>();
   for (const s of lesson.sections ?? []) {
     for (const id of s.blockIds) sectionByBlock.set(id, s.id);
@@ -431,16 +437,19 @@ const sanitizeBlock = ({ sectionId, ...block }: EditorBlock): SessionBlock => {
   return block.type === 'break' ? { ...rest, content: undefined } : rest;
 };
 
-const LessonEditor: React.FC<LessonEditorProps> = ({ lesson, onSave, onCancel }) => {
+const LessonEditor: React.FC<LessonEditorProps> = ({ lesson, draft, onSave, onCancel }) => {
   const { createLesson, updateLesson, deleteLesson } = useLessonsStore();
   const { tempo, timeSignature, subdivision } = useMetronome();
 
-  const [name, setName] = useState(lesson?.name ?? '');
-  const [lessonNumber, setLessonNumber] = useState(lesson?.lessonNumber ?? '');
+  // Editing an existing lesson takes precedence; otherwise an import draft
+  // prefills; otherwise start blank.
+  const source = lesson ?? draft ?? null;
+  const [name, setName] = useState(source?.name ?? '');
+  const [lessonNumber, setLessonNumber] = useState(source?.lessonNumber ?? '');
   const [sections, setSections] = useState<Array<Pick<SessionSection, 'id' | 'name'>>>(
-    (lesson?.sections ?? []).map(s => ({ id: s.id, name: s.name }))
+    (source?.sections ?? []).map(s => ({ id: s.id, name: s.name }))
   );
-  const [blocks, setBlocks] = useState<EditorBlock[]>(lesson ? toEditorBlocks(lesson) : []);
+  const [blocks, setBlocks] = useState<EditorBlock[]>(source ? toEditorBlocks(source) : []);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [deleteArmed, setDeleteArmed] = useState(false);
