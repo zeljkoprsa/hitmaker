@@ -325,6 +325,22 @@ const MissionItem = styled.li`
     color: ${({ theme }) => theme.colors.metronome.accent};
     font-size: 12px;
   }
+
+  em {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: ${({ theme }) => theme.typography.fontSizes.xs};
+  }
+`;
+
+const SourceLink = styled.a`
+  color: ${({ theme }) => theme.colors.metronome.accent};
+  text-decoration: none;
+  word-break: break-all;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const BonusRow = styled.div`
@@ -443,7 +459,12 @@ const SectionCard: React.FC<{ section: SessionSection; blocks: SessionBlock[]; i
                 <Dot color={dotColor(block)} />
                 <ItemText>
                   {item.text}
-                  {note && <em> — {note}</em>}
+                  {note && (
+                    <em>
+                      {' — '}
+                      <Linkify text={note} />
+                    </em>
+                  )}
                 </ItemText>
                 {tag && <BpmTag>{tag}</BpmTag>}
               </Item>
@@ -471,7 +492,15 @@ const OutroCard: React.FC<{ block: SessionBlock; index: number }> = ({ block, in
         {main.length > 0 && (
           <MissionItems>
             {main.map((item, i) => (
-              <MissionItem key={i}>{item.text}</MissionItem>
+              <MissionItem key={i}>
+                {item.text}
+                {item.note && (
+                  <em>
+                    {' — '}
+                    <Linkify text={item.note} />
+                  </em>
+                )}
+              </MissionItem>
             ))}
           </MissionItems>
         )}
@@ -486,6 +515,19 @@ const OutroCard: React.FC<{ block: SessionBlock; index: number }> = ({ block, in
     </Section>
   );
 };
+
+const URL_RE = /^https?:\/\/\S+$/;
+
+/** Bare-URL notes (a distilled item's source link, spec #9) render as real
+ *  links; everything else stays plain text. */
+const Linkify: React.FC<{ text: string }> = ({ text }) =>
+  URL_RE.test(text) ? (
+    <SourceLink href={text} target="_blank" rel="noreferrer noopener">
+      {text}
+    </SourceLink>
+  ) : (
+    <>{text}</>
+  );
 
 const LessonModal: React.FC<LessonModalProps> = ({ lesson, onClose }) => {
   const isOpen = lesson !== null;

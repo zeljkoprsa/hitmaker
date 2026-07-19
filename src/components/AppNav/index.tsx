@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 
 import { useAuth } from '../../context/AuthContext';
 import { useMetronome } from '../../features/Metronome/context/MetronomeProvider';
-import { BookIcon, CalendarIcon, MetronomeIcon, NoteIcon } from '../Sidebar/icons';
+import { BookIcon, CalendarIcon, InboxIcon, MetronomeIcon, NoteIcon } from '../Sidebar/icons';
 
-export type ViewType = 'metronome' | 'catalog' | 'sessions' | 'journal';
+export type ViewType = 'metronome' | 'catalog' | 'sessions' | 'inbox' | 'journal';
 
 interface NavItem {
   view: ViewType;
@@ -18,6 +18,7 @@ const ITEMS: NavItem[] = [
   { view: 'metronome', label: 'Metronome', icon: MetronomeIcon },
   { view: 'catalog', label: 'Catalog', icon: BookIcon },
   { view: 'sessions', label: 'Sessions', icon: NoteIcon },
+  { view: 'inbox', label: 'Inbox', icon: InboxIcon },
   { view: 'journal', label: 'Journal', icon: CalendarIcon },
 ];
 
