@@ -15,8 +15,10 @@ import { ReflectionPrompt } from './components/Journal/ReflectionPrompt';
 import { SessionRunner } from './components/SessionRunner';
 import StageView from './components/StageView';
 import CatalogView from './components/views/CatalogView';
+import InboxView from './components/views/InboxView';
 import SessionsView from './components/views/SessionsView';
 import { AuthProvider } from './context/AuthContext';
+import { IntakeProvider } from './context/IntakeContext';
 import { JournalProvider } from './context/JournalContext';
 import { LessonProvider } from './context/LessonContext';
 import { LessonsProvider } from './context/LessonsContext';
@@ -57,6 +59,8 @@ const AppInner: React.FC = () => {
         return <CatalogView onStartRun={goMetronome} />;
       case 'sessions':
         return <SessionsView onStartRun={goMetronome} />;
+      case 'inbox':
+        return <InboxView />;
       case 'journal':
         return (
           <StageView title="Journal">
@@ -191,11 +195,13 @@ const App: React.FC = () => {
                 <MetronomeProvider>
                   <JournalProvider>
                     <LessonsProvider>
-                      <SessionProvider>
-                        <LessonProvider>
-                          <AppInner />
-                        </LessonProvider>
-                      </SessionProvider>
+                      <IntakeProvider>
+                        <SessionProvider>
+                          <LessonProvider>
+                            <AppInner />
+                          </LessonProvider>
+                        </SessionProvider>
+                      </IntakeProvider>
                     </LessonsProvider>
                   </JournalProvider>
                 </MetronomeProvider>

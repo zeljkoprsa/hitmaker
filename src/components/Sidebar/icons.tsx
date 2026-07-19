@@ -177,3 +177,28 @@ export const CalendarIcon: React.FC<IconProps> = ({ size = 16 }) => (
     <path d="M5.5 2.5v2M10.5 2.5v2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
   </svg>
 );
+
+export const InboxIcon: React.FC<IconProps> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path
+      d="M2.5 9.5V11a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V9.5"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
+    <path
+      d="M2.5 9.5h3l1 1.5h3l1-1.5h3"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M8 2.5v5M5.8 5.8 8 7.9l2.2-2.1"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);

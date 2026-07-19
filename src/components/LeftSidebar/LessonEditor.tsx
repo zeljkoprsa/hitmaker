@@ -27,6 +27,9 @@ interface LessonEditorProps {
    *  lesson is null; saving always creates, never updates. */
   draft?: LessonDraft;
   onSave: () => void;
+  /** Fired with the saved lesson's id (spec #9: distill links the intake
+   *  item to the lesson it became). Not fired on delete. */
+  onSaved?: (lessonId: string) => void;
   onCancel: () => void;
 }
 
@@ -437,7 +440,13 @@ const sanitizeBlock = ({ sectionId, ...block }: EditorBlock): SessionBlock => {
   return block.type === 'break' ? { ...rest, content: undefined } : rest;
 };
 
-const LessonEditor: React.FC<LessonEditorProps> = ({ lesson, draft, onSave, onCancel }) => {
+const LessonEditor: React.FC<LessonEditorProps> = ({
+  lesson,
+  draft,
+  onSave,
+  onSaved,
+  onCancel,
+}) => {
   const { createLesson, updateLesson, deleteLesson } = useLessonsStore();
   const { tempo, timeSignature, subdivision } = useMetronome();
 
@@ -522,8 +531,9 @@ const LessonEditor: React.FC<LessonEditorProps> = ({ lesson, draft, onSave, onCa
     };
     if (lesson) {
       updateLesson(lesson.id, draft);
+      onSaved?.(lesson.id);
     } else {
-      createLesson(draft);
+      onSaved?.(createLesson(draft).id);
     }
     onSave();
   };
